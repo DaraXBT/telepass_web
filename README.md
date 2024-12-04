@@ -41,7 +41,7 @@ TelePass is an advanced event management system that integrates with Telegram's 
 ### Installation
 ```bash
 # Clone repository
-git clone https://github.com/yourusername/telepass.git
+git clone https://github.com/DaraXBT/telepass.git
 
 # Navigate to project directory
 cd telepass
@@ -66,25 +66,8 @@ telegram.bot.token=${BOT_TOKEN}
 telegram.bot.username=${BOT_USERNAME}
 ```
 
-## 📝 Documentation
-
-### Database Schema
-```sql
-CREATE TABLE users (
-    id SERIAL PRIMARY KEY,
-    phone_number VARCHAR(20) NOT NULL UNIQUE,
-    full_name VARCHAR(100) NOT NULL,
-    gender VARCHAR(10),
-    date_of_birth DATE,
-    address TEXT,
-    email VARCHAR(100),
-    occupation VARCHAR(100),
-    registration_token VARCHAR(100) UNIQUE
-);
-```
-
 ### Basic Usage
-1. Start registration with `/register` command
+1. Start registration with `/start` command
 2. Complete registration form
 3. Receive unique QR code
 4. Present QR code at event
@@ -96,9 +79,9 @@ Contributions are welcome. Please read our contributing guidelines before making
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 📞 Contact
-- **Developer:** [Your Name]
-- **Email:** your.email@example.com
-- **Project Link:** https://github.com/yourusername/telepass
+- **Developer:** Sokhen & Dara
+- **Email:** daraa.veasna@example.com
+- **Project Link:** https://github.com/DaraXBT/telepass
 
 ---
 
