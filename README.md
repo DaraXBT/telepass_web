@@ -1,82 +1,107 @@
-# Click2Join
+# 🎫 TelePass
+> Event Management System with Telegram Integration
 
-Click2Join is a streamlined event registration platform integrated with a Telegram bot. This system allows users to register for events easily while providing an admin dashboard for organizers to manage and track registrations.
+TelePass is an advanced event management system that integrates with Telegram's platform to streamline registration and attendance tracking. Through an intuitive Telegram bot interface, participants can register and receive personalized QR codes, while organizers benefit from real-time attendance verification, secure data management, and efficient participant tracking.
 
-## Table of Contents
-- [Features](#features)
-- [Demo](#demo)
-- [Getting Started](#getting-started)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Project Structure](#project-structure)
-- [Technologies](#technologies)
-- [Contributing](#contributing)
-- [License](#license)
+## ✨ Key Features
 
-## Features
+### 🤖 Telegram Bot Integration
+- Automated registration process
+- Real-time data validation
+- Instant QR code delivery
 
-- User-friendly event registration via Telegram bot
-- Admin dashboard for event management and tracking
-- Unique QR code generation for user check-in
-- Payment integration for paid events
-- Event analytics for attendee insights
+### 📊 Event Management
+- Role-based access control (Admin/Registrar)
+- Real-time attendance tracking
+- QR code verification system
 
-## Demo
+### 🔐 Security Features
+- Secure data encryption
+- Unique registration tokens
+- Role-based permissions
 
-*(Add screenshots or GIFs demonstrating the bot interaction, admin dashboard, and QR code verification here)*
+## 🛠️ Technology Stack
 
-## Getting Started
+- **Backend:** Spring Boot 3.x
+- **Database:** PostgreSQL
+- **Integration:** Telegram Bot API
+- **Build Tool:** Gradle
+- **Java Version:** JDK 17
 
-These instructions will help you set up the project on your local machine.
+## 🚀 Getting Started
 
 ### Prerequisites
-
-- [Node.js](https://nodejs.org/)
+```bash
+- Java 17+
+- PostgreSQL 12+
 - Telegram Bot Token
-- Database (e.g., MongoDB, PostgreSQL)
-- (Optional) Payment processor credentials (e.g., Stripe API Key)
+- Gradle 7+
+```
 
-## Installation
+### Installation
+```bash
+# Clone repository
+git clone https://github.com/yourusername/telepass.git
 
-1. **Clone the repository**:
-    ```bash
-    git clone https://github.com/your-username/Click2Join.git
-    cd Click2Join
-    ```
+# Navigate to project directory
+cd telepass
 
-2. **Install dependencies**:
-    ```bash
-    npm install
-    ```
+# Build project
+./gradlew build
 
-3. **Configure environment variables**: Create a `.env.local` file with the following:
-    ```plaintext
-    TELEGRAM_BOT_TOKEN=your_telegram_bot_token
-    DATABASE_URL=your_database_url
-    NEXT_PUBLIC_STRIPE_API_KEY=your_stripe_api_key  # Optional for paid events
-    ```
+# Run application
+./gradlew bootRun
+```
 
-4. **Run the development server**:
-    ```bash
-    npm run dev
-    ```
-   Visit `http://localhost:3000` to see the app.
+### Configuration
+Create `application.properties`:
+```properties
+# Database
+spring.datasource.url=jdbc:postgresql://localhost:5432/tb
+spring.datasource.username=${DB_USERNAME}
+spring.datasource.password=${DB_PASSWORD}
 
-## Usage
+# Telegram Bot
+telegram.bot.token=${BOT_TOKEN}
+telegram.bot.username=${BOT_USERNAME}
+```
 
-- **User Registration**: Users interact with the Telegram bot to view events and register.
-- **Admin Dashboard**: Admins can create, edit, and manage events from the dashboard at `http://localhost:3000/admin`.
-- **QR Code Verification**: Attendees use their QR code to check in on event day.
+## 📝 Documentation
 
-## Project Structure
+### Database Schema
+```sql
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    phone_number VARCHAR(20) NOT NULL UNIQUE,
+    full_name VARCHAR(100) NOT NULL,
+    gender VARCHAR(10),
+    date_of_birth DATE,
+    address TEXT,
+    email VARCHAR(100),
+    occupation VARCHAR(100),
+    registration_token VARCHAR(100) UNIQUE
+);
+```
 
-```plaintext
-Click2Join/
-├── components/       # Reusable components
-├── pages/            # Next.js pages (including bot & admin routes)
-├── public/           # Static files
-├── services/         # API and Telegram bot services
-├── styles/           # Global and component-level styles
-├── .env.local        # Environment variables
-├── README.md
-└── package.json
+### Basic Usage
+1. Start registration with `/register` command
+2. Complete registration form
+3. Receive unique QR code
+4. Present QR code at event
+
+## 🤝 Contributing
+Contributions are welcome. Please read our contributing guidelines before making a pull request.
+
+## 📄 License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 📞 Contact
+- **Developer:** [Your Name]
+- **Email:** your.email@example.com
+- **Project Link:** https://github.com/yourusername/telepass
+
+---
+
+<div align="center">
+  <sub>Built with ❤️ for better event management</sub>
+</div>
