@@ -74,7 +74,7 @@ export function RecentEventsTable() {
                     ? "bg-blue-50 text-blue-700 border-blue-300"
                     : event.status === "ongoing"
                       ? "bg-green-50 text-green-700 border-green-300"
-                      : "bg-gray-50 text-gray-700 border-gray-300"
+                      : "bg-yellow-50 text-yellow-700 border-yellow-300"
                 }>
                 {event.status}
               </Badge>
