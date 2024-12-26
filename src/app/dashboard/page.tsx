@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/sidebar";
 import StatsCards from "@/components/state-card";
 import {EventAnalyticsChart} from "@/components/charts/event-analytics-chart";
-import {StatusDistributionChart} from "@/components/charts/status-distribution-chart";
+import {StatusDistributionChart} from "@/components/charts/event-status-chart";
 import {RecentEventsTable} from "@/components/recent-events-table";
 import {
   Card,
