@@ -7,11 +7,13 @@ import {
   GalleryVerticalEnd,
   Users,
   Settings2,
+  CalendarDays,
   FileText,
+  LayoutDashboard,
 } from "lucide-react";
 
 import {NavMain} from "@/components/nav-main";
-import {NavProjects} from "@/components/nav-projects";
+import {NavProjects} from "@/components/nav-report";
 import {NavUser} from "@/components/nav-user";
 import {TeamSwitcher} from "@/components/team-switcher";
 import {
@@ -38,19 +40,24 @@ const data = {
   ],
   navMain: [
     {
-      title: "Event List",
-      url: "#",
-      icon: Settings2,
+      name: "Dashboard",
+      url: "/dashboard",
+      icon: LayoutDashboard,
+    },
+    {
+      name: "Event List",
+      url: "/events",
+      icon: CalendarDays,
       isActive: true,
     },
     {
-      title: "Audience List",
-      url: "#",
+      name: "Audience List",
+      url: "/audience",
       icon: Users,
     },
     {
-      title: "User List",
-      url: "#",
+      name: "User List",
+      url: "/user",
       icon: Bot,
       // items: [
       //   {
@@ -75,7 +82,7 @@ const data = {
   projects: [
     {
       name: "Report",
-      url: "#",
+      url: "/report",
       icon: FileText,
     },
   ],
@@ -83,8 +90,13 @@ const data = {
 
 const sidebarItems = [
   {
+    title: "Dashboard",
+    url: "/dashboard",
+    icon: Settings2,
+  },
+  {
     title: "Event List",
-    url: "#",
+    url: "/events",
     icon: Calendar,
   },
   {
@@ -107,7 +119,8 @@ export function AppSidebar({...props}: React.ComponentProps<typeof Sidebar>) {
         <TeamSwitcher teams={data.teams} />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavProjects projects={data.navMain} />
+
         <NavProjects projects={data.projects} />
       </SidebarContent>
       <SidebarFooter>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from 'next/navigation';
+import {useRouter} from "next/navigation";
 import {
   BadgeCheck,
   Bell,
@@ -10,7 +10,7 @@ import {
   Sparkles,
 } from "lucide-react";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -36,13 +36,13 @@ export function NavUser({
     avatar: string;
   };
 }) {
-  const { isMobile } = useSidebar();
+  const {isMobile} = useSidebar();
   const router = useRouter();
 
   const handleLogout = () => {
     // Add any logout logic here (clearing tokens, state, etc.)
     // Then redirect to login page
-    router.push('/login');
+    router.push("/");
   };
 
   return (

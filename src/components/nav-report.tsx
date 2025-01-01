@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  Folder,
-  Forward,
-  MoreHorizontal,
-  Trash2,
-  type LucideIcon,
-} from "lucide-react";
+import {type LucideIcon} from "lucide-react";
 
 import {
   SidebarGroup,
