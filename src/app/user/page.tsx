@@ -13,7 +13,7 @@ export default function UsersPage() {
       <div className="p-4">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Users</h1>
+            <h1 className="text-3xl font-bold tracking-tight">Users List</h1>
             <p className="text-muted-foreground">
               Manage system users and permissions
             </p>

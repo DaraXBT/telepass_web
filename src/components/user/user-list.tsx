@@ -1,6 +1,9 @@
 "use client";
 
 import {useState} from "react";
+import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
+import {Input} from "@/components/ui/input";
+import {Button} from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -9,164 +12,163 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {Button} from "@/components/ui/button";
-import {Input} from "@/components/ui/input";
+import {Badge} from "@/components/ui/badge";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {Label} from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {Filter, MoreHorizontal, Search} from "lucide-react";
-import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
+import {MoreHorizontal} from "lucide-react";
 
 interface User {
-  id: string;
+  id: number;
   name: string;
   email: string;
-  role: "admin" | "manager" | "user";
-  status: "active" | "inactive";
-  lastActive: string;
+  role: "super_admin" | "admin" | "event_organizer";
 }
 
-const users: User[] = [
+const initialUsers: User[] = [
   {
-    id: "1",
-    name: "Admin User",
-    email: "admin@telepass.com",
-    role: "admin",
-    status: "active",
-    lastActive: "2024-01-15T10:00:00",
+    id: 1,
+    name: "Super Admin User",
+    email: "superadmin@telepass.com",
+    role: "super_admin",
+  },
+  {id: 2, name: "Admin User", email: "admin@telepass.com", role: "admin"},
+  {
+    id: 3,
+    name: "Event Organizer 1",
+    email: "organizer1@telepass.com",
+    role: "event_organizer",
   },
   {
-    id: "2",
-    name: "Event Manager",
-    email: "manager@telepass.com",
-    role: "manager",
-    status: "active",
-    lastActive: "2024-01-15T09:30:00",
+    id: 4,
+    name: "Event Organizer 2",
+    email: "organizer2@telepass.com",
+    role: "event_organizer",
   },
-  {
-    id: "3",
-    name: "Regular User",
-    email: "user@telepass.com",
-    role: "user",
-    status: "inactive",
-    lastActive: "2024-01-14T15:45:00",
-  },
+  {id: 5, name: "Admin User 2", email: "admin2@telepass.com", role: "admin"},
 ];
 
-function RoleBadge({role}: {role: User["role"]}) {
-  const styles = {
-    admin: "bg-purple-50 text-purple-700 border-purple-100",
-    manager: "bg-blue-50 text-blue-700 border-blue-100",
-    user: "bg-gray-50 text-gray-700 border-gray-100",
-  };
-
-  return (
-    <span
-      className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ring-1 ring-inset ${styles[role]}`}>
-      {role}
-    </span>
-  );
-}
-
-function StatusBadge({status}: {status: User["status"]}) {
-  const styles = {
-    active: "bg-green-50 text-green-700 border-green-100",
-    inactive: "bg-gray-50 text-gray-700 border-gray-100",
-  };
-
-  return (
-    <span
-      className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ring-1 ring-inset ${styles[status]}`}>
-      {status}
-    </span>
-  );
-}
-
 export function UserList() {
-  const [searchQuery, setSearchQuery] = useState("");
+  const [users, setUsers] = useState(initialUsers);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const usersPerPage = 5;
 
   const filteredUsers = users.filter(
     (user) =>
-      user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchQuery.toLowerCase())
+      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.role.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const indexOfLastUser = currentPage * usersPerPage;
+  const indexOfFirstUser = indexOfLastUser - usersPerPage;
+  const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
+
+  const pageCount = Math.ceil(filteredUsers.length / usersPerPage);
+
+  const getRoleBadgeVariant = (role: string) => {
+    switch (role) {
+      case "super_admin":
+        return "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-100";
+      case "admin":
+        return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100";
+      case "event_organizer":
+        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100";
+      default:
+        return "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100";
+    }
+  };
+
+  const handleUpdateUser = (updatedUser: User) => {
+    setUsers(
+      users.map((user) => (user.id === updatedUser.id ? updatedUser : user))
+    );
+    setEditingUser(null);
+  };
+
+  const handleDeleteUser = (id: number) => {
+    setUsers(users.filter((user) => user.id !== id));
+  };
+
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+    <Card>
+      <CardHeader>
+        <CardTitle>Users</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="mb-4">
           <Input
             placeholder="Search users..."
-            className="pl-8"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="gap-2">
-              <Filter className="h-4 w-4" />
-              Filter
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-[200px]">
-            <DropdownMenuItem>All Users</DropdownMenuItem>
-            <DropdownMenuItem>Admins</DropdownMenuItem>
-            <DropdownMenuItem>Managers</DropdownMenuItem>
-            <DropdownMenuItem>Regular Users</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-
-      <div className="rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>User</TableHead>
+              <TableHead>Name</TableHead>
+              <TableHead>Email</TableHead>
               <TableHead>Role</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Last Active</TableHead>
-              <TableHead className="w-[50px]"></TableHead>
+              {/* <TableHead>Last Login</TableHead> */}
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredUsers.map((user) => (
+            {currentUsers.map((user) => (
               <TableRow key={user.id}>
+                <TableCell>{user.name}</TableCell>
+                <TableCell>{user.email}</TableCell>
                 <TableCell>
-                  <div className="flex items-center gap-3">
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage
-                        src={`https://avatar.vercel.sh/${user.name}.png`}
-                      />
-                      <AvatarFallback>
-                        {user.name
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <div className="font-medium">{user.name}</div>
-                      <div className="text-sm text-muted-foreground">
-                        {user.email}
-                      </div>
-                    </div>
-                  </div>
+                  <Badge
+                    className={`px-2 py-0.5 rounded-full text-xs font-medium ${getRoleBadgeVariant(user.role)}`}>
+                    <span
+                      className={`inline-block w-2 h-2 rounded-full mr-1.5 ${
+                        user.role === "super_admin"
+                          ? "bg-purple-500 dark:bg-purple-400"
+                          : user.role === "admin"
+                            ? "bg-blue-500 dark:bg-blue-400"
+                            : "bg-green-500 dark:bg-green-400"
+                      }`}></span>
+                    {user.role
+                      .split("_")
+                      .map(
+                        (word) => word.charAt(0).toUpperCase() + word.slice(1)
+                      )
+                      .join(" ")}
+                  </Badge>
                 </TableCell>
-                <TableCell>
-                  <RoleBadge role={user.role} />
-                </TableCell>
-                <TableCell>
-                  <StatusBadge status={user.status} />
-                </TableCell>
-                <TableCell>
-                  {new Date(user.lastActive).toLocaleString()}
-                </TableCell>
-                <TableCell>
+                {/* <TableCell>{user.lastLogin}</TableCell> */}
+                <TableCell className="text-right">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" className="h-8 w-8 p-0">
@@ -175,11 +177,15 @@ export function UserList() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem>View profile</DropdownMenuItem>
-                      <DropdownMenuItem>Edit user</DropdownMenuItem>
-                      <DropdownMenuItem>Change role</DropdownMenuItem>
-                      <DropdownMenuItem className="text-red-600">
-                        Deactivate user
+                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                      <DropdownMenuItem onClick={() => setEditingUser(user)}>
+                        Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        onClick={() => handleDeleteUser(user.id)}
+                        className="text-red-600">
+                        Delete
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -188,7 +194,114 @@ export function UserList() {
             ))}
           </TableBody>
         </Table>
+        <Pagination className="mt-4">
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              />
+            </PaginationItem>
+            {[...Array(pageCount)].map((_, i) => (
+              <PaginationItem key={i}>
+                <PaginationLink
+                  onClick={() => setCurrentPage(i + 1)}
+                  isActive={currentPage === i + 1}>
+                  {i + 1}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
+            <PaginationItem>
+              <PaginationNext
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(prev + 1, pageCount))
+                }
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      </CardContent>
+      <Dialog
+        open={!!editingUser}
+        onOpenChange={(open) => !open && setEditingUser(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Update User</DialogTitle>
+          </DialogHeader>
+          {editingUser && (
+            <UserForm user={editingUser} onUpdate={handleUpdateUser} />
+          )}
+        </DialogContent>
+      </Dialog>
+    </Card>
+  );
+}
+
+interface UserFormProps {
+  user: User;
+  onUpdate: (user: User) => void;
+}
+
+function UserForm({user, onUpdate}: UserFormProps) {
+  const [formData, setFormData] = useState<User>(user);
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const {name, value} = e.target;
+    setFormData((prev) => ({...prev, [name]: value}));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onUpdate(formData);
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <Label htmlFor="name">Name</Label>
+        <Input
+          id="name"
+          name="name"
+          value={formData.name}
+          onChange={handleChange}
+        />
       </div>
-    </div>
+      <div>
+        <Label htmlFor="email">Email</Label>
+        <Input
+          id="email"
+          name="email"
+          type="email"
+          value={formData.email}
+          onChange={handleChange}
+        />
+      </div>
+      <div>
+        <Label htmlFor="role">Role</Label>
+        <Select
+          name="role"
+          value={formData.role}
+          onValueChange={(value) =>
+            handleChange({target: {name: "role", value}} as any)
+          }>
+          <SelectTrigger>
+            <SelectValue placeholder="Select role" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="super_admin">Super Admin</SelectItem>
+            <SelectItem value="admin">Admin</SelectItem>
+            <SelectItem value="event_organizer">Event Organizer</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      {/* <div>
+        <Label htmlFor="lastLogin">Last Login</Label>
+        <Input id="lastLogin" name="lastLogin" type="date" value={formData.lastLogin} onChange={handleChange} />
+      </div> */}
+      <DialogFooter>
+        <Button type="submit">Update User</Button>
+      </DialogFooter>
+    </form>
   );
 }
