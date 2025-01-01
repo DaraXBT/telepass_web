@@ -19,7 +19,6 @@ export default function UsersPage() {
             </p>
           </div>
         </div>
-
         <UserList />
       </div>
     </>
