@@ -25,6 +25,7 @@ export default function EventListPage() {
           </div>
         </div>
       </div>
+      <EventList />
     </div>
   );
 }

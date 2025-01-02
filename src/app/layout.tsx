@@ -7,6 +7,7 @@ import {ThemeToggler} from "@/components/ThemeToggler";
 import {SidebarInset, SidebarProvider} from "@/components/ui/sidebar";
 import {AppSidebar} from "@/components/app-sidebar";
 import {usePathname} from "next/navigation";
+import {Toaster} from "@/components/ui/toaster";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -41,6 +42,7 @@ export default function RootLayout({
             <SidebarProvider>
               <AppSidebar />
               <SidebarInset>{children}</SidebarInset>
+              <Toaster />
             </SidebarProvider>
           )}
         </ThemeProvider>

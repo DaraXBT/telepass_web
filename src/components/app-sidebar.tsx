@@ -35,7 +35,7 @@ const data = {
     {
       name: "Te\\ePass",
       logo: GalleryVerticalEnd,
-      plan: "Event Managerment",
+      plan: "Event Management",
     },
   ],
   navMain: [
