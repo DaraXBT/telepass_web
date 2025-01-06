@@ -2,8 +2,6 @@
 
 import {useState, useEffect, useMemo} from "react";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
-import {Input} from "@/components/ui/input";
-import {Button} from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -11,33 +9,28 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  TableFooter,
 } from "@/components/ui/table";
+import {Badge} from "@/components/ui/badge";
+import {Input} from "@/components/ui/input";
+import {Button} from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import {Label} from "@/components/ui/label";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {MoreHorizontal, Plus, QrCode, Trash} from "lucide-react";
-import {Badge} from "@/components/ui/badge";
+import {MoreHorizontal, Plus, QrCode} from "lucide-react";
 import {QRCodeSVG} from "qrcode.react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -53,19 +46,20 @@ import {useToast} from "@/hooks/use-toast";
 
 interface AudienceMember {
   id: number;
-  eventName: string;
   name: string;
   email: string;
-  contactNumber: string;
   job: string;
   checkInStatus: "Checked In" | "Not Checked";
   qrCode: string;
 }
 
-export function AudienceList() {
+interface EventAudienceListProps {
+  eventId: number;
+}
+
+export function EventAudienceList({eventId}: EventAudienceListProps) {
   const [audienceMembers, setAudienceMembers] = useState<AudienceMember[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [eventFilter, setEventFilter] = useState<string>("All");
   const [editingMember, setEditingMember] = useState<AudienceMember | null>(
     null
   );
@@ -83,43 +77,35 @@ export function AudienceList() {
         setAudienceMembers([
           {
             id: 1,
-            eventName: "Tech Conference 2024",
             name: "John Doe",
             email: "john@example.com",
-            contactNumber: "+85512345678",
             job: "Software Engineer",
             checkInStatus: "Checked In",
-            qrCode: "TECH2024-001",
+            qrCode: `EVENT-${eventId}-001`,
           },
           {
             id: 2,
-            eventName: "Digital Marketing Summit",
             name: "Jane Smith",
             email: "jane@example.com",
-            contactNumber: "+85523456789",
-            job: "Marketing Manager",
+            job: "Product Manager",
             checkInStatus: "Not Checked",
-            qrCode: "DMS2024-001",
+            qrCode: `EVENT-${eventId}-002`,
           },
           {
             id: 3,
-            eventName: "AI Workshop",
             name: "Bob Johnson",
             email: "bob@example.com",
-            contactNumber: "+85534567890",
             job: "Data Scientist",
             checkInStatus: "Checked In",
-            qrCode: "AIWS2024-001",
+            qrCode: `EVENT-${eventId}-003`,
           },
           {
             id: 4,
-            eventName: "Startup Meetup",
             name: "Alice Brown",
             email: "alice@example.com",
-            contactNumber: "+85545678901",
-            job: "Entrepreneur",
+            job: "UX Designer",
             checkInStatus: "Not Checked",
-            qrCode: "STARTUP2024-001",
+            qrCode: `EVENT-${eventId}-004`,
           },
         ]);
         setIsLoading(false);
@@ -127,23 +113,15 @@ export function AudienceList() {
     };
 
     fetchAudienceMembers();
-  }, []);
-
-  const events = useMemo(() => {
-    const allEvents = audienceMembers.map((member) => member.eventName);
-    return ["All", ...new Set(allEvents)];
-  }, [audienceMembers]);
+  }, [eventId]);
 
   const filteredMembers = useMemo(() => {
     return audienceMembers.filter(
       (member) =>
-        (member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          member.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          member.contactNumber.includes(searchTerm) ||
-          member.eventName.toLowerCase().includes(searchTerm.toLowerCase())) &&
-        (eventFilter === "All" || member.eventName === eventFilter)
+        member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        member.email.toLowerCase().includes(searchTerm.toLowerCase())
     );
-  }, [audienceMembers, searchTerm, eventFilter]);
+  }, [audienceMembers, searchTerm]);
 
   const handleUpdateMember = (updatedMember: AudienceMember) => {
     setAudienceMembers(
@@ -154,13 +132,13 @@ export function AudienceList() {
     setEditingMember(null);
     toast({
       title: "Audience member updated",
-      description: `${updatedMember.name}'s information has been updated for "${updatedMember.eventName}".`,
+      description: `${updatedMember.name}'s information has been updated for this event.`,
     });
   };
 
   const handleAddMember = (newMember: AudienceMember) => {
     const newId = Math.max(...audienceMembers.map((m) => m.id)) + 1;
-    const newQRCode = `${newMember.eventName.replace(/\s+/g, "").toUpperCase()}-${newId.toString().padStart(3, "0")}`;
+    const newQRCode = `EVENT-${eventId}-${newId.toString().padStart(3, "0")}`;
     setAudienceMembers([
       ...audienceMembers,
       {...newMember, id: newId, qrCode: newQRCode},
@@ -168,7 +146,7 @@ export function AudienceList() {
     setIsAddingMember(false);
     toast({
       title: "Audience member added",
-      description: `${newMember.name} has been added to the audience list for "${newMember.eventName}".`,
+      description: `${newMember.name} has been added to the audience list for this event.`,
     });
   };
 
@@ -176,8 +154,8 @@ export function AudienceList() {
     const memberToDelete = audienceMembers.find((member) => member.id === id);
     setAudienceMembers(audienceMembers.filter((member) => member.id !== id));
     toast({
-      title: "Audience member deleted",
-      description: `${memberToDelete?.name} (${memberToDelete?.email}) has been removed from the audience list for "${memberToDelete?.eventName}".`,
+      title: "Audience member removed",
+      description: `${memberToDelete?.name} (${memberToDelete?.email}) has been removed from the audience list for this event.`,
       variant: "destructive",
     });
   };
@@ -202,49 +180,35 @@ export function AudienceList() {
   }, [filteredMembers]);
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div>Loading audience list...</div>;
   }
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Audience Members</CardTitle>
+        <CardTitle>Audience List</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="flex items-center space-x-4 mb-4">
           <div className="flex-grow">
             <Input
-              placeholder="Search..."
+              placeholder="Search audience members..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full"
             />
           </div>
-          <Select value={eventFilter} onValueChange={setEventFilter}>
-            <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="Filter by event" />
-            </SelectTrigger>
-            <SelectContent>
-              {events.map((event) => (
-                <SelectItem key={event} value={event}>
-                  {event}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
           <Button onClick={() => setIsAddingMember(true)}>
-            <Plus className="h-4 w-4 mr-2" /> Add Audience
+            <Plus className="h-4 w-4 mr-2" /> Add Member
           </Button>
         </div>
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Name</TableHead>
-              <TableHead>Event</TableHead>
               <TableHead>Email</TableHead>
-              <TableHead>Contact Number</TableHead>
               <TableHead>Job</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead>Check-in Status</TableHead>
               <TableHead>QR Code</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
@@ -253,9 +217,7 @@ export function AudienceList() {
             {filteredMembers.map((member) => (
               <TableRow key={member.id}>
                 <TableCell>{member.name}</TableCell>
-                <TableCell>{member.eventName}</TableCell>
                 <TableCell>{member.email}</TableCell>
-                <TableCell>{member.contactNumber}</TableCell>
                 <TableCell>{member.job}</TableCell>
                 <TableCell>
                   <Badge
@@ -296,18 +258,15 @@ export function AudienceList() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
                       <DropdownMenuItem
                         onClick={() => setEditingMember(member)}>
                         Edit
                       </DropdownMenuItem>
-                      <DropdownMenuSeparator />
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
                           <DropdownMenuItem
                             onSelect={(e) => e.preventDefault()}
                             className="text-red-600 dark:text-red-400">
-                            <Trash className="mr-2 h-4 w-4" />
                             Delete
                           </DropdownMenuItem>
                         </AlertDialogTrigger>
@@ -318,8 +277,8 @@ export function AudienceList() {
                             </AlertDialogTitle>
                             <AlertDialogDescription>
                               This action cannot be undone. This will
-                              permanently delete the audience member and remove
-                              their data from our servers.
+                              permanently remove the audience member from this
+                              event.
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
@@ -338,14 +297,35 @@ export function AudienceList() {
               </TableRow>
             ))}
           </TableBody>
+          <TableFooter>
+            <TableRow>
+              <TableCell colSpan={6}>
+                <div className="flex justify-end items-center space-x-4 text-sm">
+                  <div className="flex items-center">
+                    <span className="text-muted-foreground mr-2">Total:</span>
+                    <span className="font-medium">{totals.total}</span>
+                  </div>
+                  <div className="flex items-center">
+                    <span className="text-muted-foreground mr-2">
+                      Checked In:
+                    </span>
+                    <span className="font-medium text-green-600 dark:text-green-400">
+                      {totals.checkedIn} ({totals.checkedInPercentage}%)
+                    </span>
+                  </div>
+                  <div className="flex items-center">
+                    <span className="text-muted-foreground mr-2">
+                      Not Checked:
+                    </span>
+                    <span className="font-medium text-yellow-600 dark:text-yellow-400">
+                      {totals.notChecked} ({totals.notCheckedPercentage}%)
+                    </span>
+                  </div>
+                </div>
+              </TableCell>
+            </TableRow>
+          </TableFooter>
         </Table>
-        <div className="mt-4 flex justify-between items-center">
-          <div className="text-sm text-muted-foreground">
-            Total: {totals.total} | Checked In: {totals.checkedIn} (
-            {totals.checkedInPercentage}%) | Not Checked: {totals.notChecked} (
-            {totals.notCheckedPercentage}%)
-          </div>
-        </div>
       </CardContent>
       <Dialog
         open={!!editingMember}
@@ -353,6 +333,9 @@ export function AudienceList() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Update Audience Member</DialogTitle>
+            <DialogDescription>
+              Modify the details of the audience member using the form below.
+            </DialogDescription>
           </DialogHeader>
           {editingMember && (
             <AudienceMemberForm
@@ -367,14 +350,15 @@ export function AudienceList() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Add New Audience Member</DialogTitle>
+            <DialogDescription>
+              Enter the details of the new audience member using the form below.
+            </DialogDescription>
           </DialogHeader>
           <AudienceMemberForm
             member={{
               id: 0,
-              eventName: "",
               name: "",
               email: "",
-              contactNumber: "+855",
               job: "",
               checkInStatus: "Not Checked",
               qrCode: "",
@@ -390,6 +374,10 @@ export function AudienceList() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>QR Code for {showingQRCode?.name}</DialogTitle>
+            <DialogDescription>
+              Scan this QR code to access audience member details or for
+              check-in.
+            </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col items-center justify-center p-4">
             <QRCodeSVG value={showingQRCode?.qrCode || ""} size={200} />
@@ -429,15 +417,6 @@ function AudienceMemberForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <Label htmlFor="eventName">Event Name</Label>
-        <Input
-          id="eventName"
-          name="eventName"
-          value={formData.eventName}
-          onChange={handleChange}
-        />
-      </div>
-      <div>
         <Label htmlFor="name">Name</Label>
         <Input
           id="name"
@@ -457,15 +436,6 @@ function AudienceMemberForm({
         />
       </div>
       <div>
-        <Label htmlFor="contactNumber">Contact Number</Label>
-        <Input
-          id="contactNumber"
-          name="contactNumber"
-          value={formData.contactNumber}
-          onChange={handleChange}
-        />
-      </div>
-      <div>
         <Label htmlFor="job">Job</Label>
         <Input
           id="job"
@@ -476,20 +446,15 @@ function AudienceMemberForm({
       </div>
       <div>
         <Label htmlFor="checkInStatus">Check-in Status</Label>
-        <Select
+        <select
+          id="checkInStatus"
           name="checkInStatus"
           value={formData.checkInStatus}
-          onValueChange={(value) =>
-            handleChange({target: {name: "checkInStatus", value}} as any)
-          }>
-          <SelectTrigger>
-            <SelectValue placeholder="Select status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="Checked In">Checked In</SelectItem>
-            <SelectItem value="Not Checked">Not Checked</SelectItem>
-          </SelectContent>
-        </Select>
+          onChange={handleChange}
+          className="w-full p-2 border rounded">
+          <option value="Checked In">Checked In</option>
+          <option value="Not Checked">Not Checked</option>
+        </select>
       </div>
       <DialogFooter>
         <Button type="button" variant="outline" onClick={onCancel}>

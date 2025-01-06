@@ -1,9 +1,8 @@
 import {Separator} from "@/components/ui/separator";
 
-import StatsCards from "@/components/state-card";
+import StatsCards from "@/components/dashboard/state-card";
 import {EventAnalyticsChart} from "@/components/charts/event-analytics-chart";
 import {StatusDistributionChart} from "@/components/charts/event-status-chart";
-import {RecentEventsTable} from "@/components/events/recent-events";
 import {
   Card,
   CardContent,
@@ -45,17 +44,6 @@ export default function Dashboard() {
             </CardContent>
           </Card>
         </div>
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Events</CardTitle>
-            <CardDescription>
-              Overview of the latest events and their status
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <RecentEventsTable />
-          </CardContent>
-        </Card>
       </div>
       <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min" />
     </div>

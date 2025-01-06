@@ -1,59 +1,16 @@
-import {notFound} from "next/navigation";
-import EventDetails from "@/components/events/event-details";
+import {EventPage} from "@/components/events/event-page";
+import MenuNav from "@/components/nav-menu";
+import {Separator} from "@radix-ui/react-separator";
 
-// This would typically come from a database
-const events = [
-  {
-    id: "1",
-    name: "Tech Conference 2024",
-    date: "2024-06-15",
-    time: "09:00 AM",
-    location: "Convention Center",
-    description:
-      "Join us for the biggest tech conference of the year. Featuring keynote speakers, workshops, and networking opportunities.",
-    attendees: 250,
-    capacity: 300,
-    status: "upcoming" as const,
-  },
-  // ... other events
-];
-
-export default function EventPage({params}: {params: {id: string}}) {
-  const event = events.find((e) => e.id === params.id);
-
-  if (!event) {
-    notFound();
-  }
-
+export default function EventDetailPage() {
   return (
-    <div className="flex flex-1 flex-col gap-4 p-4 pt-6 my-4">
-      <div className="mb-8">
-        <nav className="flex" aria-label="Breadcrumb">
-          <ol className="inline-flex items-center space-x-1 text-sm text-muted-foreground">
-            <li>
-              <a href="/" className="hover:text-foreground">
-                Home
-              </a>
-            </li>
-            <li>
-              <span className="mx-2">/</span>
-            </li>
-            <li>
-              <a href="/events" className="hover:text-foreground">
-                Events
-              </a>
-            </li>
-            <li>
-              <span className="mx-2">/</span>
-            </li>
-            <li>
-              <span className="text-foreground">{event.name}</span>
-            </li>
-          </ol>
-        </nav>
-      </div>
-
-      <EventDetails event={event} />
+    <div className="container mx-auto p-6">
+      <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
+        <MenuNav props="User" />
+      </header>
+      <Separator />
+      <h1 className="text-3xl font-semibold mb-6">Event Details</h1>
+      <EventPage />
     </div>
   );
 }

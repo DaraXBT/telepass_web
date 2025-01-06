@@ -3,7 +3,7 @@
 import {useEffect, useState} from "react";
 import {GalleryVerticalEnd} from "lucide-react";
 import {LoginForm} from "@/components/login-form";
-import { ThemeToggler } from "@/components/ThemeToggler";
+import {ThemeToggler} from "@/components/theme-toggler";
 
 export default function LoginPage() {
   const [isClient, setIsClient] = useState(false);

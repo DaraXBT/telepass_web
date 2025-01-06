@@ -19,6 +19,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import {Label} from "@/components/ui/label";
 import {Textarea} from "@/components/ui/textarea";
@@ -52,75 +53,10 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import {useToast} from "@/hooks/use-toast";
+import {DateTimePicker} from "@/components/ui/date-time-picker";
+import {UserSelectPopup} from "@/components/user/user-select-popup";
 
-interface Event {
-  id: number;
-  name: string;
-  description: string;
-  startDateTime: string;
-  endDateTime: string;
-  location: string;
-  status: "upcoming" | "ongoing" | "finished";
-  category: string;
-  qrCode: string;
-  capacity: number;
-  registeredAttendees: number;
-}
-
-const initialEvents: Event[] = [
-  {
-    id: 1,
-    name: "Tech Conference 2024",
-    description:
-      "Annual technology conference featuring the latest innovations and industry trends.",
-    startDateTime: "2024-06-15T09:00",
-    endDateTime: "2024-06-15T17:00",
-    location: "San Francisco Convention Center, CA",
-    status: "upcoming",
-    category: "Conferences",
-    qrCode: "TECH2024-001",
-    capacity: 1000,
-    registeredAttendees: 750,
-  },
-  {
-    id: 2,
-    name: "Digital Marketing Workshop",
-    description:
-      "Hands-on workshop covering the latest digital marketing strategies and tools.",
-    startDateTime: "2024-06-20T10:00",
-    endDateTime: "2024-06-20T15:00",
-    location: "New York Business Center, NY",
-    status: "ongoing",
-    category: "Workshops",
-    qrCode: "DMW2024-002",
-    capacity: 100,
-    registeredAttendees: 85,
-  },
-  {
-    id: 3,
-    name: "Startup Networking Event",
-    description:
-      "Connect with fellow entrepreneurs and investors in this dynamic networking session.",
-    startDateTime: "2024-06-25T18:00",
-    endDateTime: "2024-06-25T21:00",
-    location: "Austin Startup Hub, TX",
-    status: "upcoming",
-    category: "Networking",
-    qrCode: "SNE2024-003",
-    capacity: 200,
-    registeredAttendees: 150,
-  },
-];
-
-const categories = [
-  "Conferences",
-  "Workshops",
-  "Seminars",
-  "Networking",
-  "Other",
-];
-
-export function EventList() {
+export const EventList: React.FC = () => {
   const [events, setEvents] = useState<Event[]>(initialEvents);
   const [searchTerm, setSearchTerm] = useState("");
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
@@ -128,6 +64,7 @@ export function EventList() {
   const [showingQRCode, setShowingQRCode] = useState<Event | null>(null);
   const [sortBy, setSortBy] = useState<keyof Event>("startDateTime");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [isEventFormOpen, setIsEventFormOpen] = useState(false); // Added state for dialog
   const {toast} = useToast();
 
   const filteredEvents = events
@@ -169,9 +106,10 @@ export function EventList() {
       )
     );
     setEditingEvent(null);
+    setIsEventFormOpen(false); // Close dialog after update
     toast({
       title: "Event updated",
-      description: `${updatedEvent.name} has been successfully updated.`,
+      description: `"${updatedEvent.name}" has been successfully updated.`,
     });
   };
 
@@ -179,9 +117,10 @@ export function EventList() {
     const newId = Math.max(...events.map((e) => e.id)) + 1;
     const newQRCode = `${newEvent.name.replace(/\s+/g, "").toUpperCase().slice(0, 3)}${new Date().getFullYear()}-${newId.toString().padStart(3, "0")}`;
     setEvents([...events, {...newEvent, id: newId, qrCode: newQRCode}]);
+    setIsEventFormOpen(false); // Close dialog after adding
     toast({
       title: "Event added",
-      description: `${newEvent.name} has been successfully added.`,
+      description: `"${newEvent.name}" has been successfully added to the event list.`,
     });
   };
 
@@ -190,7 +129,7 @@ export function EventList() {
     setEvents(events.filter((event) => event.id !== id));
     toast({
       title: "Event deleted",
-      description: `${eventToDelete?.name} has been removed.`,
+      description: `"${eventToDelete?.name}" has been removed from the event list.`,
       variant: "destructive",
     });
   };
@@ -229,21 +168,23 @@ export function EventList() {
             </SelectContent>
           </Select>
           <Button
-            onClick={() =>
+            onClick={() => {
               setEditingEvent({
                 id: 0,
                 name: "",
                 description: "",
-                startDateTime: "",
-                endDateTime: "",
+                startDateTime: new Date(),
+                endDateTime: new Date(),
                 location: "",
                 status: "upcoming",
                 category: "",
                 qrCode: "",
                 capacity: 0,
                 registeredAttendees: 0,
-              })
-            }>
+                organizers: [],
+              });
+              setIsEventFormOpen(true);
+            }}>
             <Plus className="h-4 w-4 mr-2" /> Add Event
           </Button>
         </div>
@@ -258,6 +199,9 @@ export function EventList() {
                 </TableHead>
                 <TableHead className="w-[20%] min-w-[150px]">
                   Capacity
+                </TableHead>
+                <TableHead className="w-[15%] min-w-[100px]">
+                  Organizers
                 </TableHead>
                 <TableHead className="w-[15%] min-w-[100px]">QR Code</TableHead>
                 <TableHead className="w-[5%] min-w-[50px] text-right">
@@ -326,6 +270,9 @@ export function EventList() {
                     </div>
                   </TableCell>
                   <TableCell>
+                    {event.organizers.map((org) => org.name).join(", ")}
+                  </TableCell>
+                  <TableCell>
                     <Button
                       variant="outline"
                       size="sm"
@@ -345,7 +292,10 @@ export function EventList() {
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuItem
-                          onClick={() => setEditingEvent(event)}>
+                          onClick={() => {
+                            setEditingEvent(event);
+                            setIsEventFormOpen(true);
+                          }}>
                           Edit
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
@@ -410,14 +360,19 @@ export function EventList() {
           </div>
         </div>
       </CardContent>
-      <Dialog
-        open={!!editingEvent}
-        onOpenChange={(open) => !open && setEditingEvent(null)}>
-        <DialogContent>
+      <Dialog open={isEventFormOpen} onOpenChange={setIsEventFormOpen}>
+        {" "}
+        {/* Updated Dialog */}
+        <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
             <DialogTitle>
               {editingEvent?.id === 0 ? "Add New Event" : "Update Event"}
             </DialogTitle>
+            <DialogDescription>
+              {editingEvent?.id === 0
+                ? "Create a new event by filling out the form below."
+                : "Update the event details using the form below."}
+            </DialogDescription>
           </DialogHeader>
           {editingEvent && (
             <EventForm
@@ -425,6 +380,7 @@ export function EventList() {
               onSubmit={
                 editingEvent.id === 0 ? handleAddEvent : handleUpdateEvent
               }
+              onCancel={() => setIsEventFormOpen(false)}
             />
           )}
         </DialogContent>
@@ -435,6 +391,9 @@ export function EventList() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>QR Code for {showingQRCode?.name}</DialogTitle>
+            <DialogDescription>
+              Scan this QR code to access event details or check-in.
+            </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col items-center justify-center p-4">
             <QRCodeSVG value={showingQRCode?.qrCode || ""} size={200} />
@@ -444,17 +403,23 @@ export function EventList() {
       </Dialog>
     </Card>
   );
-}
+};
 
 interface EventFormProps {
   event: Event;
   onSubmit: (event: Event) => void;
+  onCancel: () => void; // Added onCancel prop
 }
 
-function EventForm({event, onSubmit}: EventFormProps) {
+function EventForm({event, onSubmit, onCancel}: EventFormProps) {
+  // Added onCancel to props
+  const [step, setStep] = useState(1);
   const [formData, setFormData] = useState<Event>(event);
   const [errors, setErrors] = useState<Partial<Record<keyof Event, string>>>(
     {}
+  );
+  const [selectedOrganizers, setSelectedOrganizers] = useState<User[]>(
+    event.organizers || []
   );
 
   const handleChange = (
@@ -464,181 +429,345 @@ function EventForm({event, onSubmit}: EventFormProps) {
   ) => {
     const {name, value} = e.target;
     setFormData((prev) => ({...prev, [name]: value}));
-    // Clear the error when the user starts typing
     setErrors((prev) => ({...prev, [name]: ""}));
   };
 
-  const validateForm = (): boolean => {
-    const newErrors: Partial<Record<keyof Event, string>> = {};
-    if (!formData.name) newErrors.name = "Name is required";
-    if (!formData.description)
-      newErrors.description = "Description is required";
-    if (!formData.startDateTime)
-      newErrors.startDateTime = "Start date and time is required";
-    if (!formData.endDateTime)
-      newErrors.endDateTime = "End date and time is required";
-    if (new Date(formData.endDateTime) <= new Date(formData.startDateTime)) {
-      newErrors.endDateTime = "End date must be after start date";
+  const handleDateChange = (
+    date: Date | null,
+    field: "startDateTime" | "endDateTime"
+  ) => {
+    if (date) {
+      setFormData((prev) => ({...prev, [field]: date}));
+      setErrors((prev) => ({...prev, [field]: ""}));
     }
-    if (!formData.location) newErrors.location = "Location is required";
-    if (!formData.category) newErrors.category = "Category is required";
-    if (formData.capacity <= 0)
-      newErrors.capacity = "Capacity must be greater than 0";
-    if (formData.registeredAttendees < 0)
-      newErrors.registeredAttendees = "Registered attendees cannot be negative";
-    if (formData.registeredAttendees > formData.capacity)
-      newErrors.registeredAttendees =
-        "Registered attendees cannot exceed capacity";
+  };
 
+  const validateStep = (currentStep: number): boolean => {
+    const newErrors: Partial<Record<keyof Event, string>> = {};
+    switch (currentStep) {
+      case 1:
+        if (!formData.name) newErrors.name = "Name is required";
+        if (!formData.startDateTime)
+          newErrors.startDateTime = "Start date and time is required";
+        if (!formData.endDateTime)
+          newErrors.endDateTime = "End date and time is required";
+        if (formData.endDateTime <= formData.startDateTime) {
+          newErrors.endDateTime = "End date must be after start date";
+        }
+        break;
+      case 2:
+        if (!formData.description)
+          newErrors.description = "Description is required";
+        if (!formData.location) newErrors.location = "Location is required";
+        if (!formData.category) newErrors.category = "Category is required";
+        break;
+      case 3:
+        if (!formData.capacity) newErrors.capacity = "Capacity is required";
+        if (formData.capacity <= 0)
+          newErrors.capacity = "Capacity must be greater than 0";
+        if (!formData.registeredAttendees)
+          newErrors.registeredAttendees = "Registered Attendees is required";
+        if (formData.registeredAttendees < 0)
+          newErrors.registeredAttendees =
+            "Registered attendees cannot be negative";
+        if (formData.registeredAttendees > formData.capacity)
+          newErrors.registeredAttendees =
+            "Registered attendees cannot exceed capacity";
+        if (selectedOrganizers.length === 0)
+          newErrors.organizers = "At least one user must be selected";
+        break;
+    }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
+  const handleNext = () => {
+    if (validateStep(step)) {
+      setStep((prev) => prev + 1);
+    }
+  };
+
+  const handleBack = () => {
+    setStep((prev) => prev - 1);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (validateForm()) {
-      onSubmit(formData);
+    if (validateStep(3)) {
+      onSubmit({...formData, organizers: selectedOrganizers});
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <Label htmlFor="name">Event Name</Label>
-        <Input
-          id="name"
-          name="name"
-          value={formData.name}
-          onChange={handleChange}
-        />
-        {errors.name && (
-          <p className="text-red-500 text-sm mt-1">{errors.name}</p>
-        )}
-      </div>
-      <div>
-        <Label htmlFor="description">Description</Label>
-        <Textarea
-          id="description"
-          name="description"
-          value={formData.description}
-          onChange={handleChange}
-        />
-        {errors.description && (
-          <p className="text-red-500 text-sm mt-1">{errors.description}</p>
-        )}
-      </div>
-      <div>
-        <Label htmlFor="startDateTime">Start Date and Time</Label>
-        <Input
-          id="startDateTime"
-          name="startDateTime"
-          type="datetime-local"
-          value={formData.startDateTime}
-          onChange={handleChange}
-        />
-        {errors.startDateTime && (
-          <p className="text-red-500 text-sm mt-1">{errors.startDateTime}</p>
-        )}
-      </div>
-      <div>
-        <Label htmlFor="endDateTime">End Date and Time</Label>
-        <Input
-          id="endDateTime"
-          name="endDateTime"
-          type="datetime-local"
-          value={formData.endDateTime}
-          onChange={handleChange}
-        />
-        {errors.endDateTime && (
-          <p className="text-red-500 text-sm mt-1">{errors.endDateTime}</p>
-        )}
-      </div>
-      <div>
-        <Label htmlFor="location">Location</Label>
-        <Input
-          id="location"
-          name="location"
-          value={formData.location}
-          onChange={handleChange}
-        />
-        {errors.location && (
-          <p className="text-red-500 text-sm mt-1">{errors.location}</p>
-        )}
-      </div>
-      <div>
-        <Label htmlFor="status">Status</Label>
-        <Select
-          name="status"
-          value={formData.status}
-          onValueChange={(value) =>
-            handleChange({target: {name: "status", value}} as any)
-          }>
-          <SelectTrigger>
-            <SelectValue placeholder="Select status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="upcoming">Upcoming</SelectItem>
-            <SelectItem value="ongoing">Ongoing</SelectItem>
-            <SelectItem value="finished">Finished</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-      <div>
-        <Label htmlFor="category">Category</Label>
-        <Select
-          name="category"
-          value={formData.category}
-          onValueChange={(value) =>
-            handleChange({target: {name: "category", value}} as any)
-          }>
-          <SelectTrigger>
-            <SelectValue placeholder="Select category" />
-          </SelectTrigger>
-          <SelectContent>
-            {categories.map((category) => (
-              <SelectItem key={category} value={category}>
-                {category}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        {errors.category && (
-          <p className="text-red-500 text-sm mt-1">{errors.category}</p>
-        )}
-      </div>
-      <div>
-        <Label htmlFor="capacity">Capacity</Label>
-        <Input
-          id="capacity"
-          name="capacity"
-          type="number"
-          value={formData.capacity}
-          onChange={handleChange}
-        />
-        {errors.capacity && (
-          <p className="text-red-500 text-sm mt-1">{errors.capacity}</p>
-        )}
-      </div>
-      <div>
-        <Label htmlFor="registeredAttendees">Registered Attendees</Label>
-        <Input
-          id="registeredAttendees"
-          name="registeredAttendees"
-          type="number"
-          value={formData.registeredAttendees}
-          onChange={handleChange}
-        />
-        {errors.registeredAttendees && (
-          <p className="text-red-500 text-sm mt-1">
-            {errors.registeredAttendees}
-          </p>
-        )}
-      </div>
+      {step === 1 && (
+        <>
+          <div>
+            <Label htmlFor="name">Event Name</Label>
+            <Input
+              id="name"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              className="w-full"
+            />
+            {errors.name && (
+              <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+            )}
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="startDateTime">Start Date and Time</Label>
+              <DateTimePicker
+                value={formData.startDateTime}
+                onChange={(date) => handleDateChange(date, "startDateTime")}
+              />
+              {errors.startDateTime && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.startDateTime}
+                </p>
+              )}
+            </div>
+            <div>
+              <Label htmlFor="endDateTime">End Date and Time</Label>
+              <DateTimePicker
+                value={formData.endDateTime}
+                onChange={(date) => handleDateChange(date, "endDateTime")}
+              />
+              {errors.endDateTime && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.endDateTime}
+                </p>
+              )}
+            </div>
+          </div>
+        </>
+      )}
+
+      {step === 2 && (
+        <>
+          <div>
+            <Label htmlFor="description">Description</Label>
+            <Textarea
+              id="description"
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              className="w-full"
+              rows={3}
+            />
+            {errors.description && (
+              <p className="text-red-500 text-sm mt-1">{errors.description}</p>
+            )}
+          </div>
+          <div>
+            <Label htmlFor="location">Location</Label>
+            <Input
+              id="location"
+              name="location"
+              value={formData.location}
+              onChange={handleChange}
+              className="w-full"
+            />
+            {errors.location && (
+              <p className="text-red-500 text-sm mt-1">{errors.location}</p>
+            )}
+          </div>
+          <div>
+            <Label htmlFor="category">Category</Label>
+            <Select
+              name="category"
+              value={formData.category}
+              onValueChange={(value) =>
+                handleChange({target: {name: "category", value}} as any)
+              }>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select category" />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map((category) => (
+                  <SelectItem key={category} value={category}>
+                    {category}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {errors.category && (
+              <p className="text-red-500 text-sm mt-1">{errors.category}</p>
+            )}
+          </div>
+        </>
+      )}
+
+      {step === 3 && (
+        <>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="capacity">Capacity</Label>
+              <Input
+                id="capacity"
+                name="capacity"
+                type="number"
+                value={formData.capacity}
+                onChange={handleChange}
+                className="w-full"
+              />
+              {errors.capacity && (
+                <p className="text-red-500 text-sm mt-1">{errors.capacity}</p>
+              )}
+            </div>
+            <div>
+              <Label htmlFor="registeredAttendees">Registered Attendees</Label>
+              <Input
+                id="registeredAttendees"
+                name="registeredAttendees"
+                type="number"
+                value={formData.registeredAttendees}
+                onChange={handleChange}
+                className="w-full"
+              />
+              {errors.registeredAttendees && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.registeredAttendees}
+                </p>
+              )}
+            </div>
+          </div>
+          <div className="w-full">
+            <Label htmlFor="organizers">Users</Label>
+            <p className="text-sm text-muted-foreground mb-2">
+              Select users for this event
+            </p>
+            <UserSelectPopup
+              selectedUsers={selectedOrganizers}
+              onSelectUsers={(users) => {
+                setSelectedOrganizers(users);
+                setFormData((prev) => ({...prev, organizers: users}));
+                setErrors((prev) => ({...prev, organizers: ""}));
+              }}
+            />
+            {errors.organizers && (
+              <p className="text-red-500 text-sm mt-1">{errors.organizers}</p>
+            )}
+          </div>
+        </>
+      )}
+
       <DialogFooter>
-        <Button type="submit">
-          {event.id === 0 ? "Add Event" : "Update Event"}
+        {step > 1 && (
+          <Button type="button" variant="outline" onClick={handleBack}>
+            Back
+          </Button>
+        )}
+        <Button type="button" variant="outline" onClick={onCancel}>
+          {" "}
+          {/* Added Cancel button */}
+          Cancel
+        </Button>
+        <Button type="button" onClick={step < 3 ? handleNext : handleSubmit}>
+          {step < 3 ? "Next" : event.id === 0 ? "Add Event" : "Update Event"}
         </Button>
       </DialogFooter>
     </form>
   );
 }
+
+interface Event {
+  id: number;
+  name: string;
+  description: string;
+  startDateTime: Date;
+  endDateTime: Date;
+  location: string;
+  status: "upcoming" | "ongoing" | "finished";
+  category: string;
+  qrCode: string;
+  capacity: number;
+  registeredAttendees: number;
+  organizers: User[];
+}
+
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: "admin" | "event_organizer";
+}
+
+const initialEvents: Event[] = [
+  {
+    id: 1,
+    name: "Tech Conference 2024",
+    description:
+      "Annual technology conference featuring the latest innovations and industry trends.",
+    startDateTime: new Date("2024-06-15T09:00"),
+    endDateTime: new Date("2024-06-15T17:00"),
+    location: "San Francisco Convention Center, CA",
+    status: "upcoming",
+    category: "Conferences",
+    qrCode: "TECH2024-001",
+    capacity: 1000,
+    registeredAttendees: 750,
+    organizers: [
+      {
+        id: "1",
+        name: "John Doe",
+        email: "john@example.com",
+        role: "event_organizer",
+      },
+      {id: "2", name: "Jane Smith", email: "jane@example.com", role: "admin"},
+    ],
+  },
+  {
+    id: 2,
+    name: "Digital Marketing Workshop",
+    description:
+      "Hands-on workshop covering the latest digital marketing strategies and tools.",
+    startDateTime: new Date("2024-06-20T10:00"),
+    endDateTime: new Date("2024-06-20T15:00"),
+    location: "New York Business Center, NY",
+    status: "ongoing",
+    category: "Workshops",
+    qrCode: "DMW2024-002",
+    capacity: 100,
+    registeredAttendees: 85,
+    organizers: [
+      {
+        id: "3",
+        name: "Alice Johnson",
+        email: "alice@example.com",
+        role: "event_organizer",
+      },
+    ],
+  },
+  {
+    id: 3,
+    name: "Startup Networking Event",
+    description:
+      "Connect with fellow entrepreneurs and investors in this dynamic networking session.",
+    startDateTime: new Date("2024-06-25T18:00"),
+    endDateTime: new Date("2024-06-25T21:00"),
+    location: "Austin Startup Hub, TX",
+    status: "upcoming",
+    category: "Networking",
+    qrCode: "SNE2024-003",
+    capacity: 200,
+    registeredAttendees: 150,
+    organizers: [
+      {
+        id: "4",
+        name: "Bob Brown",
+        email: "bob@example.com",
+        role: "event_organizer",
+      },
+    ],
+  },
+];
+
+const categories = [
+  "Conferences",
+  "Workshops",
+  "Seminars",
+  "Networking",
+  "Other",
+];

@@ -4,7 +4,7 @@ import React from "react";
 import {useRouter} from "next/navigation";
 import {SidebarTrigger} from "./ui/sidebar";
 import {Separator} from "@/components/ui/separator";
-import {ThemeToggler} from "@/components/ThemeToggler";
+import {ThemeToggler} from "@/components/theme-toggler";
 import {
   Breadcrumb,
   BreadcrumbItem,
