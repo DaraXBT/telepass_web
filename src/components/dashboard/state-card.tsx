@@ -67,7 +67,7 @@ export default function StatsCards() {
       <StatsCard title="Total Events" value="42" icon={Calendar} />
       <StatsCard title="Ongoing Events" value="7" icon={Clock} />
       <StatsCard title="Finished Events" value="35" icon={CheckCircle} />
-      <StatsCard title="Total Users" value="1,234" icon={Users} />
+      <StatsCard title="Total Users" value="6" icon={Users} />
     </div>
   );
 }
