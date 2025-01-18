@@ -40,8 +40,6 @@ interface Event {
   location: string;
   description: string;
   capacity: number;
-  organizer: string;
-  ticketPrice: number;
 }
 
 interface Registration {
@@ -85,9 +83,7 @@ export function EventReport({events, registrations}: EventReportProps) {
       <h1>${selectedEventDetails.name} - Registrations Report</h1>
       <p>Date: ${selectedEventDetails.date}</p>
       <p>Location: ${selectedEventDetails.location}</p>
-      <p>Organizer: ${selectedEventDetails.organizer}</p>
       <p>Capacity: ${selectedEventDetails.capacity}</p>
-      <p>Ticket Price: $${selectedEventDetails.ticketPrice.toFixed(2)}</p>
       <p>Total Registrations: ${filteredRegistrations.length}</p>
       <table border="1" cellpadding="5" cellspacing="0">
         <thead>
@@ -211,21 +207,11 @@ export function EventReport({events, registrations}: EventReportProps) {
                   <MapPinIcon className="h-4 w-4 text-muted-foreground" />
                   <span>{selectedEventDetails.location}</span>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <UsersIcon className="h-4 w-4 text-muted-foreground" />
-                  <span>Capacity: {selectedEventDetails.capacity}</span>
-                </div>
               </div>
               <div className="space-y-2">
                 <div className="flex items-center space-x-2">
-                  <UserIcon className="h-4 w-4 text-muted-foreground" />
-                  <span>Organizer: {selectedEventDetails.organizer}</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <DollarSignIcon className="h-4 w-4 text-muted-foreground" />
-                  <span>
-                    Ticket Price: ${selectedEventDetails.ticketPrice.toFixed(2)}
-                  </span>
+                  <UsersIcon className="h-4 w-4 text-muted-foreground" />
+                  <span>Capacity: {selectedEventDetails.capacity}</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <CheckCircleIcon className="h-4 w-4 text-muted-foreground" />
