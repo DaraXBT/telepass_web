@@ -52,53 +52,64 @@ import {
 import {useToast} from "@/hooks/use-toast";
 
 interface User {
-  id: number;
+  id: string;
   name: string;
   email: string;
-  role: "admin" | "event_organizer";
+  role: string;
+  status: "active" | "inactive";
 }
 
 const initialUsers: User[] = [
-  {id: 1, name: "Admin User", email: "admin@example.com", role: "admin"},
   {
-    id: 2,
-    name: "Event Organizer 1",
-    email: "organizer1@example.com",
-    role: "event_organizer",
+    id: "1",
+    name: "John Doe",
+    email: "john@example.com",
+    role: "Admin",
+    status: "active",
   },
   {
-    id: 3,
-    name: "Event Organizer 2",
-    email: "organizer2@example.com",
-    role: "event_organizer",
+    id: "2",
+    name: "Jane Smith",
+    email: "jane@example.com",
+    role: "Event Organizer",
+    status: "active",
   },
-  {id: 4, name: "Admin User 2", email: "admin2@example.com", role: "admin"},
+  {
+    id: "3",
+    name: "Bob Johnson",
+    email: "bob@example.com",
+    role: "Event Organizer",
+    status: "inactive",
+  },
+  {
+    id: "4",
+    name: "Alice Brown",
+    email: "alice@example.com",
+    role: "Admin",
+    status: "active",
+  },
+  {
+    id: "5",
+    name: "Charlie Davis",
+    email: "charlie@example.com",
+    role: "Event Organizer",
+    status: "inactive",
+  },
 ];
 
 export function UserList() {
   const [users, setUsers] = useState(initialUsers);
   const [searchTerm, setSearchTerm] = useState("");
   const [editingUser, setEditingUser] = useState<User | null>(null);
-  const [isAddingUser, setIsAddingUser] = useState(false);
   const {toast} = useToast();
 
   const filteredUsers = users.filter(
     (user) =>
       user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.role.toLowerCase().includes(searchTerm.toLowerCase())
+      user.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.status.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  const getRoleBadgeVariant = (role: string) => {
-    switch (role) {
-      case "admin":
-        return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100";
-      case "event_organizer":
-        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100";
-      default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100";
-    }
-  };
 
   const handleUpdateUser = (updatedUser: User) => {
     setUsers(
@@ -115,7 +126,7 @@ export function UserList() {
     });
   };
 
-  const handleDeleteUser = (id: number) => {
+  const handleDeleteUser = (id: string) => {
     const userToDelete = users.find((user) => user.id === id);
     setUsers(users.filter((user) => user.id !== id));
     toast({
@@ -128,16 +139,14 @@ export function UserList() {
     });
   };
 
-  const handleAddUser = (newUser: User) => {
-    const newId = Math.max(...users.map((u) => u.id)) + 1;
-    setUsers([...users, {...newUser, id: newId}]);
-    setIsAddingUser(false);
+  const handleAddUser = (newUser: Omit<User, "id">) => {
+    const id = (Math.max(...users.map((u) => parseInt(u.id))) + 1).toString();
+    const user = {...newUser, id};
+    setUsers([...users, user]);
+    setEditingUser(null);
     toast({
       title: "User added successfully",
-      description: `${newUser.name} has been added to the user list. Role: ${newUser.role
-        .split("_")
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(" ")}`,
+      description: `${user.name} has been added as ${user.role}.`,
       variant: "default",
     });
   };
@@ -148,23 +157,34 @@ export function UserList() {
         <CardTitle>Users</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex-1 mr-4">
-            <Input
-              placeholder="Search users..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-          <Button onClick={() => setIsAddingUser(true)}>Add User</Button>
+        <div className="flex justify-between items-center mb-4 gap-4">
+          <Input
+            placeholder="Search users..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="flex-grow"
+          />
+          <Button
+            onClick={() =>
+              setEditingUser({
+                id: "",
+                name: "",
+                email: "",
+                role: "Event Organizer",
+                status: "active",
+              })
+            }>
+            Add User
+          </Button>
         </div>
-        <div className="overflow-auto max-h-[400px]">
+        <div className="overflow-auto max-h-[600px]">
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Name</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Role</TableHead>
+                <TableHead>Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -175,21 +195,24 @@ export function UserList() {
                     <span className="block truncate">{user.name}</span>
                   </TableCell>
                   <TableCell className="min-w-[200px]">{user.email}</TableCell>
+                  <TableCell>{user.role}</TableCell>
                   <TableCell>
                     <Badge
-                      className={`px-2 py-0.5 rounded-full text-xs font-medium inline-flex items-center justify-center whitespace-nowrap ${getRoleBadgeVariant(user.role)}`}>
+                      variant={
+                        user.status === "active" ? "default" : "secondary"
+                      }
+                      className={`px-2 py-0.5 rounded-full text-xs font-medium inline-flex items-center justify-center w-24 ${
+                        user.status === "active"
+                          ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100"
+                          : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100"
+                      }`}>
                       <span
                         className={`inline-block w-2 h-2 rounded-full mr-1.5 ${
-                          user.role === "admin"
-                            ? "bg-blue-500 dark:bg-blue-400"
-                            : "bg-green-500 dark:bg-green-400"
+                          user.status === "active"
+                            ? "bg-green-500 dark:bg-green-400"
+                            : "bg-red-500 dark:bg-red-400"
                         }`}></span>
-                      {user.role
-                        .split("_")
-                        .map(
-                          (word) => word.charAt(0).toUpperCase() + word.slice(1)
-                        )
-                        .join(" ")}
+                      {user.status === "active" ? "Active" : "Inactive"}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
@@ -250,33 +273,22 @@ export function UserList() {
         onOpenChange={(open) => !open && setEditingUser(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Update User</DialogTitle>
+            <DialogTitle>
+              {editingUser?.id ? "Update User" : "Add User"}
+            </DialogTitle>
             <DialogDescription>
-              Modify the user's information using the form below.
+              {editingUser?.id
+                ? "Modify the user's information using the form below."
+                : "Add a new user to the system."}
             </DialogDescription>
           </DialogHeader>
           {editingUser && (
             <UserForm
               user={editingUser}
-              onSubmit={handleUpdateUser}
-              onCancel={() => setEditingUser(null)}
+              onSubmit={editingUser.id ? handleUpdateUser : handleAddUser}
+              submitLabel={editingUser.id ? "Update User" : "Add User"}
             />
           )}
-        </DialogContent>
-      </Dialog>
-      <Dialog open={isAddingUser} onOpenChange={setIsAddingUser}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Add New User</DialogTitle>
-            <DialogDescription>
-              Enter the details of the new user below.
-            </DialogDescription>
-          </DialogHeader>
-          <UserForm
-            user={{id: 0, name: "", email: "", role: "event_organizer"}}
-            onSubmit={handleAddUser}
-            onCancel={() => setIsAddingUser(false)}
-          />
         </DialogContent>
       </Dialog>
     </Card>
@@ -286,13 +298,15 @@ export function UserList() {
 interface UserFormProps {
   user: User;
   onSubmit: (user: User) => void;
-  onCancel: () => void;
+  submitLabel: string;
 }
 
-function UserForm({user, onSubmit, onCancel}: UserFormProps) {
+function UserForm({user, onSubmit, submitLabel}: UserFormProps) {
   const [formData, setFormData] = useState<User>(user);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const {name, value} = e.target;
     setFormData((prev) => ({...prev, [name]: value}));
   };
@@ -311,7 +325,6 @@ function UserForm({user, onSubmit, onCancel}: UserFormProps) {
           name="name"
           value={formData.name}
           onChange={handleChange}
-          required
         />
       </div>
       <div>
@@ -322,7 +335,6 @@ function UserForm({user, onSubmit, onCancel}: UserFormProps) {
           type="email"
           value={formData.email}
           onChange={handleChange}
-          required
         />
       </div>
       <div>
@@ -331,27 +343,36 @@ function UserForm({user, onSubmit, onCancel}: UserFormProps) {
           name="role"
           value={formData.role}
           onValueChange={(value) =>
-            setFormData((prev) => ({
-              ...prev,
-              role: value as "admin" | "event_organizer",
-            }))
+            handleChange({target: {name: "role", value}} as any)
           }>
           <SelectTrigger>
             <SelectValue placeholder="Select role" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="admin">Admin</SelectItem>
-            <SelectItem value="event_organizer">Event Organizer</SelectItem>
+            <SelectItem value="Admin">Admin</SelectItem>
+            <SelectItem value="Event Organizer">Event Organizer</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      <div>
+        <Label htmlFor="status">Status</Label>
+        <Select
+          name="status"
+          value={formData.status}
+          onValueChange={(value) =>
+            handleChange({target: {name: "status", value}} as any)
+          }>
+          <SelectTrigger>
+            <SelectValue placeholder="Select status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="active">Active</SelectItem>
+            <SelectItem value="inactive">Inactive</SelectItem>
           </SelectContent>
         </Select>
       </div>
       <DialogFooter>
-        <Button type="button" variant="outline" onClick={onCancel}>
-          Cancel
-        </Button>
-        <Button type="submit">
-          {user.id === 0 ? "Add User" : "Update User"}
-        </Button>
+        <Button type="submit">{submitLabel}</Button>
       </DialogFooter>
     </form>
   );
