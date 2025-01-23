@@ -1,43 +1,5 @@
 "use client";
 
-import {useState, useEffect, useMemo} from "react";
-import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
-import {Input} from "@/components/ui/input";
-import {Button} from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import {Label} from "@/components/ui/label";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {MoreHorizontal, Plus, QrCode, Trash} from "lucide-react";
-import {Badge} from "@/components/ui/badge";
-import {QRCodeSVG} from "qrcode.react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -49,157 +11,152 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {Badge} from "@/components/ui/badge";
+import {Button} from "@/components/ui/button";
+import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {Input} from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {useToast} from "@/hooks/use-toast";
+import axios from "axios";
+import {MoreHorizontal, Plus, QrCode, Trash} from "lucide-react";
+import {useEffect, useMemo, useState} from "react";
 
-interface AudienceMember {
-  id: number;
-  eventName: string;
-  name: string;
+interface ApiResponse {
+  message: string;
+  payload: User[];
+  status: string | null;
+  date: string;
+}
+
+interface User {
+  id: string;
+  fullName: string;
+  phoneNumber: string;
+  gender: "MALE" | "FEMALE" | "OTHER";
+  dateOfBirth: string;
+  address: string;
   email: string;
-  contactNumber: string;
-  job: string;
-  checkInStatus: "Checked In" | "Not Checked";
-  qrCode: string;
+  occupation: string;
+  registrationToken: string;
+  checkInStatus?: "Checked In" | "Not Checked";
+  qrCode?: string;
 }
 
 export function AudienceList() {
-  const [audienceMembers, setAudienceMembers] = useState<AudienceMember[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [eventFilter, setEventFilter] = useState<string>("All");
-  const [editingMember, setEditingMember] = useState<AudienceMember | null>(
-    null
-  );
-  const [isAddingMember, setIsAddingMember] = useState(false);
-  const [showingQRCode, setShowingQRCode] = useState<AudienceMember | null>(
-    null
-  );
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [isAddingUser, setIsAddingUser] = useState(false);
+  const [showingQRCode, setShowingQRCode] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const {toast} = useToast();
 
   useEffect(() => {
-    const fetchAudienceMembers = async () => {
-      // Simulating API call
-      setTimeout(() => {
-        setAudienceMembers([
-          {
-            id: 1,
-            eventName: "Tech Conference 2024",
-            name: "John Doe",
-            email: "john@example.com",
-            contactNumber: "+85512345678",
-            job: "Software Engineer",
-            checkInStatus: "Checked In",
-            qrCode: "TECH2024-001",
-          },
-          {
-            id: 2,
-            eventName: "Digital Marketing Summit",
-            name: "Jane Smith",
-            email: "jane@example.com",
-            contactNumber: "+85523456789",
-            job: "Marketing Manager",
-            checkInStatus: "Not Checked",
-            qrCode: "DMS2024-001",
-          },
-          {
-            id: 3,
-            eventName: "AI Workshop",
-            name: "Bob Johnson",
-            email: "bob@example.com",
-            contactNumber: "+85534567890",
-            job: "Data Scientist",
-            checkInStatus: "Checked In",
-            qrCode: "AIWS2024-001",
-          },
-          {
-            id: 4,
-            eventName: "Startup Meetup",
-            name: "Alice Brown",
-            email: "alice@example.com",
-            contactNumber: "+85545678901",
-            job: "Entrepreneur",
-            checkInStatus: "Not Checked",
-            qrCode: "STARTUP2024-001",
-          },
-        ]);
+    const fetchUsers = async () => {
+      try {
+        const response = await axios.get<ApiResponse>(
+          "http://localhost:8080/api/v1/auth/getUSer"
+        );
+        const usersWithStatus = response.data.payload.map((user) => ({
+          ...user,
+          checkInStatus: "Not Checked" as const,
+          qrCode: `USER-${user.id.slice(0, 8)}`,
+        }));
+        setUsers(usersWithStatus);
+      } catch (error) {
+        toast({
+          title: "Error fetching users",
+          description: "Failed to load user data. Please try again later.",
+          variant: "destructive",
+        });
+      } finally {
         setIsLoading(false);
-      }, 1000);
+      }
     };
 
-    fetchAudienceMembers();
-  }, []);
+    fetchUsers();
+  }, [toast]);
 
-  const events = useMemo(() => {
-    const allEvents = audienceMembers.map((member) => member.eventName);
-    return ["All", ...new Set(allEvents)];
-  }, [audienceMembers]);
-
-  const filteredMembers = useMemo(() => {
-    return audienceMembers.filter(
-      (member) =>
-        (member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          member.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          member.contactNumber.includes(searchTerm) ||
-          member.eventName.toLowerCase().includes(searchTerm.toLowerCase())) &&
-        (eventFilter === "All" || member.eventName === eventFilter)
+  const filteredUsers = useMemo(() => {
+    return users.filter(
+      (user) =>
+        user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.phoneNumber.includes(searchTerm)
     );
-  }, [audienceMembers, searchTerm, eventFilter]);
+  }, [users, searchTerm]);
 
-  const handleUpdateMember = (updatedMember: AudienceMember) => {
-    setAudienceMembers(
-      audienceMembers.map((member) =>
-        member.id === updatedMember.id ? updatedMember : member
-      )
-    );
-    setEditingMember(null);
-    toast({
-      title: "Audience member updated",
-      description: `${updatedMember.name}'s information has been updated for "${updatedMember.eventName}".`,
-    });
+  const handleUpdateUser = async (updatedUser: User) => {
+    try {
+      // Add your API update call here
+      setUsers(
+        users.map((user) => (user.id === updatedUser.id ? updatedUser : user))
+      );
+      setEditingUser(null);
+      toast({
+        title: "User updated",
+        description: `${updatedUser.fullName}'s information has been updated.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error updating user",
+        description: "Failed to update user information.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleAddMember = (newMember: AudienceMember) => {
-    const newId = Math.max(...audienceMembers.map((m) => m.id)) + 1;
-    const newQRCode = `${newMember.eventName.replace(/\s+/g, "").toUpperCase()}-${newId.toString().padStart(3, "0")}`;
-    setAudienceMembers([
-      ...audienceMembers,
-      {...newMember, id: newId, qrCode: newQRCode},
-    ]);
-    setIsAddingMember(false);
-    toast({
-      title: "Audience member added",
-      description: `${newMember.name} has been added to the audience list for "${newMember.eventName}".`,
-    });
+  const handleAddUser = async (newUser: User) => {
+    try {
+      // Add your API create call here
+      const qrCode = `USER-${Date.now().toString(36)}`;
+      setUsers([...users, {...newUser, qrCode}]);
+      setIsAddingUser(false);
+      toast({
+        title: "User added",
+        description: `${newUser.fullName} has been added to the system.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error adding user",
+        description: "Failed to add new user.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleDeleteMember = (id: number) => {
-    const memberToDelete = audienceMembers.find((member) => member.id === id);
-    setAudienceMembers(audienceMembers.filter((member) => member.id !== id));
-    toast({
-      title: "Audience member deleted",
-      description: `${memberToDelete?.name} (${memberToDelete?.email}) has been removed from the audience list for "${memberToDelete?.eventName}".`,
-      variant: "destructive",
-    });
+  const handleDeleteUser = async (id: string) => {
+    try {
+      // Add your API delete call here
+      const userToDelete = users.find((user) => user.id === id);
+      setUsers(users.filter((user) => user.id !== id));
+      toast({
+        title: "User deleted",
+        description: `${userToDelete?.fullName} has been removed from the system.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error deleting user",
+        description: "Failed to delete user.",
+        variant: "destructive",
+      });
+    }
   };
-
-  const totals = useMemo(() => {
-    const total = filteredMembers.length;
-    const checkedIn = filteredMembers.filter(
-      (member) => member.checkInStatus === "Checked In"
-    ).length;
-    const notChecked = total - checkedIn;
-    const checkedInPercentage =
-      total > 0 ? Math.round((checkedIn / total) * 100) : 0;
-    const notCheckedPercentage =
-      total > 0 ? Math.round((notChecked / total) * 100) : 0;
-    return {
-      total,
-      checkedIn,
-      notChecked,
-      checkedInPercentage,
-      notCheckedPercentage,
-    };
-  }, [filteredMembers]);
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -208,7 +165,7 @@ export function AudienceList() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Audience Members</CardTitle>
+        <CardTitle>User List</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="flex items-center space-x-4 mb-4">
@@ -220,69 +177,47 @@ export function AudienceList() {
               className="w-full"
             />
           </div>
-          <Select value={eventFilter} onValueChange={setEventFilter}>
-            <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="Filter by event" />
-            </SelectTrigger>
-            <SelectContent>
-              {events.map((event) => (
-                <SelectItem key={event} value={event}>
-                  {event}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Button onClick={() => setIsAddingMember(true)}>
-            <Plus className="h-4 w-4 mr-2" /> Add Audience
+          <Button onClick={() => setIsAddingUser(true)}>
+            <Plus className="h-4 w-4 mr-2" /> Add User
           </Button>
         </div>
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Name</TableHead>
-              <TableHead>Event</TableHead>
               <TableHead>Email</TableHead>
-              <TableHead>Contact Number</TableHead>
-              <TableHead>Job</TableHead>
+              <TableHead>Phone Number</TableHead>
+              <TableHead>Occupation</TableHead>
+              <TableHead>Gender</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>QR Code</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredMembers.map((member) => (
-              <TableRow key={member.id}>
-                <TableCell>{member.name}</TableCell>
-                <TableCell>{member.eventName}</TableCell>
-                <TableCell>{member.email}</TableCell>
-                <TableCell>{member.contactNumber}</TableCell>
-                <TableCell>{member.job}</TableCell>
+            {filteredUsers.map((user) => (
+              <TableRow key={user.id}>
+                <TableCell>{user.fullName}</TableCell>
+                <TableCell>{user.email}</TableCell>
+                <TableCell>{user.phoneNumber}</TableCell>
+                <TableCell>{user.occupation}</TableCell>
+                <TableCell>{user.gender}</TableCell>
                 <TableCell>
                   <Badge
                     variant={
-                      member.checkInStatus === "Checked In"
+                      user.checkInStatus === "Checked In"
                         ? "default"
                         : "secondary"
                     }
-                    className={`px-2 py-0.5 rounded-full text-xs font-medium inline-flex items-center justify-center w-28 ${
-                      member.checkInStatus === "Checked In"
-                        ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100"
-                        : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100"
-                    }`}>
-                    <span
-                      className={`inline-block w-2 h-2 rounded-full mr-1.5 ${
-                        member.checkInStatus === "Checked In"
-                          ? "bg-green-500 dark:bg-green-400"
-                          : "bg-yellow-500 dark:bg-yellow-400"
-                      }`}></span>
-                    {member.checkInStatus}
+                    className="px-2 py-0.5 rounded-full text-xs font-medium inline-flex items-center justify-center w-28">
+                    {user.checkInStatus}
                   </Badge>
                 </TableCell>
                 <TableCell>
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setShowingQRCode(member)}>
+                    onClick={() => setShowingQRCode(user)}>
                     <QrCode className="h-4 w-4 mr-2" />
                     View
                   </Button>
@@ -297,8 +232,7 @@ export function AudienceList() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                      <DropdownMenuItem
-                        onClick={() => setEditingMember(member)}>
+                      <DropdownMenuItem onClick={() => setEditingUser(user)}>
                         Edit
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
@@ -318,14 +252,14 @@ export function AudienceList() {
                             </AlertDialogTitle>
                             <AlertDialogDescription>
                               This action cannot be undone. This will
-                              permanently delete the audience member and remove
-                              their data from our servers.
+                              permanently delete the user and remove their data
+                              from our servers.
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
                             <AlertDialogCancel>Cancel</AlertDialogCancel>
                             <AlertDialogAction
-                              onClick={() => handleDeleteMember(member.id)}
+                              onClick={() => handleDeleteUser(user.id)}
                               className="bg-red-600 hover:bg-red-700 text-white">
                               Delete
                             </AlertDialogAction>
@@ -339,164 +273,8 @@ export function AudienceList() {
             ))}
           </TableBody>
         </Table>
-        <div className="mt-4 flex justify-between items-center">
-          <div className="text-sm text-muted-foreground">
-            Total: {totals.total} | Checked In: {totals.checkedIn} (
-            {totals.checkedInPercentage}%) | Not Checked: {totals.notChecked} (
-            {totals.notCheckedPercentage}%)
-          </div>
-        </div>
       </CardContent>
-      <Dialog
-        open={!!editingMember}
-        onOpenChange={(open) => !open && setEditingMember(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Update Audience Member</DialogTitle>
-          </DialogHeader>
-          {editingMember && (
-            <AudienceMemberForm
-              member={editingMember}
-              onSubmit={handleUpdateMember}
-              onCancel={() => setEditingMember(null)}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
-      <Dialog open={isAddingMember} onOpenChange={setIsAddingMember}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Add New Audience Member</DialogTitle>
-          </DialogHeader>
-          <AudienceMemberForm
-            member={{
-              id: 0,
-              eventName: "",
-              name: "",
-              email: "",
-              contactNumber: "+855",
-              job: "",
-              checkInStatus: "Not Checked",
-              qrCode: "",
-            }}
-            onSubmit={handleAddMember}
-            onCancel={() => setIsAddingMember(false)}
-          />
-        </DialogContent>
-      </Dialog>
-      <Dialog
-        open={!!showingQRCode}
-        onOpenChange={(open) => !open && setShowingQRCode(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>QR Code for {showingQRCode?.name}</DialogTitle>
-          </DialogHeader>
-          <div className="flex flex-col items-center justify-center p-4">
-            <QRCodeSVG value={showingQRCode?.qrCode || ""} size={200} />
-            <p className="mt-4 text-sm font-medium">{showingQRCode?.qrCode}</p>
-          </div>
-        </DialogContent>
-      </Dialog>
+      {/* Add UserForm component here similar to AudienceMemberForm but with updated fields */}
     </Card>
-  );
-}
-
-interface AudienceMemberFormProps {
-  member: AudienceMember;
-  onSubmit: (member: AudienceMember) => void;
-  onCancel: () => void;
-}
-
-function AudienceMemberForm({
-  member,
-  onSubmit,
-  onCancel,
-}: AudienceMemberFormProps) {
-  const [formData, setFormData] = useState<AudienceMember>(member);
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const {name, value} = e.target;
-    setFormData((prev) => ({...prev, [name]: value}));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSubmit(formData);
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <Label htmlFor="eventName">Event Name</Label>
-        <Input
-          id="eventName"
-          name="eventName"
-          value={formData.eventName}
-          onChange={handleChange}
-        />
-      </div>
-      <div>
-        <Label htmlFor="name">Name</Label>
-        <Input
-          id="name"
-          name="name"
-          value={formData.name}
-          onChange={handleChange}
-        />
-      </div>
-      <div>
-        <Label htmlFor="email">Email</Label>
-        <Input
-          id="email"
-          name="email"
-          type="email"
-          value={formData.email}
-          onChange={handleChange}
-        />
-      </div>
-      <div>
-        <Label htmlFor="contactNumber">Contact Number</Label>
-        <Input
-          id="contactNumber"
-          name="contactNumber"
-          value={formData.contactNumber}
-          onChange={handleChange}
-        />
-      </div>
-      <div>
-        <Label htmlFor="job">Job</Label>
-        <Input
-          id="job"
-          name="job"
-          value={formData.job}
-          onChange={handleChange}
-        />
-      </div>
-      <div>
-        <Label htmlFor="checkInStatus">Check-in Status</Label>
-        <Select
-          name="checkInStatus"
-          value={formData.checkInStatus}
-          onValueChange={(value) =>
-            handleChange({target: {name: "checkInStatus", value}} as any)
-          }>
-          <SelectTrigger>
-            <SelectValue placeholder="Select status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="Checked In">Checked In</SelectItem>
-            <SelectItem value="Not Checked">Not Checked</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-      <DialogFooter>
-        <Button type="button" variant="outline" onClick={onCancel}>
-          Cancel
-        </Button>
-        <Button type="submit">Save</Button>
-      </DialogFooter>
-    </form>
   );
 }

@@ -92,9 +92,9 @@ export default function ReportPage() {
       <div className="p-4">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Audience List</h1>
+            <h1 className="text-3xl font-bold tracking-tight">Report</h1>
             <p className="text-muted-foreground">
-              Manage system users and permissions
+              Manage report data for events and registrations.
             </p>
           </div>
         </div>
