@@ -1,9 +1,10 @@
 "use client";
 
-import {Geist, Geist_Mono} from "next/font/google";
 import "./globals.css";
 import {ThemeProvider} from "@/components/providers/ThemeProvider";
+import {LanguageProvider} from "@/components/providers/LanguageProvider";
 import {ThemeToggler} from "@/components/theme-toggler";
+import {LanguageToggler} from "@/components/language-toggler";
 import {SidebarInset, SidebarProvider} from "@/components/ui/sidebar";
 import {AppSidebar} from "@/components/app-sidebar";
 import {usePathname} from "next/navigation";
@@ -17,29 +18,38 @@ export default function RootLayout({
   const pathname = usePathname();
   const isLoginPage = pathname === "/";
   return (
-    <html lang="en">
-      <body
-        // className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        className={`antialiased`}>
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin=""
+        />
+      </head>
+      <body className="antialiased">
         <ThemeProvider>
-          {!isLoginPage && (
-            <div className="absolute bottom-5 right-4 text-white">
-              <ThemeToggler />
-            </div>
-          )}
-          {isLoginPage ? (
-            children
-          ) : (
-            <div className="flex h-screen overflow-hidden">
-              <SidebarProvider>
-                <AppSidebar />
-                <SidebarInset>
-                  <div className="flex-1 overflow-auto">{children}</div>
-                </SidebarInset>
-                <Toaster />
-              </SidebarProvider>
-            </div>
-          )}
+          <LanguageProvider>
+            {!isLoginPage && (
+              <div className="absolute bottom-5 right-4 text-white flex items-center gap-2">
+                <LanguageToggler />
+                <ThemeToggler />
+              </div>
+            )}
+            {isLoginPage ? (
+              children
+            ) : (
+              <div className="flex h-screen overflow-hidden">
+                <SidebarProvider>
+                  <AppSidebar />
+                  <SidebarInset>
+                    <div className="flex-1 overflow-auto">{children}</div>
+                  </SidebarInset>
+                  <Toaster />
+                </SidebarProvider>
+              </div>
+            )}
+          </LanguageProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -1,6 +1,7 @@
 "use client";
 
 import {ChevronRight, type LucideIcon} from "lucide-react";
+import {useLanguage} from "@/components/providers/LanguageProvider";
 
 import {
   Collapsible,
@@ -32,9 +33,11 @@ export function NavMain({
     }[];
   }[];
 }) {
+  const {t} = useLanguage();
+
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Dashboard</SidebarGroupLabel>
+      <SidebarGroupLabel>{t("Dashboard")}</SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) => (
           <Collapsible
@@ -44,9 +47,9 @@ export function NavMain({
             className="group/collapsible">
             <SidebarMenuItem>
               <CollapsibleTrigger asChild>
-                <SidebarMenuButton tooltip={item.title}>
+                <SidebarMenuButton tooltip={t(item.title)}>
                   {item.icon && <item.icon />}
-                  <span>{item.title}</span>
+                  <span>{t(item.title)}</span>
                 </SidebarMenuButton>
               </CollapsibleTrigger>
               <CollapsibleContent>
@@ -55,7 +58,7 @@ export function NavMain({
                     <SidebarMenuSubItem key={subItem.title}>
                       <SidebarMenuSubButton asChild>
                         <a href={subItem.url}>
-                          <span>{subItem.title}</span>
+                          <span>{t(subItem.title)}</span>
                         </a>
                       </SidebarMenuSubButton>
                     </SidebarMenuSubItem>

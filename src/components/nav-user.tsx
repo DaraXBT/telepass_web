@@ -9,6 +9,7 @@ import {
   LogOut,
   Sparkles,
 } from "lucide-react";
+import {useLanguage} from "./providers/LanguageProvider";
 
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
 import {
@@ -38,6 +39,7 @@ export function NavUser({
 }) {
   const {isMobile} = useSidebar();
   const router = useRouter();
+  const {t} = useLanguage();
 
   const handleLogout = () => {
     // Add any logout logic here (clearing tokens, state, etc.)
@@ -89,13 +91,13 @@ export function NavUser({
             <DropdownMenuGroup>
               <DropdownMenuItem>
                 <BadgeCheck className="mr-2 h-4 w-4" />
-                Account
+                {t("Account")}
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout}>
               <LogOut className="mr-2 h-4 w-4" />
-              Log out
+              {t("Log out")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

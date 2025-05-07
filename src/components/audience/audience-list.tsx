@@ -32,6 +32,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {useToast} from "@/hooks/use-toast";
+import {useLanguage} from "@/components/providers/LanguageProvider";
 import axios from "axios";
 import {MoreHorizontal, Plus, QrCode, Trash} from "lucide-react";
 import {useEffect, useMemo, useState} from "react";
@@ -58,6 +59,7 @@ interface User {
 }
 
 export function AudienceList() {
+  const {t} = useLanguage();
   const [users, setUsers] = useState<User[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [editingUser, setEditingUser] = useState<User | null>(null);
@@ -80,8 +82,8 @@ export function AudienceList() {
         setUsers(usersWithStatus);
       } catch (error) {
         toast({
-          title: "Error fetching users",
-          description: "Failed to load user data. Please try again later.",
+          title: t("Error fetching users"),
+          description: t("Failed to load user data. Please try again later."),
           variant: "destructive",
         });
       } finally {
@@ -90,7 +92,7 @@ export function AudienceList() {
     };
 
     fetchUsers();
-  }, [toast]);
+  }, [toast, t]);
 
   const filteredUsers = useMemo(() => {
     return users.filter(
@@ -109,13 +111,13 @@ export function AudienceList() {
       );
       setEditingUser(null);
       toast({
-        title: "User updated",
-        description: `${updatedUser.fullName}'s information has been updated.`,
+        title: t("User updated"),
+        description: `${updatedUser.fullName} ${t("'s information has been updated.")}`,
       });
     } catch (error) {
       toast({
-        title: "Error updating user",
-        description: "Failed to update user information.",
+        title: t("Error updating user"),
+        description: t("Failed to update user information."),
         variant: "destructive",
       });
     }
@@ -128,13 +130,13 @@ export function AudienceList() {
       setUsers([...users, {...newUser, qrCode}]);
       setIsAddingUser(false);
       toast({
-        title: "User added",
-        description: `${newUser.fullName} has been added to the system.`,
+        title: t("User added"),
+        description: `${newUser.fullName} ${t("has been added to the system.")}`,
       });
     } catch (error) {
       toast({
-        title: "Error adding user",
-        description: "Failed to add new user.",
+        title: t("Error adding user"),
+        description: t("Failed to add new user."),
         variant: "destructive",
       });
     }
@@ -146,52 +148,52 @@ export function AudienceList() {
       const userToDelete = users.find((user) => user.id === id);
       setUsers(users.filter((user) => user.id !== id));
       toast({
-        title: "User deleted",
-        description: `${userToDelete?.fullName} has been removed from the system.`,
+        title: t("User deleted"),
+        description: `${userToDelete?.fullName} ${t("has been removed from the system.")}`,
       });
     } catch (error) {
       toast({
-        title: "Error deleting user",
-        description: "Failed to delete user.",
+        title: t("Error deleting user"),
+        description: t("Failed to delete user."),
         variant: "destructive",
       });
     }
   };
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div>{t("Loading...")}</div>;
   }
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>User List</CardTitle>
+        <CardTitle>{t("User List")}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="flex items-center space-x-4 mb-4">
           <div className="flex-grow">
             <Input
-              placeholder="Search..."
+              placeholder={t("Search...")}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full"
             />
           </div>
           <Button onClick={() => setIsAddingUser(true)}>
-            <Plus className="h-4 w-4 mr-2" /> Add User
+            <Plus className="h-4 w-4 mr-2" /> {t("Add User")}
           </Button>
         </div>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Phone Number</TableHead>
-              <TableHead>Occupation</TableHead>
-              <TableHead>Gender</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>QR Code</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead>{t("Name")}</TableHead>
+              <TableHead>{t("Email")}</TableHead>
+              <TableHead>{t("Phone Number")}</TableHead>
+              <TableHead>{t("Occupation")}</TableHead>
+              <TableHead>{t("Gender")}</TableHead>
+              <TableHead>{t("Status")}</TableHead>
+              <TableHead>{t("QR Code")}</TableHead>
+              <TableHead className="text-right">{t("Actions")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -201,7 +203,7 @@ export function AudienceList() {
                 <TableCell>{user.email}</TableCell>
                 <TableCell>{user.phoneNumber}</TableCell>
                 <TableCell>{user.occupation}</TableCell>
-                <TableCell>{user.gender}</TableCell>
+                <TableCell>{t(user.gender)}</TableCell>
                 <TableCell>
                   <Badge
                     variant={
@@ -210,7 +212,7 @@ export function AudienceList() {
                         : "secondary"
                     }
                     className="px-2 py-0.5 rounded-full text-xs font-medium inline-flex items-center justify-center w-28">
-                    {user.checkInStatus}
+                    {t(user.checkInStatus || "")}
                   </Badge>
                 </TableCell>
                 <TableCell>
@@ -219,21 +221,21 @@ export function AudienceList() {
                     size="sm"
                     onClick={() => setShowingQRCode(user)}>
                     <QrCode className="h-4 w-4 mr-2" />
-                    View
+                    {t("View")}
                   </Button>
                 </TableCell>
                 <TableCell className="text-right">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" className="h-8 w-8 p-0">
-                        <span className="sr-only">Open menu</span>
+                        <span className="sr-only">{t("Open menu")}</span>
                         <MoreHorizontal className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                      <DropdownMenuLabel>{t("Actions")}</DropdownMenuLabel>
                       <DropdownMenuItem onClick={() => setEditingUser(user)}>
-                        Edit
+                        {t("Edit")}
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <AlertDialog>
@@ -242,26 +244,26 @@ export function AudienceList() {
                             onSelect={(e) => e.preventDefault()}
                             className="text-red-600 dark:text-red-400">
                             <Trash className="mr-2 h-4 w-4" />
-                            Delete
+                            {t("Delete")}
                           </DropdownMenuItem>
                         </AlertDialogTrigger>
                         <AlertDialogContent>
                           <AlertDialogHeader>
                             <AlertDialogTitle>
-                              Are you absolutely sure?
+                              {t("Are you absolutely sure?")}
                             </AlertDialogTitle>
                             <AlertDialogDescription>
-                              This action cannot be undone. This will
-                              permanently delete the user and remove their data
-                              from our servers.
+                              {t(
+                                "This action cannot be undone. This will permanently delete the user and remove their data from our servers."
+                              )}
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogCancel>{t("Cancel")}</AlertDialogCancel>
                             <AlertDialogAction
                               onClick={() => handleDeleteUser(user.id)}
                               className="bg-red-600 hover:bg-red-700 text-white">
-                              Delete
+                              {t("Delete")}
                             </AlertDialogAction>
                           </AlertDialogFooter>
                         </AlertDialogContent>

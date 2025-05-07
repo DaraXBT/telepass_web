@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import {useLanguage} from "@/components/providers/LanguageProvider";
 
 import {
   DropdownMenu,
@@ -28,6 +29,7 @@ export function TeamSwitcher({
   }[];
 }) {
   const {isMobile} = useSidebar();
+  const {t} = useLanguage();
   const [activeTeam, setActiveTeam] = React.useState(teams[0]);
 
   return (

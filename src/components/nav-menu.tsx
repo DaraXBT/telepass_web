@@ -5,6 +5,7 @@ import {useRouter} from "next/navigation";
 import {SidebarTrigger} from "./ui/sidebar";
 import {Separator} from "@/components/ui/separator";
 import {ThemeToggler} from "@/components/theme-toggler";
+import {LanguageToggler} from "@/components/language-toggler";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -40,7 +41,8 @@ export default function MenuNav({props}: {props: string}) {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <div className="ml-auto">
+      <div className="ml-auto flex items-center gap-3">
+        <LanguageToggler />
         <ThemeToggler />
       </div>
     </div>

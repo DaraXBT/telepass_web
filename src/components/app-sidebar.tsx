@@ -16,6 +16,7 @@ import {NavMain} from "@/components/nav-main";
 import {NavProjects} from "@/components/nav-report";
 import {NavUser} from "@/components/nav-user";
 import {TeamSwitcher} from "@/components/team-switcher";
+import {useLanguage} from "@/components/providers/LanguageProvider";
 import {
   Sidebar,
   SidebarContent,
@@ -24,95 +25,55 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 
-// This is sample data.
-const data = {
-  user: {
-    name: "DRv",
-    email: "daraa.veasa@gmail.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  teams: [
-    {
-      name: "Te\\ePass",
-      logo: GalleryVerticalEnd,
-      plan: "Event Management",
-    },
-  ],
-  navMain: [
-    {
-      name: "Dashboard",
-      url: "/dashboard",
-      icon: LayoutDashboard,
-    },
-    {
-      name: "Event List",
-      url: "/events",
-      icon: CalendarDays,
-      isActive: true,
-    },
-    {
-      name: "Audience List",
-      url: "/audience",
-      icon: Users,
-    },
-    {
-      name: "User List",
-      url: "/user",
-      icon: Bot,
-      // items: [
-      //   {
-      //     title: "Introduction",
-      //     url: "#",
-      //   },
-      //   {
-      //     title: "Get Started",
-      //     url: "#",
-      //   },
-      //   {
-      //     title: "Tutorials",
-      //     url: "#",
-      //   },
-      //   {
-      //     title: "Changelog",
-      //     url: "#",
-      //   },
-      // ],
-    },
-  ],
-  projects: [
-    {
-      name: "Report",
-      url: "/report",
-      icon: FileText,
-    },
-  ],
-};
-
-const sidebarItems = [
-  {
-    title: "Dashboard",
-    url: "/dashboard",
-    icon: Settings2,
-  },
-  {
-    title: "Event List",
-    url: "/events",
-    icon: Calendar,
-  },
-  {
-    title: "Audience List",
-    url: "#",
-    icon: Users,
-  },
-  {
-    title: "User List",
-    url: "#",
-    icon: Bot,
-  },
-  // ...other items
-];
-
 export function AppSidebar({...props}: React.ComponentProps<typeof Sidebar>) {
+  const {t} = useLanguage();
+
+  // This is sample data.
+  const data = {
+    user: {
+      name: "DRv",
+      email: "daraa.veasa@gmail.com",
+      avatar: "/avatars/shadcn.jpg",
+    },
+    teams: [
+      {
+        name: "TelePass",
+        logo: GalleryVerticalEnd,
+        plan: t("Event Management"),
+      },
+    ],
+    navMain: [
+      {
+        name: t("Dashboard"),
+        url: "/dashboard",
+        icon: LayoutDashboard,
+      },
+      {
+        name: t("Event List"),
+        url: "/events",
+        icon: CalendarDays,
+        isActive: true,
+      },
+      {
+        name: t("Audience List"),
+        url: "/audience",
+        icon: Users,
+      },
+      {
+        name: t("User List"),
+        url: "/user",
+        icon: Bot,
+      },
+    ],
+    projects: [
+      {
+        name: t("Report"),
+        url: "/report",
+        icon: FileText,
+      },
+    ],
+  };
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
@@ -120,7 +81,6 @@ export function AppSidebar({...props}: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavProjects projects={data.navMain} />
-
         <NavProjects projects={data.projects} />
       </SidebarContent>
       <SidebarFooter>

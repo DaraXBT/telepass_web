@@ -1,6 +1,7 @@
 "use client";
 
 import {type LucideIcon} from "lucide-react";
+import {useLanguage} from "@/components/providers/LanguageProvider";
 
 import {
   SidebarGroup,
@@ -21,10 +22,11 @@ export function NavProjects({
   }[];
 }) {
   const {isMobile} = useSidebar();
+  const {t} = useLanguage();
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-      <SidebarGroupLabel>Report Lists</SidebarGroupLabel>
+      <SidebarGroupLabel>{t("Report Lists")}</SidebarGroupLabel>
       <SidebarMenu>
         {projects.map((item) => (
           <SidebarMenuItem key={item.name}>

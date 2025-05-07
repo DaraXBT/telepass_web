@@ -32,6 +32,7 @@ import {
   CheckCircleIcon,
 } from "lucide-react";
 import * as XLSX from "xlsx";
+import {useLanguage} from "@/components/providers/LanguageProvider";
 
 interface Event {
   id: number;
@@ -57,6 +58,7 @@ interface EventReportProps {
 }
 
 export function EventReport({events, registrations}: EventReportProps) {
+  const {t, language} = useLanguage();
   const [selectedEvent, setSelectedEvent] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -80,18 +82,18 @@ export function EventReport({events, registrations}: EventReportProps) {
     if (!selectedEventDetails) return;
 
     const printContent = `
-      <h1>${selectedEventDetails.name} - Registrations Report</h1>
-      <p>Date: ${selectedEventDetails.date}</p>
-      <p>Location: ${selectedEventDetails.location}</p>
-      <p>Capacity: ${selectedEventDetails.capacity}</p>
-      <p>Total Registrations: ${filteredRegistrations.length}</p>
+      <h1>${selectedEventDetails.name} - ${t("Registrations Report")}</h1>
+      <p>${t("Date")}: ${selectedEventDetails.date}</p>
+      <p>${t("Location")}: ${selectedEventDetails.location}</p>
+      <p>${t("Capacity")}: ${selectedEventDetails.capacity}</p>
+      <p>${t("Total Registrations")}: ${filteredRegistrations.length}</p>
       <table border="1" cellpadding="5" cellspacing="0">
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Phone</th>
-            <th>Registration Date</th>
+            <th>${t("Name")}</th>
+            <th>${t("Email")}</th>
+            <th>${t("Phone")}</th>
+            <th>${t("Registration Date")}</th>
           </tr>
         </thead>
         <tbody>
@@ -116,9 +118,9 @@ export function EventReport({events, registrations}: EventReportProps) {
       printWindow.document.write(`
         <html>
           <head>
-            <title>${selectedEventDetails.name} - Registrations Report</title>
+            <title>${selectedEventDetails.name} - ${t("Registrations Report")}</title>
             <style>
-              body { font-family: Arial, sans-serif; }
+              body { font-family: ${language === "km" ? "'Kantumruy Pro'" : "Arial"}, sans-serif; }
               table { border-collapse: collapse; width: 100%; }
               th, td { border: 1px solid #ddd; padding: 8px; }
               th { background-color: #f2f2f2; }
@@ -139,15 +141,15 @@ export function EventReport({events, registrations}: EventReportProps) {
 
     const worksheet = XLSX.utils.json_to_sheet(
       filteredRegistrations.map((reg) => ({
-        Name: reg.name,
-        Email: reg.email,
-        Phone: reg.phone,
-        "Registration Date": reg.registrationDate,
+        [t("Name")]: reg.name,
+        [t("Email")]: reg.email,
+        [t("Phone")]: reg.phone,
+        [t("Registration Date")]: reg.registrationDate,
       }))
     );
 
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Registrations");
+    XLSX.utils.book_append_sheet(workbook, worksheet, t("Registrations"));
 
     const excelBuffer = XLSX.write(workbook, {bookType: "xlsx", type: "array"});
     const data = new Blob([excelBuffer], {
@@ -156,7 +158,7 @@ export function EventReport({events, registrations}: EventReportProps) {
 
     const link = document.createElement("a");
     link.href = window.URL.createObjectURL(data);
-    link.download = `${selectedEventDetails.name}_Registrations.xlsx`;
+    link.download = `${selectedEventDetails.name}_${t("Registrations")}.xlsx`;
     link.click();
   };
 
@@ -164,16 +166,16 @@ export function EventReport({events, registrations}: EventReportProps) {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Event Selection</CardTitle>
+          <CardTitle>{t("Event Selection")}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4">
             <div className="grid gap-2">
-              <Label htmlFor="event-select">Select Event</Label>
+              <Label htmlFor="event-select">{t("Select Event")}</Label>
               <Select
                 onValueChange={(value) => setSelectedEvent(Number(value))}>
                 <SelectTrigger id="event-select">
-                  <SelectValue placeholder="Select an event" />
+                  <SelectValue placeholder={t("Select an event")} />
                 </SelectTrigger>
                 <SelectContent>
                   {events &&
@@ -211,16 +213,20 @@ export function EventReport({events, registrations}: EventReportProps) {
               <div className="space-y-2">
                 <div className="flex items-center space-x-2">
                   <UsersIcon className="h-4 w-4 text-muted-foreground" />
-                  <span>Capacity: {selectedEventDetails.capacity}</span>
+                  <span>
+                    {t("Capacity")}: {selectedEventDetails.capacity}
+                  </span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <CheckCircleIcon className="h-4 w-4 text-muted-foreground" />
-                  <span>Registrations: {filteredRegistrations.length}</span>
+                  <span>
+                    {t("Registrations")}: {filteredRegistrations.length}
+                  </span>
                 </div>
               </div>
             </div>
             <div className="mt-4">
-              <h4 className="text-sm font-semibold mb-2">Description</h4>
+              <h4 className="text-sm font-semibold mb-2">{t("Description")}</h4>
               <p className="text-sm text-muted-foreground">
                 {selectedEventDetails.description}
               </p>
@@ -232,14 +238,14 @@ export function EventReport({events, registrations}: EventReportProps) {
       {selectedEventDetails && (
         <Card>
           <CardHeader>
-            <CardTitle>Registrations</CardTitle>
+            <CardTitle>{t("Registrations")}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4 md:space-y-0 md:flex md:justify-between md:items-center mb-4">
               <div className="relative w-full md:w-64">
                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Search registrations..."
+                  placeholder={t("Search registrations...")}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-8 w-full"
@@ -248,11 +254,11 @@ export function EventReport({events, registrations}: EventReportProps) {
               <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                 <Button onClick={handlePrint} className="w-full sm:w-auto">
                   <Printer className="mr-2 h-4 w-4" />
-                  Print Report
+                  {t("Print Report")}
                 </Button>
                 <Button onClick={handleExport} className="w-full sm:w-auto">
                   <FileSpreadsheet className="mr-2 h-4 w-4" />
-                  Export to Excel
+                  {t("Export to Excel")}
                 </Button>
               </div>
             </div>
@@ -262,10 +268,10 @@ export function EventReport({events, registrations}: EventReportProps) {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Name</TableHead>
-                        <TableHead>Email</TableHead>
-                        <TableHead>Phone</TableHead>
-                        <TableHead>Registration Date</TableHead>
+                        <TableHead>{t("Name")}</TableHead>
+                        <TableHead>{t("Email")}</TableHead>
+                        <TableHead>{t("Phone")}</TableHead>
+                        <TableHead>{t("Registration Date")}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -284,7 +290,7 @@ export function EventReport({events, registrations}: EventReportProps) {
             </div>
             {filteredRegistrations.length === 0 && (
               <p className="text-center text-muted-foreground mt-4">
-                No registrations found.
+                {t("No registrations found.")}
               </p>
             )}
           </CardContent>

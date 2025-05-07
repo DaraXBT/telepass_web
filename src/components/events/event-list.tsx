@@ -55,8 +55,10 @@ import {
 import {useToast} from "@/hooks/use-toast";
 import {DateTimePicker} from "@/components/ui/date-time-picker";
 import {UserSelectPopup} from "@/components/user/user-select-popup";
+import {useLanguage} from "@/components/providers/LanguageProvider";
 
 export const EventList: React.FC = () => {
+  const {t} = useLanguage();
   const [events, setEvents] = useState<Event[]>(initialEvents);
   const [searchTerm, setSearchTerm] = useState("");
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
@@ -64,7 +66,7 @@ export const EventList: React.FC = () => {
   const [showingQRCode, setShowingQRCode] = useState<Event | null>(null);
   const [sortBy, setSortBy] = useState<keyof Event>("startDateTime");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
-  const [isEventFormOpen, setIsEventFormOpen] = useState(false); // Added state for dialog
+  const [isEventFormOpen, setIsEventFormOpen] = useState(false);
   const {toast} = useToast();
 
   const filteredEvents = events
@@ -106,10 +108,10 @@ export const EventList: React.FC = () => {
       )
     );
     setEditingEvent(null);
-    setIsEventFormOpen(false); // Close dialog after update
+    setIsEventFormOpen(false);
     toast({
-      title: "Event updated",
-      description: `"${updatedEvent.name}" has been successfully updated.`,
+      title: t("Event updated"),
+      description: `"${updatedEvent.name}" ${t("has been successfully updated.")}`,
     });
   };
 
@@ -117,10 +119,10 @@ export const EventList: React.FC = () => {
     const newId = Math.max(...events.map((e) => e.id)) + 1;
     const newQRCode = `${newEvent.name.replace(/\s+/g, "").toUpperCase().slice(0, 3)}${new Date().getFullYear()}-${newId.toString().padStart(3, "0")}`;
     setEvents([...events, {...newEvent, id: newId, qrCode: newQRCode}]);
-    setIsEventFormOpen(false); // Close dialog after adding
+    setIsEventFormOpen(false);
     toast({
-      title: "Event added",
-      description: `"${newEvent.name}" has been successfully added to the event list.`,
+      title: t("Event added"),
+      description: `"${newEvent.name}" ${t("has been successfully added to the event list.")}`,
     });
   };
 
@@ -128,8 +130,8 @@ export const EventList: React.FC = () => {
     const eventToDelete = events.find((event) => event.id === id);
     setEvents(events.filter((event) => event.id !== id));
     toast({
-      title: "Event deleted",
-      description: `"${eventToDelete?.name}" has been removed from the event list.`,
+      title: t("Event deleted"),
+      description: `"${eventToDelete?.name}" ${t("has been removed from the event list.")}`,
       variant: "destructive",
     });
   };
@@ -142,13 +144,13 @@ export const EventList: React.FC = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Events</CardTitle>
+        <CardTitle>{t("Events")}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="flex items-center space-x-4 mb-4">
           <div className="flex-grow">
             <Input
-              placeholder="Search events..."
+              placeholder={t("Search events...")}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full"
@@ -156,10 +158,10 @@ export const EventList: React.FC = () => {
           </div>
           <Select value={categoryFilter} onValueChange={setCategoryFilter}>
             <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="Filter by category" />
+              <SelectValue placeholder={t("Filter by category")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="All">All Categories</SelectItem>
+              <SelectItem value="All">{t("All Categories")}</SelectItem>
               {categories.map((category) => (
                 <SelectItem key={category} value={category}>
                   {category}
@@ -185,27 +187,33 @@ export const EventList: React.FC = () => {
               });
               setIsEventFormOpen(true);
             }}>
-            <Plus className="h-4 w-4 mr-2" /> Add Event
+            <Plus className="h-4 w-4 mr-2" /> {t("Add Event")}
           </Button>
         </div>
         <div className="overflow-x-auto overflow-y-auto max-h-[600px] border rounded-md">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[30%] min-w-[200px]">Event</TableHead>
-                <TableHead className="w-[15%] min-w-[100px]">Status</TableHead>
+                <TableHead className="w-[30%] min-w-[200px]">
+                  {t("Event")}
+                </TableHead>
                 <TableHead className="w-[15%] min-w-[100px]">
-                  Category
+                  {t("Status")}
+                </TableHead>
+                <TableHead className="w-[15%] min-w-[100px]">
+                  {t("Category")}
                 </TableHead>
                 <TableHead className="w-[20%] min-w-[150px]">
-                  Capacity
+                  {t("Capacity")}
                 </TableHead>
                 <TableHead className="w-[15%] min-w-[100px]">
-                  Organizers
+                  {t("Organizers")}
                 </TableHead>
-                <TableHead className="w-[15%] min-w-[100px]">QR Code</TableHead>
+                <TableHead className="w-[15%] min-w-[100px]">
+                  {t("QR Code")}
+                </TableHead>
                 <TableHead className="w-[5%] min-w-[50px] text-right">
-                  Actions
+                  {t("Actions")}
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -246,8 +254,10 @@ export const EventList: React.FC = () => {
                               ? "bg-green-500 dark:bg-green-400"
                               : "bg-yellow-500 dark:bg-yellow-400"
                         }`}></span>
-                      {event.status.charAt(0).toUpperCase() +
-                        event.status.slice(1)}
+                      {t(
+                        event.status.charAt(0).toUpperCase() +
+                          event.status.slice(1)
+                      )}
                     </Badge>
                   </TableCell>
                   <TableCell>{event.category}</TableCell>
@@ -265,7 +275,7 @@ export const EventList: React.FC = () => {
                         {Math.round(
                           (event.registeredAttendees / event.capacity) * 100
                         )}
-                        % Full
+                        % {t("Full")}
                       </span>
                     </div>
                   </TableCell>
@@ -278,25 +288,25 @@ export const EventList: React.FC = () => {
                       size="sm"
                       onClick={() => setShowingQRCode(event)}>
                       <QrCode className="h-4 w-4 mr-2" />
-                      View
+                      {t("View")}
                     </Button>
                   </TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="h-8 w-8 p-0">
-                          <span className="sr-only">Open menu</span>
+                          <span className="sr-only">{t("Open menu")}</span>
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuLabel>{t("Actions")}</DropdownMenuLabel>
                         <DropdownMenuItem
                           onClick={() => {
                             setEditingEvent(event);
                             setIsEventFormOpen(true);
                           }}>
-                          Edit
+                          {t("Edit")}
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <AlertDialog>
@@ -305,26 +315,28 @@ export const EventList: React.FC = () => {
                               onSelect={(e) => e.preventDefault()}
                               className="text-red-600 dark:text-red-400">
                               <Trash className="mr-2 h-4 w-4" />
-                              Delete
+                              {t("Delete")}
                             </DropdownMenuItem>
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
                               <AlertDialogTitle>
-                                Are you absolutely sure?
+                                {t("Are you absolutely sure?")}
                               </AlertDialogTitle>
                               <AlertDialogDescription>
-                                This action cannot be undone. This will
-                                permanently delete the event and remove the data
-                                from our servers.
+                                {t(
+                                  "This action cannot be undone. This will permanently delete the event and remove the data from our servers."
+                                )}
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogCancel>
+                                {t("Cancel")}
+                              </AlertDialogCancel>
                               <AlertDialogAction
                                 onClick={() => handleDeleteEvent(event.id)}
                                 className="bg-red-600 hover:bg-red-700 text-white">
-                                Delete
+                                {t("Delete")}
                               </AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>
@@ -340,18 +352,20 @@ export const EventList: React.FC = () => {
         <div className="mt-4 border-t pt-4">
           <div className="flex justify-end items-center space-x-4 text-sm">
             <div className="flex items-center">
-              <span className="text-muted-foreground mr-2">Total Events:</span>
+              <span className="text-muted-foreground mr-2">
+                {t("Total Events")}:
+              </span>
               <span className="font-medium">{totals.total}</span>
             </div>
             <div className="flex items-center">
               <span className="text-muted-foreground mr-2">
-                Total Capacity:
+                {t("Total Capacity")}:
               </span>
               <span className="font-medium">{totals.totalCapacity}</span>
             </div>
             <div className="flex items-center">
               <span className="text-muted-foreground mr-2">
-                Total Registered:
+                {t("Total Registered")}:
               </span>
               <span className="font-medium">
                 {totals.totalRegistered} ({totals.registrationPercentage}%)
@@ -361,17 +375,15 @@ export const EventList: React.FC = () => {
         </div>
       </CardContent>
       <Dialog open={isEventFormOpen} onOpenChange={setIsEventFormOpen}>
-        {" "}
-        {/* Updated Dialog */}
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
             <DialogTitle>
-              {editingEvent?.id === 0 ? "Add New Event" : "Update Event"}
+              {editingEvent?.id === 0 ? t("Add New Event") : t("Update Event")}
             </DialogTitle>
             <DialogDescription>
               {editingEvent?.id === 0
-                ? "Create a new event by filling out the form below."
-                : "Update the event details using the form below."}
+                ? t("Create a new event by filling out the form below.")
+                : t("Update the event details using the form below.")}
             </DialogDescription>
           </DialogHeader>
           {editingEvent && (
@@ -390,9 +402,11 @@ export const EventList: React.FC = () => {
         onOpenChange={(open) => !open && setShowingQRCode(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>QR Code for {showingQRCode?.name}</DialogTitle>
+            <DialogTitle>
+              {t("QR Code for")} {showingQRCode?.name}
+            </DialogTitle>
             <DialogDescription>
-              Scan this QR code to access event details or check-in.
+              {t("Scan this QR code to access event details or check-in.")}
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col items-center justify-center p-4">
@@ -408,11 +422,11 @@ export const EventList: React.FC = () => {
 interface EventFormProps {
   event: Event;
   onSubmit: (event: Event) => void;
-  onCancel: () => void; // Added onCancel prop
+  onCancel: () => void;
 }
 
 function EventForm({event, onSubmit, onCancel}: EventFormProps) {
-  // Added onCancel to props
+  const {t} = useLanguage();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState<Event>(event);
   const [errors, setErrors] = useState<Partial<Record<keyof Event, string>>>(
@@ -446,35 +460,37 @@ function EventForm({event, onSubmit, onCancel}: EventFormProps) {
     const newErrors: Partial<Record<keyof Event, string>> = {};
     switch (currentStep) {
       case 1:
-        if (!formData.name) newErrors.name = "Name is required";
+        if (!formData.name) newErrors.name = t("Name is required");
         if (!formData.startDateTime)
-          newErrors.startDateTime = "Start date and time is required";
+          newErrors.startDateTime = t("Start date and time is required");
         if (!formData.endDateTime)
-          newErrors.endDateTime = "End date and time is required";
+          newErrors.endDateTime = t("End date and time is required");
         if (formData.endDateTime <= formData.startDateTime) {
-          newErrors.endDateTime = "End date must be after start date";
+          newErrors.endDateTime = t("End date must be after start date");
         }
         break;
       case 2:
         if (!formData.description)
-          newErrors.description = "Description is required";
-        if (!formData.location) newErrors.location = "Location is required";
-        if (!formData.category) newErrors.category = "Category is required";
+          newErrors.description = t("Description is required");
+        if (!formData.location) newErrors.location = t("Location is required");
+        if (!formData.category) newErrors.category = t("Category is required");
         break;
       case 3:
-        if (!formData.capacity) newErrors.capacity = "Capacity is required";
+        if (!formData.capacity) newErrors.capacity = t("Capacity is required");
         if (formData.capacity <= 0)
-          newErrors.capacity = "Capacity must be greater than 0";
+          newErrors.capacity = t("Capacity must be greater than 0");
         if (!formData.registeredAttendees)
-          newErrors.registeredAttendees = "Registered Attendees is required";
+          newErrors.registeredAttendees = t("Registered Attendees is required");
         if (formData.registeredAttendees < 0)
-          newErrors.registeredAttendees =
-            "Registered attendees cannot be negative";
+          newErrors.registeredAttendees = t(
+            "Registered attendees cannot be negative"
+          );
         if (formData.registeredAttendees > formData.capacity)
-          newErrors.registeredAttendees =
-            "Registered attendees cannot exceed capacity";
+          newErrors.registeredAttendees = t(
+            "Registered attendees cannot exceed capacity"
+          );
         if (selectedOrganizers.length === 0)
-          newErrors.organizers = "At least one user must be selected";
+          newErrors.organizers = t("At least one user must be selected");
         break;
     }
     setErrors(newErrors);
@@ -503,7 +519,7 @@ function EventForm({event, onSubmit, onCancel}: EventFormProps) {
       {step === 1 && (
         <>
           <div>
-            <Label htmlFor="name">Event Name</Label>
+            <Label htmlFor="name">{t("Event Name")}</Label>
             <Input
               id="name"
               name="name"
@@ -517,7 +533,7 @@ function EventForm({event, onSubmit, onCancel}: EventFormProps) {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="startDateTime">Start Date and Time</Label>
+              <Label htmlFor="startDateTime">{t("Start Date and Time")}</Label>
               <DateTimePicker
                 value={formData.startDateTime}
                 onChange={(date) => handleDateChange(date, "startDateTime")}
@@ -529,7 +545,7 @@ function EventForm({event, onSubmit, onCancel}: EventFormProps) {
               )}
             </div>
             <div>
-              <Label htmlFor="endDateTime">End Date and Time</Label>
+              <Label htmlFor="endDateTime">{t("End Date and Time")}</Label>
               <DateTimePicker
                 value={formData.endDateTime}
                 onChange={(date) => handleDateChange(date, "endDateTime")}
@@ -547,7 +563,7 @@ function EventForm({event, onSubmit, onCancel}: EventFormProps) {
       {step === 2 && (
         <>
           <div>
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">{t("Description")}</Label>
             <Textarea
               id="description"
               name="description"
@@ -561,7 +577,7 @@ function EventForm({event, onSubmit, onCancel}: EventFormProps) {
             )}
           </div>
           <div>
-            <Label htmlFor="location">Location</Label>
+            <Label htmlFor="location">{t("Location")}</Label>
             <Input
               id="location"
               name="location"
@@ -574,7 +590,7 @@ function EventForm({event, onSubmit, onCancel}: EventFormProps) {
             )}
           </div>
           <div>
-            <Label htmlFor="category">Category</Label>
+            <Label htmlFor="category">{t("Category")}</Label>
             <Select
               name="category"
               value={formData.category}
@@ -582,7 +598,7 @@ function EventForm({event, onSubmit, onCancel}: EventFormProps) {
                 handleChange({target: {name: "category", value}} as any)
               }>
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select category" />
+                <SelectValue placeholder={t("Select category")} />
               </SelectTrigger>
               <SelectContent>
                 {categories.map((category) => (
@@ -603,7 +619,7 @@ function EventForm({event, onSubmit, onCancel}: EventFormProps) {
         <>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="capacity">Capacity</Label>
+              <Label htmlFor="capacity">{t("Capacity")}</Label>
               <Input
                 id="capacity"
                 name="capacity"
@@ -617,7 +633,9 @@ function EventForm({event, onSubmit, onCancel}: EventFormProps) {
               )}
             </div>
             <div>
-              <Label htmlFor="registeredAttendees">Registered Attendees</Label>
+              <Label htmlFor="registeredAttendees">
+                {t("Registered Attendees")}
+              </Label>
               <Input
                 id="registeredAttendees"
                 name="registeredAttendees"
@@ -634,9 +652,9 @@ function EventForm({event, onSubmit, onCancel}: EventFormProps) {
             </div>
           </div>
           <div className="w-full">
-            <Label htmlFor="organizers">Users</Label>
+            <Label htmlFor="organizers">{t("Users")}</Label>
             <p className="text-sm text-muted-foreground mb-2">
-              Select users for this event
+              {t("Select users for this event")}
             </p>
             <UserSelectPopup
               selectedUsers={selectedOrganizers}
@@ -656,16 +674,18 @@ function EventForm({event, onSubmit, onCancel}: EventFormProps) {
       <DialogFooter>
         {step > 1 && (
           <Button type="button" variant="outline" onClick={handleBack}>
-            Back
+            {t("Back")}
           </Button>
         )}
         <Button type="button" variant="outline" onClick={onCancel}>
-          {" "}
-          {/* Added Cancel button */}
-          Cancel
+          {t("Cancel")}
         </Button>
         <Button type="button" onClick={step < 3 ? handleNext : handleSubmit}>
-          {step < 3 ? "Next" : event.id === 0 ? "Add Event" : "Update Event"}
+          {step < 3
+            ? t("Next")
+            : event.id === 0
+              ? t("Add Event")
+              : t("Update Event")}
         </Button>
       </DialogFooter>
     </form>
