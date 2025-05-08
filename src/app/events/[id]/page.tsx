@@ -1,3 +1,5 @@
+"use client";
+
 import {EventPage} from "@/components/events/event-page";
 import MenuNav from "@/components/nav-menu";
 import {Separator} from "@radix-ui/react-separator";

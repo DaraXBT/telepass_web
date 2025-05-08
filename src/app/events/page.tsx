@@ -3,7 +3,7 @@
 import MenuNav from "@/components/nav-menu";
 import {Suspense} from "react";
 import {EventList} from "@/components/events/event-list";
-import {Separator} from "@radix-ui/react-separator";
+import {Separator} from "@/components/ui/separator";
 import {useLanguage} from "@/components/providers/LanguageProvider";
 
 export default function EventListPage() {

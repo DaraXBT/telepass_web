@@ -94,17 +94,38 @@ const translations: TranslationsType = {
     en: "Account",
     km: "គណនី",
   },
+  Event: {
+    en: "Event",
+    km: "ព្រឹត្តិការណ៍",
+  },
   "Event List": {
     en: "Event List",
     km: "បញ្ជីព្រឹត្តិការណ៍",
   },
+  Category: {
+    en: "Category",
+    km: "ប្រភេទ",
+  },
+  Capacity: {
+    en: "Capacity",
+    km: "ចំនួន",
+  },
+
   "User List": {
     en: "User List",
-    km: "បញ្ជីអ្នកប្រើប្រាស់",
+    km: "បញ្ជីអ្នកគ្រប់គ្រង",
+  },
+  "Manage system users and permissions":{
+    en: "Manage system users and permissions",
+    km: "គ្រប់គ្រងអ្នកប្រើប្រាស់និងការគ្រប់គ្រងប្រព័ន្ធ",
   },
   "Audience List": {
     en: "Audience List",
-    km: "បញ្ជីទស្សនិកជន",
+    km: "បញ្ជីអ្នកចូលរួម",
+  },
+  "Manage system audience and permissions": {
+    en: "Manage system audience and permissions",
+    km: "គ្រប់គ្រងទស្សនិកជននិងការគ្រប់គ្រងប្រព័ន្ធ",
   },
   Report: {
     en: "Report",
