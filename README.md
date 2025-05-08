@@ -81,22 +81,6 @@ npx prisma migrate dev
 npm run dev
 # or
 yarn dev
-```
-
-### Environment Configuration
-
-Create a `.env` file with the following variables:
-
-```properties
-# Database
-DATABASE_URL=postgresql://username:password@localhost:5432/tb
-
-# Next.js
-NEXT_PUBLIC_API_URL=http://localhost:3000/api
-
-# Authentication
-JWT_SECRET=your-secret-key
-```
 
 ## 📋 Project Structure
 
@@ -175,8 +159,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 👥 Team
 
-- **Sokhen** - Frontend Developer
-- **Dara** - Backend Developer
+- **Sokhen** - Backend Developer
+- **Dara** - Frontend Developer
 
 ## 📞 Contact
 
