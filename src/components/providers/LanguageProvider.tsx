@@ -621,7 +621,7 @@ const setDocumentLanguageSettings = (lang: Language) => {
   }
 };
 
-export function LanguageProvider({ children }: { children: ReactNode }) {
+export function LanguageProvider({children}: {children: ReactNode}) {
   const [language, setLanguage] = useState<Language>("en");
   const [mounted, setMounted] = useState(false);
 
