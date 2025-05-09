@@ -50,6 +50,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import {useToast} from "@/hooks/use-toast";
+import {useLanguage} from "@/components/providers/LanguageProvider";
 
 interface User {
   id: string;
@@ -102,6 +103,7 @@ export function UserList() {
   const [searchTerm, setSearchTerm] = useState("");
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const {toast} = useToast();
+  const {t} = useLanguage();
 
   const filteredUsers = users.filter(
     (user) =>
@@ -117,11 +119,8 @@ export function UserList() {
     );
     setEditingUser(null);
     toast({
-      title: "User updated successfully",
-      description: `${updatedUser.name}'s information has been updated. Role: ${updatedUser.role
-        .split("_")
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(" ")}`,
+      title: t("User updated"),
+      description: `${updatedUser.name}${t("'s information has been updated.")}`,
       variant: "default",
     });
   };
@@ -130,11 +129,8 @@ export function UserList() {
     const userToDelete = users.find((user) => user.id === id);
     setUsers(users.filter((user) => user.id !== id));
     toast({
-      title: "User deleted",
-      description: `${userToDelete?.name} (${userToDelete?.email}) has been removed from the system. Role: ${userToDelete?.role
-        .split("_")
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(" ")}`,
+      title: t("User deleted"),
+      description: `${userToDelete?.name} ${t("has been removed from the system.")}`,
       variant: "destructive",
     });
   };
@@ -145,8 +141,8 @@ export function UserList() {
     setUsers([...users, user]);
     setEditingUser(null);
     toast({
-      title: "User added successfully",
-      description: `${user.name} has been added as ${user.role}.`,
+      title: t("User added"),
+      description: `${user.name} ${t("has been added to the system.")}`,
       variant: "default",
     });
   };
@@ -154,12 +150,12 @@ export function UserList() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Users</CardTitle>
+        <CardTitle>{t("Users")}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="flex justify-between items-center mb-4 gap-4">
           <Input
-            placeholder="Search users..."
+            placeholder={t("Search...")}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="flex-grow"
@@ -174,18 +170,18 @@ export function UserList() {
                 status: "active",
               })
             }>
-            Add User
+            {t("Add User")}
           </Button>
         </div>
         <div className="overflow-auto max-h-[600px]">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>{t("Name")}</TableHead>
+                <TableHead>{t("Email")}</TableHead>
+                <TableHead>{t("Role")}</TableHead>
+                <TableHead>{t("Status")}</TableHead>
+                <TableHead className="text-right">{t("Actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -212,21 +208,21 @@ export function UserList() {
                             ? "bg-green-500 dark:bg-green-400"
                             : "bg-red-500 dark:bg-red-400"
                         }`}></span>
-                      {user.status === "active" ? "Active" : "Inactive"}
+                      {t(user.status === "active" ? "Active" : "Inactive")}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="h-8 w-8 p-0">
-                          <span className="sr-only">Open menu</span>
+                          <span className="sr-only">{t("Open menu")}</span>
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuLabel>{t("Actions")}</DropdownMenuLabel>
                         <DropdownMenuItem onClick={() => setEditingUser(user)}>
-                          Edit
+                          {t("Edit")}
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <AlertDialog>
@@ -235,26 +231,28 @@ export function UserList() {
                               onSelect={(e) => e.preventDefault()}
                               className="text-red-600 dark:text-red-400">
                               <Trash className="mr-2 h-4 w-4" />
-                              Delete
+                              {t("Delete")}
                             </DropdownMenuItem>
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
                               <AlertDialogTitle>
-                                Are you absolutely sure?
+                                {t("Are you absolutely sure?")}
                               </AlertDialogTitle>
                               <AlertDialogDescription>
-                                This action cannot be undone. This will
-                                permanently delete the user and remove their
-                                data from our servers.
+                                {t(
+                                  "This action cannot be undone. This will permanently delete the user and remove their data from our servers."
+                                )}
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogCancel>
+                                {t("Cancel")}
+                              </AlertDialogCancel>
                               <AlertDialogAction
                                 onClick={() => handleDeleteUser(user.id)}
                                 className="bg-red-600 hover:bg-red-700 text-white">
-                                Delete
+                                {t("Delete")}
                               </AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>
@@ -274,19 +272,19 @@ export function UserList() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {editingUser?.id ? "Update User" : "Add User"}
+              {editingUser?.id ? t("Update User") : t("Add User")}
             </DialogTitle>
             <DialogDescription>
               {editingUser?.id
-                ? "Modify the user's information using the form below."
-                : "Add a new user to the system."}
+                ? t("Modify the user's information using the form below.")
+                : t("Add a new user to the system.")}
             </DialogDescription>
           </DialogHeader>
           {editingUser && (
             <UserForm
               user={editingUser}
               onSubmit={editingUser.id ? handleUpdateUser : handleAddUser}
-              submitLabel={editingUser.id ? "Update User" : "Add User"}
+              submitLabel={editingUser.id ? t("Update User") : t("Add User")}
             />
           )}
         </DialogContent>
@@ -303,6 +301,7 @@ interface UserFormProps {
 
 function UserForm({user, onSubmit, submitLabel}: UserFormProps) {
   const [formData, setFormData] = useState<User>(user);
+  const {t} = useLanguage();
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -319,7 +318,7 @@ function UserForm({user, onSubmit, submitLabel}: UserFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <Label htmlFor="name">Name</Label>
+        <Label htmlFor="name">{t("Name")}</Label>
         <Input
           id="name"
           name="name"
@@ -328,7 +327,7 @@ function UserForm({user, onSubmit, submitLabel}: UserFormProps) {
         />
       </div>
       <div>
-        <Label htmlFor="email">Email</Label>
+        <Label htmlFor="email">{t("Email")}</Label>
         <Input
           id="email"
           name="email"
@@ -338,7 +337,7 @@ function UserForm({user, onSubmit, submitLabel}: UserFormProps) {
         />
       </div>
       <div>
-        <Label htmlFor="role">Role</Label>
+        <Label htmlFor="role">{t("Role")}</Label>
         <Select
           name="role"
           value={formData.role}
@@ -346,16 +345,18 @@ function UserForm({user, onSubmit, submitLabel}: UserFormProps) {
             handleChange({target: {name: "role", value}} as any)
           }>
           <SelectTrigger>
-            <SelectValue placeholder="Select role" />
+            <SelectValue placeholder={t("Select role")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="Admin">Admin</SelectItem>
-            <SelectItem value="Event Organizer">Event Organizer</SelectItem>
+            <SelectItem value="Admin">{t("Admin")}</SelectItem>
+            <SelectItem value="Event Organizer">
+              {t("Event Organizer")}
+            </SelectItem>
           </SelectContent>
         </Select>
       </div>
       <div>
-        <Label htmlFor="status">Status</Label>
+        <Label htmlFor="status">{t("Status")}</Label>
         <Select
           name="status"
           value={formData.status}
@@ -363,11 +364,11 @@ function UserForm({user, onSubmit, submitLabel}: UserFormProps) {
             handleChange({target: {name: "status", value}} as any)
           }>
           <SelectTrigger>
-            <SelectValue placeholder="Select status" />
+            <SelectValue placeholder={t("Select status")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="inactive">Inactive</SelectItem>
+            <SelectItem value="active">{t("Active")}</SelectItem>
+            <SelectItem value="inactive">{t("Inactive")}</SelectItem>
           </SelectContent>
         </Select>
       </div>

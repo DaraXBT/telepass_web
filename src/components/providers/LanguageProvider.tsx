@@ -64,7 +64,7 @@ const translations: TranslationsType = {
   },
   Users: {
     en: "Users",
-    km: "អ្នកប្រើប្រាស់",
+    km: "អ្នកគ្រប់គ្រង",
   },
   Audience: {
     en: "Audience",
@@ -115,7 +115,7 @@ const translations: TranslationsType = {
     en: "User List",
     km: "បញ្ជីអ្នកគ្រប់គ្រង",
   },
-  "Manage system users and permissions":{
+  "Manage system users and permissions": {
     en: "Manage system users and permissions",
     km: "គ្រប់គ្រងអ្នកប្រើប្រាស់និងការគ្រប់គ្រងប្រព័ន្ធ",
   },
@@ -155,6 +155,18 @@ const translations: TranslationsType = {
   Status: {
     en: "Status",
     km: "ស្ថានភាព",
+  },
+  Upcoming: {
+    en: "Upcoming",
+    km: "កំពុងមកដល់",
+  },
+  Ongoing: {
+    en: "Ongoing",
+    km: "កំពុងបន្ត",
+  },
+  Finished: {
+    en: "Finished",
+    km: "បានបញ្ចប់",
   },
   Actions: {
     en: "Actions",
@@ -594,7 +606,22 @@ const defaultValues: LanguageContextType = {
 
 const LanguageContext = createContext<LanguageContextType>(defaultValues);
 
-export function LanguageProvider({children}: {children: ReactNode}) {
+// Add this function to set document-level font settings
+const setDocumentLanguageSettings = (lang: Language) => {
+  // Set HTML lang attribute
+  document.documentElement.setAttribute("lang", lang);
+
+  // Set body class for font styling
+  if (lang === "km") {
+    document.body.classList.add("font-khmer");
+    document.body.classList.remove("font-english");
+  } else {
+    document.body.classList.add("font-english");
+    document.body.classList.remove("font-khmer");
+  }
+};
+
+export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLanguage] = useState<Language>("en");
   const [mounted, setMounted] = useState(false);
 
@@ -604,7 +631,7 @@ export function LanguageProvider({children}: {children: ReactNode}) {
       const savedLanguage = localStorage.getItem("language") as Language;
       if (savedLanguage && (savedLanguage === "en" || savedLanguage === "km")) {
         setLanguage(savedLanguage);
-        document.documentElement.setAttribute("lang", savedLanguage);
+        setDocumentLanguageSettings(savedLanguage);
       }
     } catch (error) {
       console.error("Error accessing localStorage:", error);
@@ -614,7 +641,7 @@ export function LanguageProvider({children}: {children: ReactNode}) {
 
   const changeLanguage = (newLanguage: Language) => {
     setLanguage(newLanguage);
-    document.documentElement.setAttribute("lang", newLanguage);
+    setDocumentLanguageSettings(newLanguage);
     try {
       localStorage.setItem("language", newLanguage);
     } catch (error) {

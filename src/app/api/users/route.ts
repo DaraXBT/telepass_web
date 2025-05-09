@@ -1,11 +1,9 @@
 import {NextResponse} from "next/server";
-import {PrismaClient} from "@prisma/client";
-
-const prisma = new PrismaClient();
+import * as usersData from "@/data/users";
 
 export async function GET() {
   try {
-    const users = await prisma.user.findMany();
+    const users = usersData.findMany();
     return NextResponse.json(users);
   } catch (error) {
     console.error("Failed to fetch users:", error);
@@ -16,9 +14,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const newUser = await prisma.user.create({
-      data: body,
-    });
+    const newUser = usersData.create(body);
     return NextResponse.json(newUser, {status: 201});
   } catch (error) {
     console.error("Failed to create user:", error);

@@ -1,11 +1,9 @@
 import {NextResponse} from "next/server";
-import {PrismaClient} from "@prisma/client";
-
-const prisma = new PrismaClient();
+import * as eventsData from "@/data/events";
 
 export async function GET() {
   try {
-    const events = await prisma.event.findMany();
+    const events = eventsData.findMany();
     return NextResponse.json(events);
   } catch (error) {
     console.error("Failed to fetch events:", error);
@@ -16,9 +14,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const newEvent = await prisma.event.create({
-      data: body,
-    });
+    const newEvent = eventsData.create(body);
     return NextResponse.json(newEvent, {status: 201});
   } catch (error) {
     console.error("Failed to create event:", error);

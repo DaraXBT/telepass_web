@@ -1,36 +1,29 @@
-// import {NextResponse} from "next/server";
-// import {PrismaClient} from "@prisma/client";
+import {NextResponse} from "next/server";
+import * as usersData from "@/data/users";
+import * as eventsData from "@/data/events";
 
-// const prisma = new PrismaClient();
+export async function GET() {
+  try {
+    const totalUsers = usersData.count();
+    const newUsers = usersData.count({
+      // Simple filter to count users created in the last month
+      createdInLastMonth: true,
+    });
+    const totalEvents = eventsData.count();
+    // Since we don't have transaction data, we'll just use a mock value
+    const revenue = 10000;
 
-// export async function GET() {
-//   try {
-//     const totalUsers = await prisma.user.count();
-//     const newUsers = await prisma.user.count({
-//       where: {
-//         createdAt: {
-//           gte: new Date(new Date().setMonth(new Date().getMonth() - 1)),
-//         },
-//       },
-//     });
-//     const totalEvents = await prisma.event.count();
-//     const revenue = await prisma.transaction.aggregate({
-//       _sum: {
-//         amount: true,
-//       },
-//     });
-
-//     return NextResponse.json({
-//       totalUsers,
-//       newUsers,
-//       totalEvents,
-//       revenue: revenue._sum.amount || 0,
-//     });
-//   } catch (error) {
-//     console.error("Failed to fetch dashboard data:", error);
-//     return NextResponse.json(
-//       {error: "Failed to fetch dashboard data"},
-//       {status: 500}
-//     );
-//   }
-// }
+    return NextResponse.json({
+      totalUsers,
+      newUsers,
+      totalEvents,
+      revenue,
+    });
+  } catch (error) {
+    console.error("Failed to fetch dashboard data:", error);
+    return NextResponse.json(
+      {error: "Failed to fetch dashboard data"},
+      {status: 500}
+    );
+  }
+}
