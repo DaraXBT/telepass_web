@@ -42,8 +42,8 @@ export default function MenuNav({props}: {props: string}) {
         </BreadcrumbList>
       </Breadcrumb>
       <div className="ml-auto flex items-center gap-3">
-        <LanguageToggler />
         <ThemeToggler />
+        <LanguageToggler />
       </div>
     </div>
   );

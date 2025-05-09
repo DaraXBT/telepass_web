@@ -4,6 +4,7 @@ import {useEffect, useState} from "react";
 import {GalleryVerticalEnd} from "lucide-react";
 import {LoginForm} from "@/components/login-form";
 import {ThemeToggler} from "@/components/theme-toggler";
+import {LanguageToggler} from "@/components/language-toggler";
 
 export default function LoginPage() {
   const [isClient, setIsClient] = useState(false);
@@ -34,7 +35,10 @@ export default function LoginPage() {
         </div>
       </div>
       <div className="absolute bottom-5 right-4 text-white">
-        <ThemeToggler />
+        <div className="flex items-center gap-2">
+          <ThemeToggler />
+          <LanguageToggler />
+        </div>
       </div>
     </div>
   );

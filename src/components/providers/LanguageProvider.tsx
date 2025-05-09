@@ -19,6 +19,36 @@ type TranslationsType = {
 
 // Add your translations here
 const translations: TranslationsType = {
+  // Login page translations
+  Login: {
+    en: "Login",
+    km: "ចូលគណនី",
+  },
+  "Enter your email below to login to your account.": {
+    en: "Enter your email below to login to your account.",
+    km: "បញ្ចូលអ៊ីមែលរបស់អ្នកខាងក្រោមដើម្បីចូលទៅកាន់គណនីរបស់អ្នក។",
+  },
+  Password: {
+    en: "Password",
+    km: "ពាក្យសម្ងាត់",
+  },
+  "Sign in": {
+    en: "Sign in",
+    km: "ចូល",
+  },
+  "Login failed": {
+    en: "Login failed",
+    km: "ការចូលគណនីបានបរាជ័យ",
+  },
+  "Enter your email": {
+    en: "Enter your email",
+    km: "បញ្ចូលអ៊ីមែលរបស់អ្នក",
+  },
+  "Enter your password": {
+    en: "Enter your password",
+    km: "បញ្ចូលពាក្យសម្ងាត់របស់អ្នក",
+  },
+
   // Dashboard page
   Dashboard: {
     en: "Dashboard",

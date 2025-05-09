@@ -12,9 +12,11 @@ import {
 } from "@/components/ui/card";
 import {Input} from "@/components/ui/input";
 import {Label} from "@/components/ui/label";
+import {useLanguage} from "@/components/providers/LanguageProvider";
 
 export function LoginForm() {
   const router = useRouter();
+  const {t} = useLanguage();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -35,7 +37,7 @@ export function LoginForm() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Login failed");
+        throw new Error(data.message || t("Login failed"));
       }
 
       // Store token (if required)
@@ -51,36 +53,38 @@ export function LoginForm() {
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
-        <CardTitle className="text-2xl">Login</CardTitle>
+        <CardTitle className="text-2xl">{t("Login")}</CardTitle>
         <CardDescription>
-          Enter your email below to login to your account.
+          {t("Enter your email below to login to your account.")}
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleLogin} className="grid gap-4">
           {error && <p className="text-red-500 text-sm">{error}</p>}
           <div className="grid gap-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">{t("Email")}</Label>
             <Input
               id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              placeholder={t("Enter your email")}
             />
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">{t("Password")}</Label>
             <Input
               id="password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              placeholder={t("Enter your password")}
             />
           </div>
           <Button type="submit" className="w-full">
-            Sign in
+            {t("Sign in")}
           </Button>
         </form>
       </CardContent>
