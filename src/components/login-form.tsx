@@ -2,14 +2,9 @@
 
 import {useState} from "react";
 import {useRouter} from "next/navigation";
+import Image from "next/image";
 import {Button} from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import {Card, CardContent} from "@/components/ui/card";
 import {Input} from "@/components/ui/input";
 import {Label} from "@/components/ui/label";
 import {useLanguage} from "@/components/providers/LanguageProvider";
@@ -51,43 +46,57 @@ export function LoginForm() {
   };
 
   return (
-    <Card className="w-full max-w-sm">
-      <CardHeader>
-        <CardTitle className="text-2xl">{t("Login")}</CardTitle>
-        <CardDescription>
-          {t("Enter your email below to login to your account.")}
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleLogin} className="grid gap-4">
-          {error && <p className="text-red-500 text-sm">{error}</p>}
-          <div className="grid gap-2">
-            <Label htmlFor="email">{t("Email")}</Label>
-            <Input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              placeholder={t("Enter your email")}
-            />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="password">{t("Password")}</Label>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              placeholder={t("Enter your password")}
-            />
-          </div>
-          <Button type="submit" className="w-full">
-            {t("Sign in")}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
+    <div className="flex flex-col items-center w-full max-w-sm gap-6">
+      {/* Logo and Title without border */}
+      <div className="flex flex-col items-center w-full">
+        <div className="w-20 h-20 rounded-full overflow-hidden mb-4 border-2 border-primary flex items-center justify-center bg-border">
+          <Image
+            src="/assets/images/logo.jpg"
+            width={70}
+            height={70}
+            alt="TelePass Logo"
+            className="w-full h-full object-cover"
+          />
+        </div>
+        <h1 className="text-2xl font-semibold">{t("Login to TelePass")}</h1>
+      </div>
+
+      {/* Single Card for Email, Password and Button */}
+      <Card className="w-full">
+        <CardContent className="pt-6">
+          <form onSubmit={handleLogin} className="grid gap-4">
+            {error && <p className="text-red-500 text-sm">{error}</p>}
+
+            <div className="grid gap-2">
+              <Label htmlFor="email">{t("Email")}</Label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                placeholder={t("Enter your email")}
+              />
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="password">{t("Password")}</Label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                placeholder={t("Enter your password")}
+              />
+            </div>
+
+            <Button type="submit" className="w-full mt-2">
+              {t("Sign in")}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

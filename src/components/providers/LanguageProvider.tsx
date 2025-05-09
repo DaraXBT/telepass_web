@@ -20,9 +20,9 @@ type TranslationsType = {
 // Add your translations here
 const translations: TranslationsType = {
   // Login page translations
-  Login: {
-    en: "Login",
-    km: "ចូលគណនី",
+  "Login to TelePass": {
+    en: "Login to TelePass",
+    km: "ចូលទៅកាន់តេឡេផាស",
   },
   "Enter your email below to login to your account.": {
     en: "Enter your email below to login to your account.",
