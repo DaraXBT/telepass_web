@@ -17,16 +17,19 @@ import {NavProjects} from "@/components/nav-report";
 import {NavUser} from "@/components/nav-user";
 import {TeamSwitcher} from "@/components/team-switcher";
 import {useLanguage} from "@/components/providers/LanguageProvider";
+import {useSidebarState} from "@/hooks/use-sidebar-state";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
+  SidebarProvider,
 } from "@/components/ui/sidebar";
 
 export function AppSidebar({...props}: React.ComponentProps<typeof Sidebar>) {
   const {t} = useLanguage();
+  const {sidebarState} = useSidebarState();
 
   // This is sample data.
   const data = {
@@ -79,8 +82,15 @@ export function AppSidebar({...props}: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         <TeamSwitcher teams={data.teams} />
       </SidebarHeader>
-      <SidebarContent>
-        <NavProjects projects={data.navMain} />
+      <SidebarContent className="group-data-[collapsible=icon]:pt-4">
+        <NavMain
+          items={data.navMain.map((item) => ({
+            title: item.name,
+            url: item.url,
+            icon: item.icon,
+            isActive: item.isActive,
+          }))}
+        />
         <NavProjects projects={data.projects} />
       </SidebarContent>
       <SidebarFooter>

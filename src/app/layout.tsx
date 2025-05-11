@@ -9,6 +9,7 @@ import {SidebarInset, SidebarProvider} from "@/components/ui/sidebar";
 import {AppSidebar} from "@/components/app-sidebar";
 import {usePathname} from "next/navigation";
 import {Toaster} from "@/components/ui/toaster";
+import {useSidebarState} from "@/hooks/use-sidebar-state";
 
 export default function RootLayout({
   children,
@@ -17,6 +18,7 @@ export default function RootLayout({
 }>) {
   const pathname = usePathname();
   const isLoginPage = pathname === "/";
+  const {sidebarState} = useSidebarState();
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -40,7 +42,7 @@ export default function RootLayout({
               children
             ) : (
               <div className="flex h-screen overflow-hidden">
-                <SidebarProvider>
+                <SidebarProvider defaultOpen={sidebarState !== "collapsed"}>
                   <AppSidebar />
                   <SidebarInset>
                     <div className="flex-1 overflow-auto">{children}</div>

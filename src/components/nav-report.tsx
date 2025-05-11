@@ -2,6 +2,7 @@
 
 import {type LucideIcon} from "lucide-react";
 import {useLanguage} from "@/components/providers/LanguageProvider";
+import Link from "next/link";
 
 import {
   SidebarGroup,
@@ -25,16 +26,16 @@ export function NavProjects({
   const {t} = useLanguage();
 
   return (
-    <SidebarGroup className="group-data-[collapsible=icon]:hidden">
+    <SidebarGroup>
       <SidebarGroupLabel>{t("Report Lists")}</SidebarGroupLabel>
       <SidebarMenu>
         {projects.map((item) => (
           <SidebarMenuItem key={item.name}>
-            <SidebarMenuButton asChild>
-              <a href={item.url}>
+            <SidebarMenuButton tooltip={item.name} asChild>
+              <Link href={item.url} prefetch={false}>
                 <item.icon />
                 <span>{item.name}</span>
-              </a>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         ))}
