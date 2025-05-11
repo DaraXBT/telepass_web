@@ -89,7 +89,7 @@ export function NavUser({
             <DropdownMenuSeparator />
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push("/account")}>
                 <BadgeCheck className="mr-2 h-4 w-4" />
                 {t("Account")}
               </DropdownMenuItem>

@@ -19,6 +19,24 @@ type TranslationsType = {
 
 // Add your translations here
 const translations: TranslationsType = {
+  // 404 Not Found page translations
+  "Page Not Found": {
+    en: "Page Not Found",
+    km: "ទំព័រមិនអាចស្វែងរកឃើញ",
+  },
+  "Sorry, we couldn't find the page you're looking for. It might have been moved, deleted, or never existed in the first place.": {
+    en: "Sorry, we couldn't find the page you're looking for. It might have been moved, deleted, or never existed in the first place.",
+    km: "សូមអភ័យទោស យើងមិនអាចស្វែងរកទំព័រដែលអ្នកកំពុងស្វែងរកឃើញទេ។ ប្រហែលជាត្រូវបានផ្លាស់ប្តូរ លុប ឬមិនមាន។",
+  },
+  "Go Back": {
+    en: "Go Back",
+    km: "ត្រឡប់ក្រោយ",
+  },
+  "Dashboard": {
+    en: "Dashboard",
+    km: "ផ្ទាំងគ្រប់គ្រង",
+  },
+
   // Login page translations
   "Login to TelePass": {
     en: "Login to TelePass",
@@ -50,10 +68,6 @@ const translations: TranslationsType = {
   },
 
   // Dashboard page
-  Dashboard: {
-    en: "Dashboard",
-    km: "ផ្ទាំងគ្រប់គ្រង",
-  },
   "Event Analytics": {
     en: "Event Analytics",
     km: "ការវិភាគព្រឹត្តិការណ៍",
