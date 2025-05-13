@@ -104,6 +104,18 @@ const translations: TranslationsType = {
     en: "Your password has been changed successfully.",
     km: "ពាក្យសម្ងាត់របស់អ្នកត្រូវបានផ្លាស់ប្តូរដោយជោគជ័យ។",
   },
+  "Account Settings": {
+    en: "Account Settings",
+    km: "ការកំណត់គណនី",
+  },
+  "Manage your account settings and preferences": {
+    en: "Manage your account settings and preferences",
+    km: "គ្រប់គ្រងការកំណត់គណនីនិងចំណូលចិត្តរបស់អ្នក",
+  },
+  Administrator: {
+    en: "Administrator",
+    km: "អ្នកគ្រប់គ្រង",
+  },
   // 404 Not Found page translations
   "Page Not Found": {
     en: "Page Not Found",
@@ -341,6 +353,83 @@ const translations: TranslationsType = {
   },
   Location: {
     en: "Location",
+    km: "ទីតាំង",
+  },
+  Description: {
+    en: "Description",
+    km: "ការពិពណ៌នា",
+  },
+  "Check-in Status": {
+    en: "Check-in Status",
+    km: "ស្ថានភាពការចូលរួម",
+  },
+  "Checked In": {
+    en: "Checked In",
+    km: "បានចូលរួម",
+  },
+  "Not Checked": {
+    en: "Not Checked",
+    km: "មិនបានចូលរួម",
+  },
+  "QR Code": {
+    en: "QR Code",
+    km: "កូដ QR",
+  },
+  "Scan this QR code to access event details or check-in.": {
+    en: "Scan this QR code to access event details or check-in.",
+    km: "ស្កេនកូដ QR នេះដើម្បីចូលមើលព័ត៌មានលម្អិតនៃព្រឹត្តិការណ៍ឬចូលរួម។",
+  },
+  "Event Details": {
+    en: "Event Details",
+    km: "ព័ត៌មានលម្អិតនៃព្រឹត្តិការណ៍",
+  },
+  "Manage event system and permissions": {
+    en: "Manage event system and permissions",
+    km: "គ្រប់គ្រងប្រព័ន្ធព្រឹត្តិការណ៍និងការអនុញ្ញាត",
+  },
+  // Common dialog texts
+  "Are you absolutely sure?": {
+    en: "Are you absolutely sure?",
+    km: "តើអ្នកប្រាកដហើយមែនទេ?",
+  },
+  "This action cannot be undone.": {
+    en: "This action cannot be undone.",
+    km: "សកម្មភាពនេះមិនអាចត្រឡប់វិញបានទេ។",
+  },
+  Update: {
+    en: "Update",
+    km: "ធ្វើបច្ចុប្បន្នភាព",
+  },
+  "Add New": {
+    en: "Add New",
+    km: "បន្ថែមថ្មី",
+  },
+  // Error messages
+  Error: {
+    en: "Error",
+    km: "កំហុស",
+  },
+  Success: {
+    en: "Success",
+    km: "ជោគជ័យ",
+  },
+  Failed: {
+    en: "Failed",
+    km: "បរាជ័យ",
+  },
+  // Event list page
+  "Search events...": {
+    en: "Search events...",
+    km: "ស្វែងរកព្រឹត្តិការណ៍...",
+  },
+  "Filter by category": {
+    en: "Filter by category",
+    km: "ត្រងតាមប្រភេទ",
+  },
+  "All Categories": {
+    en: "All Categories",
+    km: "គ្រប់ប្រភេទទាំងអស់",
+  },
   "Add Event": {
     en: "Add Event",
     km: "បន្ថែមព្រឹត្តិការណ៍",
