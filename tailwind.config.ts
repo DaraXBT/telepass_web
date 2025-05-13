@@ -17,6 +17,7 @@ export default {
         "spin-slow": "spin 8s linear infinite",
         pulse: "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
         float: "float 3s ease-in-out infinite",
+        "gradient-x": "gradient-x 3s ease infinite",
       },
       keyframes: {
         twinkle: {
@@ -26,6 +27,14 @@ export default {
         float: {
           "0%, 100%": {transform: "translateY(0)"},
           "50%": {transform: "translateY(-10px)"},
+        },
+        "gradient-x": {
+          "0%, 100%": {
+            "background-position": "0% 50%",
+          },
+          "50%": {
+            "background-position": "100% 50%",
+          },
         },
       },
       colors: {

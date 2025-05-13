@@ -27,6 +27,83 @@ const translations: TranslationsType = {
     en: "Event Management",
     km: "កម្មវិធីគ្រប់គ្រងព្រឹត្តិការណ៍",
   },
+  // Account page translations
+  General: {
+    en: "General",
+    km: "ទូទៅ",
+  },
+  Security: {
+    en: "Security",
+    km: "សុវត្ថិភាព",
+  },
+  "Profile Information": {
+    en: "Profile Information",
+    km: "ព័ត៌មានប្រវត្តិរូប",
+  },
+  "Update your account profile information": {
+    en: "Update your account profile information",
+    km: "ធ្វើបច្ចុប្បន្នភាពព័ត៌មានប្រវត្តិរូបគណនីរបស់អ្នក",
+  },
+  "Change Avatar": {
+    en: "Change Avatar",
+    km: "ប្តូររូបតំណាង",
+  },
+  "Full Name": {
+    en: "Full Name",
+    km: "ឈ្មោះពេញ",
+  },
+  "Saving...": {
+    en: "Saving...",
+    km: "កំពុងរក្សាទុក...",
+  },
+  "Save Changes": {
+    en: "Save Changes",
+    km: "រក្សាទុកការផ្លាស់ប្តូរ",
+  },
+  "Change Password": {
+    en: "Change Password",
+    km: "ប្តូរពាក្យសម្ងាត់",
+  },
+  "Update your password to keep your account secure": {
+    en: "Update your password to keep your account secure",
+    km: "ធ្វើបច្ចុប្បន្នភាពពាក្យសម្ងាត់របស់អ្នកដើម្បីរក្សាគណនីរបស់អ្នកឱ្យមានសុវត្ថិភាព",
+  },
+  "Current Password": {
+    en: "Current Password",
+    km: "ពាក្យសម្ងាត់បច្ចុប្បន្ន",
+  },
+  "New Password": {
+    en: "New Password",
+    km: "ពាក្យសម្ងាត់ថ្មី",
+  },
+  "Confirm New Password": {
+    en: "Confirm New Password",
+    km: "បញ្ជាក់ពាក្យសម្ងាត់ថ្មី",
+  },
+  "Updating...": {
+    en: "Updating...",
+    km: "កំពុងធ្វើបច្ចុប្បន្នភាព...",
+  },
+  "Update Password": {
+    en: "Update Password",
+    km: "ធ្វើបច្ចុប្បន្នភាពពាក្យសម្ងាត់",
+  },
+  "Profile updated": {
+    en: "Profile updated",
+    km: "ប្រវត្តិរូបបានធ្វើបច្ចុប្បន្នភាព",
+  },
+  "Your profile information has been updated successfully.": {
+    en: "Your profile information has been updated successfully.",
+    km: "ព័ត៌មានប្រវត្តិរូបរបស់អ្នកត្រូវបានធ្វើបច្ចុប្បន្នភាពដោយជោគជ័យ។",
+  },
+  "Password updated": {
+    en: "Password updated",
+    km: "ពាក្យសម្ងាត់បានធ្វើបច្ចុប្បន្នភាព",
+  },
+  "Your password has been changed successfully.": {
+    en: "Your password has been changed successfully.",
+    km: "ពាក្យសម្ងាត់របស់អ្នកត្រូវបានផ្លាស់ប្តូរដោយជោគជ័យ។",
+  },
   // 404 Not Found page translations
   "Page Not Found": {
     en: "Page Not Found",
@@ -264,83 +341,6 @@ const translations: TranslationsType = {
   },
   Location: {
     en: "Location",
-    km: "ទីតាំង",
-  },
-  Description: {
-    en: "Description",
-    km: "ការពិពណ៌នា",
-  },
-  "Check-in Status": {
-    en: "Check-in Status",
-    km: "ស្ថានភាពការចូលរួម",
-  },
-  "Checked In": {
-    en: "Checked In",
-    km: "បានចូលរួម",
-  },
-  "Not Checked": {
-    en: "Not Checked",
-    km: "មិនបានចូលរួម",
-  },
-  "QR Code": {
-    en: "QR Code",
-    km: "កូដ QR",
-  },
-  "Scan this QR code to access event details or check-in.": {
-    en: "Scan this QR code to access event details or check-in.",
-    km: "ស្កេនកូដ QR នេះដើម្បីចូលមើលព័ត៌មានលម្អិតនៃព្រឹត្តិការណ៍ឬចូលរួម។",
-  },
-  "Event Details": {
-    en: "Event Details",
-    km: "ព័ត៌មានលម្អិតនៃព្រឹត្តិការណ៍",
-  },
-  "Manage event system and permissions": {
-    en: "Manage event system and permissions",
-    km: "គ្រប់គ្រងប្រព័ន្ធព្រឹត្តិការណ៍និងការអនុញ្ញាត",
-  },
-  // Common dialog texts
-  "Are you absolutely sure?": {
-    en: "Are you absolutely sure?",
-    km: "តើអ្នកប្រាកដហើយមែនទេ?",
-  },
-  "This action cannot be undone.": {
-    en: "This action cannot be undone.",
-    km: "សកម្មភាពនេះមិនអាចត្រឡប់វិញបានទេ។",
-  },
-  Update: {
-    en: "Update",
-    km: "ធ្វើបច្ចុប្បន្នភាព",
-  },
-  "Add New": {
-    en: "Add New",
-    km: "បន្ថែមថ្មី",
-  },
-  // Error messages
-  Error: {
-    en: "Error",
-    km: "កំហុស",
-  },
-  Success: {
-    en: "Success",
-    km: "ជោគជ័យ",
-  },
-  Failed: {
-    en: "Failed",
-    km: "បរាជ័យ",
-  },
-  // Event list page
-  "Search events...": {
-    en: "Search events...",
-    km: "ស្វែងរកព្រឹត្តិការណ៍...",
-  },
-  "Filter by category": {
-    en: "Filter by category",
-    km: "ត្រងតាមប្រភេទ",
-  },
-  "All Categories": {
-    en: "All Categories",
-    km: "គ្រប់ប្រភេទទាំងអស់",
-  },
   "Add Event": {
     en: "Add Event",
     km: "បន្ថែមព្រឹត្តិការណ៍",
