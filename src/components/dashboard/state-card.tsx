@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, {useState, useEffect} from "react";
 import {Calendar, Clock, CheckCircle, Users, LucideIcon} from "lucide-react";
 import {useLanguage} from "../providers/LanguageProvider";
 
@@ -52,13 +52,13 @@ function StatsCard({title, value, icon: Icon}: StatsCardProps) {
   useEffect(() => {
     // Reset counter when value changes
     setCount(0);
-    
+
     // Don't animate if value is not a number
     if (isNaN(finalValue)) {
       setCount(0);
       return;
     }
-    
+
     // Animation duration in milliseconds (1 second)
     const duration = 1000;
     // Number of steps in the animation
@@ -67,12 +67,12 @@ function StatsCard({title, value, icon: Icon}: StatsCardProps) {
     const stepValue = finalValue / steps;
     // Calculate delay between steps
     const stepDelay = duration / steps;
-    
+
     let currentStep = 0;
-    
+
     const timer = setInterval(() => {
       currentStep += 1;
-      
+
       if (currentStep === steps) {
         // On final step, set to exact value
         setCount(finalValue);
@@ -82,7 +82,7 @@ function StatsCard({title, value, icon: Icon}: StatsCardProps) {
         setCount(Math.floor(stepValue * currentStep));
       }
     }, stepDelay);
-    
+
     return () => clearInterval(timer);
   }, [value, finalValue]);
 

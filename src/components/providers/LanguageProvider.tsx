@@ -27,6 +27,10 @@ const translations: TranslationsType = {
     en: "Event Management",
     km: "កម្មវិធីគ្រប់គ្រងព្រឹត្តិការណ៍",
   },
+  Home: {
+    en: "Home",
+    km: "ទំព័រដើម",
+  },
   // Account page translations
   General: {
     en: "General",
