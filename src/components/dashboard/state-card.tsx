@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {Calendar, Clock, CheckCircle, Users, LucideIcon} from "lucide-react";
 import {useLanguage} from "../providers/LanguageProvider";
 
@@ -46,6 +46,45 @@ function StatsCard({title, value, icon: Icon}: StatsCardProps) {
   const {t} = useLanguage();
   const translatedTitle = t(title);
   const {bg, iconColor} = getIconStyle(translatedTitle);
+  const [count, setCount] = useState(0);
+  const finalValue = parseInt(value);
+
+  useEffect(() => {
+    // Reset counter when value changes
+    setCount(0);
+    
+    // Don't animate if value is not a number
+    if (isNaN(finalValue)) {
+      setCount(0);
+      return;
+    }
+    
+    // Animation duration in milliseconds (1 second)
+    const duration = 1000;
+    // Number of steps in the animation
+    const steps = 20;
+    // Calculate step size
+    const stepValue = finalValue / steps;
+    // Calculate delay between steps
+    const stepDelay = duration / steps;
+    
+    let currentStep = 0;
+    
+    const timer = setInterval(() => {
+      currentStep += 1;
+      
+      if (currentStep === steps) {
+        // On final step, set to exact value
+        setCount(finalValue);
+        clearInterval(timer);
+      } else {
+        // For intermediate steps, increment by step value
+        setCount(Math.floor(stepValue * currentStep));
+      }
+    }, stepDelay);
+    
+    return () => clearInterval(timer);
+  }, [value, finalValue]);
 
   return (
     <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-6">
@@ -54,7 +93,9 @@ function StatsCard({title, value, icon: Icon}: StatsCardProps) {
           <p className="text-base font-medium text-muted-foreground">
             {translatedTitle}
           </p>
-          <p className="text-3xl font-bold mt-2 mb-1">{value}</p>
+          <p className="text-3xl font-bold mt-2 mb-1">
+            {isNaN(finalValue) ? value : count}
+          </p>
         </div>
         <div
           className="rounded-full p-2 flex items-center justify-center"
