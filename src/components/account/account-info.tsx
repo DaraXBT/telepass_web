@@ -133,21 +133,6 @@ export default function Account() {
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleProfileUpdate} className="space-y-6">
-                  {" "}
-                  <div className="flex flex-col items-center space-y-3 mb-6">
-                    <Avatar className="h-24 w-24">
-                      <AvatarImage src={userData.avatar} alt={userData.name} />
-                      <AvatarFallback>
-                        {userData.name
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")}
-                      </AvatarFallback>
-                    </Avatar>
-                    <Button type="button" variant="outline" size="sm">
-                      {t("Change Avatar")}
-                    </Button>
-                  </div>
                   <div className="space-y-4">
                     {" "}
                     <div className="grid gap-3">
