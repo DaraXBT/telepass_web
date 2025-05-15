@@ -93,7 +93,9 @@ export default function Account() {
   };
   return (
     <>
-      <Tabs defaultValue="general" className="w-full">        <ScrollArea className="w-full">
+      <Tabs defaultValue="general" className="w-full">
+        {" "}
+        <ScrollArea className="w-full">
           <TabsList className="mb-8 w-full justify-start rounded-none border-b bg-transparent p-0">
             <TabsTrigger
               value="general"
@@ -147,13 +149,17 @@ export default function Account() {
                     </Button>
                   </div>
                   <div className="space-y-4">
+                    {" "}
                     <div className="grid gap-3">
                       <Label htmlFor="name">{t("Full Name")}</Label>
-                      <Input
-                        id="name"
-                        defaultValue={userData.name}
-                        className="w-full"
-                      />
+                      <div className="flex items-center">
+                        <User className="mr-2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="name"
+                          defaultValue={userData.name}
+                          className="w-full"
+                        />
+                      </div>
                     </div>
                     <div className="grid gap-3">
                       <Label htmlFor="email">{t("Email")}</Label>
@@ -178,7 +184,8 @@ export default function Account() {
               </CardContent>
             </Card>
           </div>
-        </TabsContent>        {/* Security Tab */}{" "}
+        </TabsContent>{" "}
+        {/* Security Tab */}{" "}
         <TabsContent value="security" className="w-full">
           <div className="grid gap-6 w-full">
             <Card className="w-full">
