@@ -33,7 +33,7 @@ export function DashboardContent() {
                 {t("Number of events and attendees over time")}
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-6 pb-0">
               <EventAnalyticsChart />
             </CardContent>
           </Card>

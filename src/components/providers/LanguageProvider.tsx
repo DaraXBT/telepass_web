@@ -186,6 +186,51 @@ const translations: TranslationsType = {
     en: "Overview of event statuses",
     km: "ទិដ្ឋភាពទូទៅនៃស្ថានភាពព្រឹត្តិការណ៍",
   },
+  // Chart translations
+  Trending: {
+    en: "Trending",
+    km: "និន្នាការ",
+  },
+  up: {
+    en: "up",
+    km: "ឡើង",
+  },
+  down: {
+    en: "down",
+    km: "ចុះ",
+  },
+  by: {
+    en: "by",
+    km: "ដោយ",
+  },
+  "this month": {
+    en: "this month",
+    km: "ខែនេះ",
+  },
+  January: {
+    en: "January",
+    km: "មករា",
+  },
+  February: {
+    en: "February",
+    km: "កុម្ភៈ",
+  },
+  March: {
+    en: "March",
+    km: "មីនា",
+  },
+  April: {
+    en: "April",
+    km: "មេសា",
+  },
+  May: {
+    en: "May",
+    km: "ឧសភា",
+  },
+  June: {
+    en: "June",
+    km: "មិថុនា",
+  },
   // Stats cards
   "Total Events": {
     en: "Total Events",
