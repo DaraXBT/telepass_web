@@ -120,11 +120,11 @@ export default function Account() {
               <CardHeader>
                 {" "}
                 <div className="flex items-center justify-between">
-                  <CardTitle>{t("Profile Information")}</CardTitle>
+                  <CardTitle>{t("Profile Information")}</CardTitle>{" "}
                   <Badge
                     className="text-sm px-3 py-1 font-medium bg-gradient-to-r from-blue-600 via-purple-500 to-pink-500 animate-gradient-x text-white rounded-md"
                     variant="default">
-                    <Shield className="mr-1.5 h-4 w-4" /> {userData.role}
+                    <Shield className="mr-1.5 h-4 w-4" /> {t(userData.role)}
                   </Badge>
                 </div>
                 <CardDescription>

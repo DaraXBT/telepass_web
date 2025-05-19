@@ -120,6 +120,10 @@ const translations: TranslationsType = {
     en: "Administrator",
     km: "អ្នកគ្រប់គ្រង",
   },
+  Admin: {
+    en: "Admin",
+    km: "អ្នកគ្រប់គ្រង",
+  },
   // 404 Not Found page translations
   "Page Not Found": {
     en: "Page Not Found",
@@ -343,6 +347,10 @@ const translations: TranslationsType = {
     en: "Status",
     km: "ស្ថានភាព",
   },
+  Role: {
+    en: "Role",
+    km: "តួនាទី",
+  },
   Upcoming: {
     en: "Upcoming",
     km: "កំពុងមកដល់",
@@ -564,12 +572,24 @@ const translations: TranslationsType = {
     en: "Select an event",
     km: "ជ្រើសរើសព្រឹត្តិការណ៍",
   },
+  "Select role": {
+    en: "Select role",
+    km: "ជ្រើសរើសតួនាទី",
+  },
+  "Select status": {
+    en: "Select status",
+    km: "ជ្រើសរើសស្ថានភាព",
+  },
   "Registered Attendees": {
     en: "Registered Attendees",
     km: "អ្នកចូលរួមដែលបានចុះឈ្មោះ",
   },
   Organizers: {
     en: "Organizers",
+    km: "អ្នករៀបចំ",
+  },
+  Organizer: {
+    en: "Organizer",
     km: "អ្នករៀបចំ",
   },
   "Select users for this event": {
@@ -637,6 +657,39 @@ const translations: TranslationsType = {
     en: "At least one user must be selected",
     km: "យ៉ាងហោចណាស់អ្នកប្រើប្រាស់ម្នាក់ត្រូវបានជ្រើសរើស",
   },
+  "Email is required": {
+    en: "Email is required",
+    km: "តម្រូវអោយមានអ៊ីមែល",
+  },
+  "Email is invalid": {
+    en: "Email is invalid",
+    km: "អ៊ីមែលមិនត្រឹមត្រូវ",
+  },
+  "Role is required": {
+    en: "Role is required",
+    km: "តម្រូវអោយមានតួនាទី",
+  },
+  "Status is required": {
+    en: "Status is required",
+    km: "តម្រូវអោយមានស្ថានភាព",
+  },
+  "Validation Error": {
+    en: "Validation Error",
+    km: "កំហុសឆ្គងក្នុងការផ្ទៀងផ្ទាត់",
+  },
+  "Please fill in all required fields correctly": {
+    en: "Please fill in all required fields correctly",
+    km: "សូមបំពេញគ្រប់វាលដែលត្រូវការអោយបានត្រឹមត្រូវ",
+  },
+  // Audience/user list page translations
+  "Modify the user's information using the form below.": {
+    en: "Modify the user's information using the form below.",
+    km: "កែសម្រួលព័ត៌មានរបស់អ្នកប្រើប្រាស់ដោយប្រើទម្រង់ខាងក្រោម។",
+  },
+  "Add a new user to the system.": {
+    en: "Add a new user to the system.",
+    km: "បន្ថែមអ្នកប្រើប្រាស់ថ្មីទៅក្នុងប្រព័ន្ធ។",
+  },
   // Report page
   "Event Selection": {
     en: "Event Selection",
@@ -682,10 +735,14 @@ const translations: TranslationsType = {
     en: "Phone",
     km: "ទូរស័ព្ទ",
   },
-  // Audience/user list page translations
+  // Audience/user list page translations  "Add User": {
   "Add User": {
     en: "Add User",
     km: "បន្ថែមអ្នកប្រើប្រាស់",
+  },
+  "Update User": {
+    en: "Update User",
+    km: "ធ្វើបច្ចុប្បន្នភាពអ្នកប្រើប្រាស់",
   },
   "User added": {
     en: "User added",

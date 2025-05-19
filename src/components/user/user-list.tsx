@@ -72,14 +72,14 @@ const initialUsers: User[] = [
     id: "2",
     name: "Jane Smith",
     email: "jane@example.com",
-    role: "Event Organizer",
+    role: "Organizer",
     status: "active",
   },
   {
     id: "3",
     name: "Bob Johnson",
     email: "bob@example.com",
-    role: "Event Organizer",
+    role: "Organizer",
     status: "inactive",
   },
   {
@@ -93,7 +93,7 @@ const initialUsers: User[] = [
     id: "5",
     name: "Charlie Davis",
     email: "charlie@example.com",
-    role: "Event Organizer",
+    role: "Organizer",
     status: "inactive",
   },
 ];
@@ -166,7 +166,7 @@ export function UserList() {
                 id: "",
                 name: "",
                 email: "",
-                role: "Event Organizer",
+                role: "Organizer",
                 status: "active",
               })
             }>
@@ -191,7 +191,7 @@ export function UserList() {
                     <span className="block truncate">{user.name}</span>
                   </TableCell>
                   <TableCell className="min-w-[200px]">{user.email}</TableCell>
-                  <TableCell>{user.role}</TableCell>
+                  <TableCell>{t(user.role)}</TableCell>
                   <TableCell>
                     <Badge
                       variant={
@@ -301,18 +301,57 @@ interface UserFormProps {
 
 function UserForm({user, onSubmit, submitLabel}: UserFormProps) {
   const [formData, setFormData] = useState<User>(user);
+  const [errors, setErrors] = useState<{[key: string]: string}>({});
   const {t} = useLanguage();
+  const {toast} = useToast();
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const {name, value} = e.target;
     setFormData((prev) => ({...prev, [name]: value}));
+    // Clear error when field is edited
+    if (errors[name]) {
+      setErrors((prev) => ({...prev, [name]: ""}));
+    }
+  };
+  const validateForm = () => {
+    const newErrors: {[key: string]: string} = {};
+
+    if (!formData.name.trim()) {
+      newErrors.name = t("Name is required");
+    }
+
+    if (!formData.email.trim()) {
+      newErrors.email = t("Email is required");
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = t("Email is invalid");
+    }
+
+    if (!formData.role) {
+      newErrors.role = t("Role is required");
+    }
+
+    if (!formData.status) {
+      newErrors.status = t("Status is required");
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+
+    if (validateForm()) {
+      onSubmit(formData);
+    } else {
+      toast({
+        title: t("Validation Error"),
+        description: t("Please fill in all required fields correctly"),
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -324,7 +363,11 @@ function UserForm({user, onSubmit, submitLabel}: UserFormProps) {
           name="name"
           value={formData.name}
           onChange={handleChange}
+          className={errors.name ? "border-red-500" : ""}
         />
+        {errors.name && (
+          <p className="text-xs text-red-500 mt-1">{errors.name}</p>
+        )}
       </div>
       <div>
         <Label htmlFor="email">{t("Email")}</Label>
@@ -334,36 +377,43 @@ function UserForm({user, onSubmit, submitLabel}: UserFormProps) {
           type="email"
           value={formData.email}
           onChange={handleChange}
+          className={errors.email ? "border-red-500" : ""}
         />
-      </div>
+        {errors.email && (
+          <p className="text-xs text-red-500 mt-1">{errors.email}</p>
+        )}
+      </div>{" "}
       <div>
         <Label htmlFor="role">{t("Role")}</Label>
         <Select
           name="role"
           value={formData.role}
-          onValueChange={(value) =>
-            handleChange({target: {name: "role", value}} as any)
-          }>
-          <SelectTrigger>
+          onValueChange={(value) => {
+            handleChange({target: {name: "role", value}} as any);
+            if (errors.role) setErrors((prev) => ({...prev, role: ""}));
+          }}>
+          <SelectTrigger className={errors.role ? "border-red-500" : ""}>
             <SelectValue placeholder={t("Select role")} />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="Admin">{t("Admin")}</SelectItem>
-            <SelectItem value="Event Organizer">
-              {t("Event Organizer")}
-            </SelectItem>
+            <SelectItem value="Organizer">{t("Organizer")}</SelectItem>
           </SelectContent>
         </Select>
+        {errors.role && (
+          <p className="text-xs text-red-500 mt-1">{errors.role}</p>
+        )}
       </div>
       <div>
         <Label htmlFor="status">{t("Status")}</Label>
         <Select
           name="status"
           value={formData.status}
-          onValueChange={(value) =>
-            handleChange({target: {name: "status", value}} as any)
-          }>
-          <SelectTrigger>
+          onValueChange={(value) => {
+            handleChange({target: {name: "status", value}} as any);
+            if (errors.status) setErrors((prev) => ({...prev, status: ""}));
+          }}>
+          <SelectTrigger className={errors.status ? "border-red-500" : ""}>
             <SelectValue placeholder={t("Select status")} />
           </SelectTrigger>
           <SelectContent>
@@ -371,6 +421,9 @@ function UserForm({user, onSubmit, submitLabel}: UserFormProps) {
             <SelectItem value="inactive">{t("Inactive")}</SelectItem>
           </SelectContent>
         </Select>
+        {errors.status && (
+          <p className="text-xs text-red-500 mt-1">{errors.status}</p>
+        )}
       </div>
       <DialogFooter>
         <Button type="submit">{submitLabel}</Button>
