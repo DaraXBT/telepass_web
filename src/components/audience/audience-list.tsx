@@ -113,6 +113,7 @@ export function AudienceList() {
       toast({
         title: t("User updated"),
         description: `${updatedUser.fullName} ${t("'s information has been updated.")}`,
+        variant: "success",
       });
     } catch (error) {
       toast({
@@ -132,6 +133,7 @@ export function AudienceList() {
       toast({
         title: t("User added"),
         description: `${newUser.fullName} ${t("has been added to the system.")}`,
+        variant: "success",
       });
     } catch (error) {
       toast({
@@ -150,6 +152,7 @@ export function AudienceList() {
       toast({
         title: t("User deleted"),
         description: `${userToDelete?.fullName} ${t("has been removed from the system.")}`,
+        variant: "destructive",
       });
     } catch (error) {
       toast({

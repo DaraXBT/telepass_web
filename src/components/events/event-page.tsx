@@ -65,12 +65,12 @@ export function EventPage() {
 
     fetchEvent();
   }, [id]);
-
   const handleUpdateEvent = (updatedEvent: Event) => {
     setEvent(updatedEvent);
     toast({
       title: "Event updated",
       description: `"${updatedEvent.name}" details have been successfully updated.`,
+      variant: "success",
     });
   };
 

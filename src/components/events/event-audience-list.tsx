@@ -133,6 +133,7 @@ export function EventAudienceList({eventId}: EventAudienceListProps) {
     toast({
       title: "Audience member updated",
       description: `${updatedMember.name}'s information has been updated for this event.`,
+      variant: "success",
     });
   };
 
@@ -147,6 +148,7 @@ export function EventAudienceList({eventId}: EventAudienceListProps) {
     toast({
       title: "Audience member added",
       description: `${newMember.name} has been added to the audience list for this event.`,
+      variant: "success",
     });
   };
 

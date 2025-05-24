@@ -121,7 +121,7 @@ export function UserList() {
     toast({
       title: t("User updated"),
       description: `${updatedUser.name}${t("'s information has been updated.")}`,
-      variant: "default",
+      variant: "success",
     });
   };
 
@@ -143,7 +143,7 @@ export function UserList() {
     toast({
       title: t("User added"),
       description: `${user.name} ${t("has been added to the system.")}`,
-      variant: "default",
+      variant: "success",
     });
   };
 

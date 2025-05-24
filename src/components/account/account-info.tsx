@@ -27,6 +27,8 @@ import {
   Languages,
   MapPin,
   Calendar,
+  Building2,
+  UserRound,
 } from "lucide-react";
 import {Textarea} from "@/components/ui/textarea";
 import {
@@ -43,21 +45,18 @@ import {ScrollArea} from "@/components/ui/scroll-area";
 export default function Account() {
   const {t} = useLanguage();
   const [isPending, setIsPending] = useState<boolean>(false);
-
   // Mock user data - In a real app, this would come from an API/context
   const [userData, setUserData] = useState({
-    name: "Dara Chan",
-    email: "dara.chan@example.com",
+    name: "Dara",
+    email: "dara.v@example.com",
     phone: "+855 12 345 678",
     avatar: "https://github.com/shadcn.png",
     role: "Administrator",
-    bio: "Software engineer with a passion for building amazing user experiences. Working at TelePass to streamline event management.",
-    address: "Phnom Penh, Cambodia",
-    joinedDate: "February 2023",
+    gender: "male",
+    organization: "TelePass Inc.",
     language: "en",
     timezone: "Asia/Phnom_Penh",
   });
-
   const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsPending(true);
@@ -70,10 +69,10 @@ export default function Account() {
         description: t(
           "Your profile information has been updated successfully."
         ),
+        variant: "success",
       });
     }, 1000);
   };
-
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsPending(true);
@@ -84,6 +83,7 @@ export default function Account() {
       toast({
         title: t("Password updated"),
         description: t("Your password has been changed successfully."),
+        variant: "success",
       });
 
       // Clear form
@@ -145,7 +145,7 @@ export default function Account() {
                           className="w-full"
                         />
                       </div>
-                    </div>
+                    </div>{" "}
                     <div className="grid gap-3">
                       <Label htmlFor="email">{t("Email")}</Label>
                       <div className="flex items-center">
@@ -154,6 +154,34 @@ export default function Account() {
                           id="email"
                           type="email"
                           defaultValue={userData.email}
+                          className="w-full"
+                        />
+                      </div>
+                    </div>
+                    <div className="grid gap-3">
+                      <Label htmlFor="gender">{t("Gender")}</Label>
+                      <div className="flex items-center">
+                        <UserRound className="mr-2 h-4 w-4 text-muted-foreground" />{" "}
+                        <Select defaultValue={userData.gender}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder={t("Select gender")} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="male">{t("Male")}</SelectItem>
+                            <SelectItem value="female">
+                              {t("Female")}
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    <div className="grid gap-3">
+                      <Label htmlFor="organization">{t("Organization")}</Label>
+                      <div className="flex items-center">
+                        <Building2 className="mr-2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="organization"
+                          defaultValue={userData.organization}
                           className="w-full"
                         />
                       </div>

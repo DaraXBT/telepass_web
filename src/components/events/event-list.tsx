@@ -112,6 +112,7 @@ export const EventList: React.FC = () => {
     toast({
       title: t("Event updated"),
       description: `"${updatedEvent.name}" ${t("has been successfully updated.")}`,
+      variant: "success",
     });
   };
 
@@ -123,6 +124,7 @@ export const EventList: React.FC = () => {
     toast({
       title: t("Event added"),
       description: `"${newEvent.name}" ${t("has been successfully added to the event list.")}`,
+      variant: "success",
     });
   };
 
