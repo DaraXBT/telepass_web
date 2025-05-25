@@ -23,6 +23,124 @@ const translations: TranslationsType = {
     en: "TelePass",
     km: "តេឡេផាស",
   },
+  // Login and Registration
+  "Login to TelePass": {
+    en: "Login to TelePass",
+    km: "ចូលទៅតេឡេផាស",
+  },
+  "Create TelePass Account": {
+    en: "Create TelePass Account",
+    km: "បង្កើតគណនីតេឡេផាស",
+  },
+  Email: {
+    en: "Email",
+    km: "អ៊ីមែល",
+  },
+  "Enter your email": {
+    en: "Enter your email",
+    km: "បញ្ចូលអ៊ីមែលរបស់អ្នក",
+  },
+  Password: {
+    en: "Password",
+    km: "ពាក្យសម្ងាត់",
+  },
+  "Enter your password": {
+    en: "Enter your password",
+    km: "បញ្ចូលពាក្យសម្ងាត់របស់អ្នក",
+  },
+  "Create a password": {
+    en: "Create a password",
+    km: "បង្កើតពាក្យសម្ងាត់",
+  },
+  "Forgot password?": {
+    en: "Forgot password?",
+    km: "ភ្លេចពាក្យសម្ងាត់?",
+  },
+  "Sign in": {
+    en: "Sign in",
+    km: "ចូលគណនី",
+  },
+  "Signing in...": {
+    en: "Signing in...",
+    km: "កំពុងចូល...",
+  },
+  OR: {
+    en: "OR",
+    km: "ឬ",
+  },
+  "Continue with Google": {
+    en: "Continue with Google",
+    km: "បន្តជាមួយ Google",
+  },
+  "Don't have an account?": {
+    en: "Don't have an account?",
+    km: "មិនមានគណនី?",
+  },
+  "Sign up": {
+    en: "Sign up",
+    km: "ចុះឈ្មោះ",
+  },
+  "Already have an account?": {
+    en: "Already have an account?",
+    km: "មានគណនីរួចហើយ?",
+  },
+  "Enter your full name": {
+    en: "Enter your full name",
+    km: "បញ្ចូលឈ្មោះពេញរបស់អ្នក",
+  },
+  "Create Account": {
+    en: "Create Account",
+    km: "បង្កើតគណនី",
+  },
+  "Creating account...": {
+    en: "Creating account...",
+    km: "កំពុងបង្កើតគណនី...",
+  },
+  "Register with Google": {
+    en: "Register with Google",
+    km: "ចុះឈ្មោះជាមួយ Google",
+  },
+  "Registration Successful": {
+    en: "Registration Successful",
+    km: "ការចុះឈ្មោះបានជោគជ័យ",
+  },
+  "Your account has been created successfully.": {
+    en: "Your account has been created successfully.",
+    km: "គណនីរបស់អ្នកត្រូវបានបង្កើតដោយជោគជ័យ។",
+  },
+  "Login failed": {
+    en: "Login failed",
+    km: "ការចូលបរាជ័យ",
+  },
+  "Registration failed": {
+    en: "Registration failed",
+    km: "ការចុះឈ្មោះបរាជ័យ",
+  },
+  "Google Authentication": {
+    en: "Google Authentication",
+    km: "ការផ្ទៀងផ្ទាត់ Google",
+  },
+  "Connecting to Google...": {
+    en: "Connecting to Google...",
+    km: "កំពុងភ្ជាប់ទៅ Google...",
+  },
+  "Google login failed. Please try again.": {
+    en: "Google login failed. Please try again.",
+    km: "ការចូលតាម Google បរាជ័យ។ សូមព្យាយាមម្តងទៀត។",
+  },
+  "Google registration failed. Please try again.": {
+    en: "Google registration failed. Please try again.",
+    km: "ការចុះឈ្មោះតាម Google បរាជ័យ។ សូមព្យាយាមម្តងទៀត។",
+  },
+  "Password Reset": {
+    en: "Password Reset",
+    km: "កំណត់ពាក្យសម្ងាត់ឡើងវិញ",
+  },
+  "Password reset link sent to your email.": {
+    en: "Password reset link sent to your email.",
+    km: "តំណភ្ជាប់កំណត់ពាក្យសម្ងាត់ឡើងវិញបានផ្ញើទៅអ៊ីមែលរបស់អ្នក។",
+  },
+  // Event Management
   "Event Management": {
     en: "Event Management",
     km: "កម្មវិធីគ្រប់គ្រងព្រឹត្តិការណ៍",
@@ -141,36 +259,6 @@ const translations: TranslationsType = {
   Dashboard: {
     en: "Dashboard",
     km: "ផ្ទាំងគ្រប់គ្រង",
-  },
-
-  // Login page translations
-  "Login to TelePass": {
-    en: "Login to TelePass",
-    km: "ចូលទៅកាន់តេឡេផាស",
-  },
-  "Enter your email below to login to your account.": {
-    en: "Enter your email below to login to your account.",
-    km: "បញ្ចូលអ៊ីមែលរបស់អ្នកខាងក្រោមដើម្បីចូលទៅកាន់គណនីរបស់អ្នក។",
-  },
-  Password: {
-    en: "Password",
-    km: "ពាក្យសម្ងាត់",
-  },
-  "Sign in": {
-    en: "Sign in",
-    km: "ចូល",
-  },
-  "Login failed": {
-    en: "Login failed",
-    km: "ការចូលគណនីបានបរាជ័យ",
-  },
-  "Enter your email": {
-    en: "Enter your email",
-    km: "បញ្ចូលអ៊ីមែលរបស់អ្នក",
-  },
-  "Enter your password": {
-    en: "Enter your password",
-    km: "បញ្ចូលពាក្យសម្ងាត់របស់អ្នក",
   },
 
   // Dashboard page
@@ -334,10 +422,6 @@ const translations: TranslationsType = {
   Name: {
     en: "Name",
     km: "ឈ្មោះ",
-  },
-  Email: {
-    en: "Email",
-    km: "អ៊ីមែល",
   },
   "Phone Number": {
     en: "Phone Number",

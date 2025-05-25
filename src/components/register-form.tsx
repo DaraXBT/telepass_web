@@ -13,39 +13,46 @@ import {Separator} from "@/components/ui/separator";
 import Link from "next/link";
 import {toast} from "@/hooks/use-toast";
 
-export function LoginForm() {
+export function RegisterForm() {
   const router = useRouter();
   const {t} = useLanguage();
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = async (event: React.FormEvent) => {
+  const handleRegister = async (event: React.FormEvent) => {
     event.preventDefault();
     setError(""); // Clear previous error
+
     setIsLoading(true);
 
     try {
-      const response = await fetch("http://localhost:8080/api/v1/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({email, password}),
-      });
+      const response = await fetch(
+        "http://localhost:8080/api/v1/auth/register",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({name, email, password}),
+        }
+      );
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || t("Login failed"));
+        throw new Error(data.message || t("Registration failed"));
       }
 
-      // Store token (if required)
-      localStorage.setItem("token", data.token);
-
-      // Redirect to dashboard
-      router.push("/dashboard");
+      toast({
+        title: t("Registration Successful"),
+        description: t("Your account has been created successfully."),
+        variant: "success",
+        duration: 3000,
+      }); // Redirect to home page (which has login form) after successful registration
+      router.push("/");
     } catch (error: any) {
       setError(error.message);
     } finally {
@@ -53,7 +60,7 @@ export function LoginForm() {
     }
   };
 
-  const handleGoogleLogin = async () => {
+  const handleGoogleRegister = async () => {
     setIsLoading(true);
     setError("");
 
@@ -71,18 +78,9 @@ export function LoginForm() {
         router.push("/dashboard");
       }, 1500);
     } catch (error: any) {
-      setError(t("Google login failed. Please try again."));
+      setError(t("Google registration failed. Please try again."));
       setIsLoading(false);
     }
-  };
-
-  const handleForgotPassword = () => {
-    toast({
-      title: t("Password Reset"),
-      description: t("Password reset link sent to your email."),
-      variant: "success",
-      duration: 3000,
-    });
   };
 
   return (
@@ -110,15 +108,28 @@ export function LoginForm() {
               className="w-full h-full object-cover"
             />
           </div>
-          <h1 className="text-2xl font-semibold">{t("Login to TelePass")}</h1>
+          <h1 className="text-2xl font-semibold">
+            {t("Create f Account")}
+          </h1>
         </div>
 
-        {/* Single Card for Email, Password and Button */}
+        {/* Single Card for Registration Form */}
         <Card className="w-full backdrop-blur-sm bg-card/80 border border-border/70 shadow-lg">
           <CardContent className="pt-6">
-            <form onSubmit={handleLogin} className="grid gap-4">
+            <form onSubmit={handleRegister} className="grid gap-4">
               {error && <p className="text-red-500 text-sm">{error}</p>}
-
+              <div className="grid gap-2">
+                <Label htmlFor="name">{t("Full Name")}</Label>
+                <Input
+                  id="name"
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                  placeholder={t("Enter your full name")}
+                  className="bg-background/80 backdrop-blur-sm"
+                />
+              </div>
               <div className="grid gap-2">
                 <Label htmlFor="email">{t("Email")}</Label>
                 <Input
@@ -130,8 +141,7 @@ export function LoginForm() {
                   placeholder={t("Enter your email")}
                   className="bg-background/80 backdrop-blur-sm"
                 />
-              </div>
-
+              </div>{" "}
               <div className="grid gap-2">
                 <Label htmlFor="password">{t("Password")}</Label>
                 <Input
@@ -140,26 +150,16 @@ export function LoginForm() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  placeholder={t("Enter your password")}
+                  placeholder={t("Create a password")}
                   className="bg-background/80 backdrop-blur-sm"
                 />
-                <div className="text-right">
-                  <button
-                    type="button"
-                    onClick={handleForgotPassword}
-                    className="text-sm text-primary hover:text-primary/80 hover:underline">
-                    {t("Forgot password?")}
-                  </button>
-                </div>
               </div>
-
               <Button
                 type="submit"
                 className="w-full bg-primary hover:bg-primary/90 transition-all"
                 disabled={isLoading}>
-                {isLoading ? t("Signing in...") : t("Sign in")}
+                {isLoading ? t("Creating account...") : t("Create Account")}
               </Button>
-
               <div className="relative my-2">
                 <div className="absolute inset-0 flex items-center">
                   <Separator className="w-full" />
@@ -170,12 +170,11 @@ export function LoginForm() {
                   </span>
                 </div>
               </div>
-
               <Button
                 type="button"
                 variant="outline"
                 className="w-full flex items-center justify-center gap-2"
-                onClick={handleGoogleLogin}
+                onClick={handleGoogleRegister}
                 disabled={isLoading}>
                 <svg width="20" height="20" viewBox="0 0 24 24">
                   <path
@@ -193,19 +192,18 @@ export function LoginForm() {
                   <path
                     fill="#EA4335"
                     d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                  />
-                </svg>
-                {t("Continue with Google")}
+                  />{" "}
+                </svg>{" "}
+                {t("Register with Google")}{" "}
               </Button>
-
-              {/* Sign up link */}
+              {/* Sign in link */}
               <div className="text-center mt-3">
                 <p className="text-sm text-muted-foreground">
-                  {t("Don't have an account?")}{" "}
+                  {t("Already have an account?")}{" "}
                   <Link
-                    href="/register"
+                    href="/"
                     className="text-primary hover:underline font-medium">
-                    {t("Sign up")}
+                    {t("Sign in")}
                   </Link>
                 </p>
               </div>

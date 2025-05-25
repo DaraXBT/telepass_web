@@ -17,7 +17,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const pathname = usePathname();
-  const isLoginPage = pathname === "/";
+  const isAuthPage = pathname === "/" || pathname === "/register";
   const {sidebarState} = useSidebarState();
   return (
     <html lang="en" suppressHydrationWarning>
@@ -32,13 +32,13 @@ export default function RootLayout({
       <body className="antialiased">
         <ThemeProvider>
           <LanguageProvider>
-            {!isLoginPage && (
+            {!isAuthPage && (
               <div className="absolute bottom-5 right-4 text-white flex items-center gap-2">
                 <LanguageToggler />
                 <ThemeToggler />
               </div>
             )}
-            {isLoginPage ? (
+            {isAuthPage ? (
               children
             ) : (
               <div className="flex h-screen overflow-hidden">
