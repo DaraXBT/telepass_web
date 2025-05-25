@@ -76,14 +76,7 @@ export function LoginForm() {
     }
   };
 
-  const handleForgotPassword = () => {
-    toast({
-      title: t("Password Reset"),
-      description: t("Password reset link sent to your email."),
-      variant: "success",
-      duration: 3000,
-    });
-  };
+  // Removed handleForgotPassword as we're now using a dedicated page
 
   return (
     <div className="relative w-full">
@@ -128,19 +121,18 @@ export function LoginForm() {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   placeholder={t("Enter your email")}
-                  className="bg-background/80 backdrop-blur-sm"
+                  className="bg-background/80 backdrop-blur-sm border-input"
                 />
               </div>
 
               <div className="grid gap-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password">{t("Password")}</Label>
-                  <button
-                    type="button"
-                    onClick={handleForgotPassword}
+                  <Link
+                    href="/forgot-password"
                     className="text-sm text-primary hover:text-primary/80 hover:underline">
                     {t("Forgot password?")}
-                  </button>
+                  </Link>
                 </div>
                 <Input
                   id="password"
@@ -149,7 +141,7 @@ export function LoginForm() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   placeholder={t("Enter your password")}
-                  className="bg-background/80 backdrop-blur-sm"
+                  className="bg-background/80 backdrop-blur-sm border-input"
                 />
               </div>
 
@@ -174,10 +166,14 @@ export function LoginForm() {
               <Button
                 type="button"
                 variant="outline"
-                className="w-full flex items-center justify-center gap-2"
+                className="w-full bg-background hover:bg-accent hover:text-accent-foreground"
                 onClick={handleGoogleLogin}
                 disabled={isLoading}>
-                <svg width="20" height="20" viewBox="0 0 24 24">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  className="mr-2">
                   <path
                     fill="#4285F4"
                     d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"

@@ -17,7 +17,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const pathname = usePathname();
-  const isAuthPage = pathname === "/" || pathname === "/register";
+  const isAuthPage =
+    pathname === "/" ||
+    pathname === "/register" ||
+    pathname === "/forgot-password";
   const {sidebarState} = useSidebarState();
   return (
     <html lang="en" suppressHydrationWarning>

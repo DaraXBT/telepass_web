@@ -140,6 +140,126 @@ const translations: TranslationsType = {
     en: "Password reset link sent to your email.",
     km: "តំណភ្ជាប់កំណត់ពាក្យសម្ងាត់ឡើងវិញបានផ្ញើទៅអ៊ីមែលរបស់អ្នក។",
   },
+  "Forgot Password": {
+    en: "Forgot Password",
+    km: "ភ្លេចពាក្យសម្ងាត់",
+  },
+  "Verify Identity": {
+    en: "Verify Identity",
+    km: "ផ្ទៀងផ្ទាត់អត្តសញ្ញាណ",
+  },
+  "Reset Password": {
+    en: "Reset Password",
+    km: "កំណត់ពាក្យសម្ងាត់ឡើងវិញ",
+  },
+  "Send Verification Code": {
+    en: "Send Verification Code",
+    km: "ផ្ញើលេខកូដផ្ទៀងផ្ទាត់",
+  },
+  "OTP Sent": {
+    en: "OTP Sent",
+    km: "បានផ្ញើ OTP",
+  },
+  "A verification code has been sent to your email.": {
+    en: "A verification code has been sent to your email.",
+    km: "លេខកូដផ្ទៀងផ្ទាត់ត្រូវបានផ្ញើទៅកាន់អ៊ីមែលរបស់អ្នក។",
+  },
+  "Remember your password?": {
+    en: "Remember your password?",
+    km: "ចាំពាក្យសម្ងាត់របស់អ្នក?",
+  },
+  "Back to Login": {
+    en: "Back to Login",
+    km: "ត្រឡប់ទៅការចូលគណនី",
+  },
+  "Enter the 6-digit verification code sent to": {
+    en: "Enter the 6-digit verification code sent to",
+    km: "បញ្ចូលលេខកូដផ្ទៀងផ្ទាត់ ៦ ខ្ទង់ដែលបានផ្ញើទៅកាន់",
+  },
+  "Verify Code": {
+    en: "Verify Code",
+    km: "ផ្ទៀងផ្ទាត់លេខកូដ",
+  },
+  "Change Email": {
+    en: "Change Email",
+    km: "ប្តូរអ៊ីមែល",
+  },
+  "Resend Code": {
+    en: "Resend Code",
+    km: "ផ្ញើលេខកូដម្តងទៀត",
+  },
+  "OTP Verified": {
+    en: "OTP Verified",
+    km: "OTP បានផ្ទៀងផ្ទាត់",
+  },
+  "Your identity has been verified. Please set a new password.": {
+    en: "Your identity has been verified. Please set a new password.",
+    km: "អត្តសញ្ញាណរបស់អ្នកត្រូវបានផ្ទៀងផ្ទាត់។ សូមកំណត់ពាក្យសម្ងាត់ថ្មី។",
+  },
+  "Confirm Password": {
+    en: "Confirm Password",
+    km: "បញ្ជាក់ពាក្យសម្ងាត់",
+  },
+  "Enter new password": {
+    en: "Enter new password",
+    km: "បញ្ចូលពាក្យសម្ងាត់ថ្មី",
+  },
+  "Confirm new password": {
+    en: "Confirm new password",
+    km: "បញ្ជាក់ពាក្យសម្ងាត់ថ្មី",
+  },
+  "Resetting...": {
+    en: "Resetting...",
+    km: "កំពុងកំណត់ឡើងវិញ...",
+  },
+  "Back to Verification": {
+    en: "Back to Verification",
+    km: "ត្រឡប់ទៅការផ្ទៀងផ្ទាត់",
+  },
+  "Password Reset Successful": {
+    en: "Password Reset Successful",
+    km: "ការកំណត់ពាក្យសម្ងាត់ឡើងវិញបានជោគជ័យ",
+  },
+  "Your password has been reset successfully.": {
+    en: "Your password has been reset successfully.",
+    km: "ពាក្យសម្ងាត់របស់អ្នកត្រូវបានកំណត់ឡើងវិញដោយជោគជ័យ។",
+  },
+  "Invalid verification code. Please try again.": {
+    en: "Invalid verification code. Please try again.",
+    km: "លេខកូដផ្ទៀងផ្ទាត់មិនត្រឹមត្រូវ។ សូមព្យាយាមម្តងទៀត។",
+  },
+  "Passwords do not match.": {
+    en: "Passwords do not match.",
+    km: "ពាក្យសម្ងាត់មិនត្រូវគ្នា។",
+  },
+  "Failed to send verification code.": {
+    en: "Failed to send verification code.",
+    km: "បរាជ័យក្នុងការផ្ញើលេខកូដផ្ទៀងផ្ទាត់។",
+  },
+  "Failed to verify code.": {
+    en: "Failed to verify code.",
+    km: "បរាជ័យក្នុងការផ្ទៀងផ្ទាត់លេខកូដ។",
+  },
+  "Failed to reset password.": {
+    en: "Failed to reset password.",
+    km: "បរាជ័យក្នុងការកំណត់ពាក្យសម្ងាត់ឡើងវិញ។",
+  },
+  "Verifying...": {
+    en: "Verifying...",
+    km: "កំពុងផ្ទៀងផ្ទាត់...",
+  },
+  "Sending...": {
+    en: "Sending...",
+    km: "កំពុងផ្ញើ...",
+  },
+  "OTP Resent": {
+    en: "OTP Resent",
+    km: "បានផ្ញើ OTP ម្តងទៀត",
+  },
+  "A new verification code has been sent to your email.": {
+    en: "A new verification code has been sent to your email.",
+    km: "លេខកូដផ្ទៀងផ្ទាត់ថ្មីត្រូវបានផ្ញើទៅកាន់អ៊ីមែលរបស់អ្នក។",
+  },
   // Event Management
   "Event Management": {
     en: "Event Management",
