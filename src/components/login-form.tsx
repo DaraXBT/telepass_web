@@ -133,7 +133,15 @@ export function LoginForm() {
               </div>
 
               <div className="grid gap-2">
-                <Label htmlFor="password">{t("Password")}</Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password">{t("Password")}</Label>
+                  <button
+                    type="button"
+                    onClick={handleForgotPassword}
+                    className="text-sm text-primary hover:text-primary/80 hover:underline">
+                    {t("Forgot password?")}
+                  </button>
+                </div>
                 <Input
                   id="password"
                   type="password"
@@ -143,14 +151,6 @@ export function LoginForm() {
                   placeholder={t("Enter your password")}
                   className="bg-background/80 backdrop-blur-sm"
                 />
-                <div className="text-right">
-                  <button
-                    type="button"
-                    onClick={handleForgotPassword}
-                    className="text-sm text-primary hover:text-primary/80 hover:underline">
-                    {t("Forgot password?")}
-                  </button>
-                </div>
               </div>
 
               <Button
