@@ -1,0 +1,40 @@
+{
+  "servers": {
+    "postgres": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-postgres",
+        "postgresql://localhost:5432/tb"
+      ]
+    },
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${env:GITHUB_PERSONAL_ACCESS_TOKEN}"
+      }
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "${env:USERPROFILE}\\Documents",
+        "${workspaceFolder}"
+      ]
+    },
+    "Context7": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp@latest"]
+    },
+    "shadcn": {
+      "command": "npx",
+      "args": ["-y", "shadcn@canary", "registry:mcp"],
+      "env": {
+        "REGISTRY_URL": "https://animate-ui.com/r/registry.json"
+      }
+    }
+  }
+}
