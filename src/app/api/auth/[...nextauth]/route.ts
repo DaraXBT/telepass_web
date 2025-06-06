@@ -1,6 +1,6 @@
 import {signInUserBody} from "@/services/authservice.service";
-import NextAuth, {NextAuthOptions, DefaultSession, User} from "next-auth";
-import {JWT as NextAuthJWT} from "next-auth/jwt";
+import NextAuth, {DefaultSession, NextAuthOptions, User} from "next-auth";
+import {JWT} from "next-auth/jwt";
 import CredentialsProvider from "next-auth/providers/credentials";
 
 // Extend the built-in session type
@@ -30,10 +30,14 @@ declare module "next-auth/jwt" {
   }
 }
 
-// Define the JWT callback with correct typing
-export const jwt: NextAuthOptions["callbacks"]["jwt"] = async ({
+export const jwt = async ({
   token,
   user,
+  account,
+}: {
+  token: JWT;
+  user?: User;
+  account?: any;
 }) => {
   if (user) {
     token.username = user.username;
@@ -42,15 +46,11 @@ export const jwt: NextAuthOptions["callbacks"]["jwt"] = async ({
   return token;
 };
 
-// Define the session callback with correct typing
-export const session: NextAuthOptions["callbacks"]["session"] = async ({
-  session,
-  token,
-}) => {
+export const session = async ({session, token}: {session: any; token: JWT}) => {
   if (session.user) {
     session.user = {
       ...session.user,
-      username: token.username || "",
+      username: (token as JWT & {username: string}).username || "",
       token: token.token,
     };
   }
@@ -58,7 +58,6 @@ export const session: NextAuthOptions["callbacks"]["session"] = async ({
   return session;
 };
 
-// NextAuth configuration with proper typing
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
@@ -74,14 +73,19 @@ export const authOptions: NextAuthOptions = {
         }
 
         try {
-          const response = await signInUserBody({
+          console.log("Attempting to authenticate user:", credentials.username);
+          const response = (await signInUserBody({
             username: credentials.username,
             password: credentials.password,
-          });
+          })) as {status: number; data: any};
+
+          console.log("Auth response:", response);
 
           if (response.status === 200 && response.data) {
+            console.log("Authentication successful");
             return response.data;
           } else {
+            console.log("Authentication failed - invalid response");
             return null;
           }
         } catch (error) {
@@ -90,14 +94,29 @@ export const authOptions: NextAuthOptions = {
         }
       },
     }),
+    // GoogleProvider({
+    //   clientId: process.env.GOOGLE_CLIENT_ID!,
+    //   clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    //   // async profile(profile) {
+    //   //     console.log("profile", profile);
+    //   //   return profile.username;
+    //   // }
+    // }),
   ],
   session: {
     strategy: "jwt",
-    maxAge: 60 * 60 * 2, // 2 hours
+    maxAge: (2 * 60 - 2) * 60, // 2 hours
   },
   callbacks: {
     jwt,
     session,
+    // async redirect({ url, baseUrl }) {
+    //   // Allows relative callback URLs
+    //   if (url.startsWith("/")) return `${baseUrl}${url}`;
+    //   // Allows callback URLs on the same origin
+    //   else if (new URL(url).origin === baseUrl) return url;
+    //   return baseUrl + "/dashboard";
+    // },
   },
   pages: {
     signIn: "/",
@@ -105,6 +124,6 @@ export const authOptions: NextAuthOptions = {
   debug: process.env.NODE_ENV === "development",
 };
 
-// Export the handler for GET and POST requests only
 const handler = NextAuth(authOptions);
+
 export {handler as GET, handler as POST};
