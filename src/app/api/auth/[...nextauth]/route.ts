@@ -1,11 +1,11 @@
 import {signInUserBody} from "@/services/authservice.service";
-import NextAuth, {DefaultSession, NextAuthOptions, User} from "next-auth";
+import NextAuth, {NextAuthOptions, User} from "next-auth";
 import {JWT} from "next-auth/jwt";
 import CredentialsProvider from "next-auth/providers/credentials";
 
 // Extend the built-in session type
 declare module "next-auth" {
-  interface Session extends DefaultSession {
+  interface Session {
     token?: string;
     error?: string;
     user: {
@@ -73,11 +73,8 @@ export const authOptions: NextAuthOptions = {
             password: credentials.password,
           });
 
-          // Type assertion for the response
-          const typedResponse = response as { status: number; data: User };
-          
-          if (typedResponse.status === 200 && typedResponse.data) {
-            return typedResponse.data;
+          if (response.status === 200 && response.data) {
+            return response.data;
           } else {
             return null;
           }
@@ -90,7 +87,7 @@ export const authOptions: NextAuthOptions = {
   ],
   session: {
     strategy: "jwt",
-    maxAge: (2 * 60 - 2) * 60, // 2 hours
+    maxAge: 60 * 60 * 2, // 2 hours
   },
   callbacks: {
     jwt,
