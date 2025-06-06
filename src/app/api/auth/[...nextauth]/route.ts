@@ -1,6 +1,6 @@
-import { signInUserBody } from "@/services/authservice.service";
-import NextAuth, { DefaultSession, NextAuthOptions, User } from "next-auth";
-import { JWT } from "next-auth/jwt";
+import {signInUserBody} from "@/services/authservice.service";
+import NextAuth, {DefaultSession, NextAuthOptions, User} from "next-auth";
+import {JWT} from "next-auth/jwt";
 import CredentialsProvider from "next-auth/providers/credentials";
 
 // Extend the built-in session type
@@ -30,15 +30,8 @@ declare module "next-auth/jwt" {
   }
 }
 
-export const jwt = async ({
-  token,
-  user,
-  account,
-}: {
-  token: JWT;
-  user?: User;
-  account?: any;
-}) => {
+// Define the JWT callback
+export const jwt = async ({token, user}: {token: JWT; user?: User}) => {
   if (user) {
     token.username = user.username;
     token.token = user.token;
@@ -46,17 +39,12 @@ export const jwt = async ({
   return token;
 };
 
-export const session = async ({
-  session,
-  token,
-}: {
-  session: any;
-  token: JWT;
-}) => {
+// Define the session callback
+export const session = async ({session, token}: {session: any; token: JWT}) => {
   if (session.user) {
     session.user = {
       ...session.user,
-      username: (token as JWT & { username: string }).username || "",
+      username: token.username || "",
       token: token.token,
     };
   }
@@ -64,13 +52,14 @@ export const session = async ({
   return session;
 };
 
+// NextAuth configuration
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        username: { label: "Username", type: "text" },
-        password: { label: "Password", type: "password" },
+        username: {label: "Username", type: "text"},
+        password: {label: "Password", type: "password"},
       },
       async authorize(credentials) {
         if (!credentials?.username || !credentials?.password) {
@@ -79,19 +68,17 @@ export const authOptions: NextAuthOptions = {
         }
 
         try {
-          console.log("Attempting to authenticate user:", credentials.username);
-          const response = (await signInUserBody({
+          const response = await signInUserBody({
             username: credentials.username,
             password: credentials.password,
-          })) as { status: number; data: any };
+          });
 
-          console.log("Auth response:", response);
-
-          if (response.status === 200 && response.data) {
-            console.log("Authentication successful");
-            return response.data;
+          // Type assertion for the response
+          const typedResponse = response as { status: number; data: User };
+          
+          if (typedResponse.status === 200 && typedResponse.data) {
+            return typedResponse.data;
           } else {
-            console.log("Authentication failed - invalid response");
             return null;
           }
         } catch (error) {
@@ -100,14 +87,6 @@ export const authOptions: NextAuthOptions = {
         }
       },
     }),
-    // GoogleProvider({
-    //   clientId: process.env.GOOGLE_CLIENT_ID!,
-    //   clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    //   // async profile(profile) {
-    //   //     console.log("profile", profile);
-    //   //   return profile.username;
-    //   // }
-    // }),
   ],
   session: {
     strategy: "jwt",
@@ -116,13 +95,6 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     jwt,
     session,
-    // async redirect({ url, baseUrl }) {
-    //   // Allows relative callback URLs
-    //   if (url.startsWith("/")) return `${baseUrl}${url}`;
-    //   // Allows callback URLs on the same origin
-    //   else if (new URL(url).origin === baseUrl) return url;
-    //   return baseUrl + "/dashboard";
-    // },
   },
   pages: {
     signIn: "/",
@@ -130,6 +102,6 @@ export const authOptions: NextAuthOptions = {
   debug: process.env.NODE_ENV === "development",
 };
 
+// Export the handler for GET and POST requests only
 const handler = NextAuth(authOptions);
-
-export { handler as GET, handler as POST };
+export {handler as GET, handler as POST};

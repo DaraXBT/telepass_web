@@ -1,6 +1,6 @@
 "use client";
 import MenuNav from "@/components/nav-menu";
-import {Separator} from "@radix-ui/react-separator";
+import {Separator} from "@/components/ui/separator";
 import {EventReport} from "@/components/report/event-report";
 import {useLanguage} from "@/components/providers/LanguageProvider";
 
