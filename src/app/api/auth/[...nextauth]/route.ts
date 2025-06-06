@@ -1,11 +1,11 @@
 import {signInUserBody} from "@/services/authservice.service";
-import NextAuth, {NextAuthOptions, User} from "next-auth";
-import {JWT} from "next-auth/jwt";
+import NextAuth, {NextAuthOptions, DefaultSession, User} from "next-auth";
+import {JWT as NextAuthJWT} from "next-auth/jwt";
 import CredentialsProvider from "next-auth/providers/credentials";
 
 // Extend the built-in session type
 declare module "next-auth" {
-  interface Session {
+  interface Session extends DefaultSession {
     token?: string;
     error?: string;
     user: {
@@ -30,8 +30,11 @@ declare module "next-auth/jwt" {
   }
 }
 
-// Define the JWT callback
-export const jwt = async ({token, user}: {token: JWT; user?: User}) => {
+// Define the JWT callback with correct typing
+export const jwt: NextAuthOptions["callbacks"]["jwt"] = async ({
+  token,
+  user,
+}) => {
   if (user) {
     token.username = user.username;
     token.token = user.token;
@@ -39,8 +42,11 @@ export const jwt = async ({token, user}: {token: JWT; user?: User}) => {
   return token;
 };
 
-// Define the session callback
-export const session = async ({session, token}: {session: any; token: JWT}) => {
+// Define the session callback with correct typing
+export const session: NextAuthOptions["callbacks"]["session"] = async ({
+  session,
+  token,
+}) => {
   if (session.user) {
     session.user = {
       ...session.user,
@@ -52,7 +58,7 @@ export const session = async ({session, token}: {session: any; token: JWT}) => {
   return session;
 };
 
-// NextAuth configuration
+// NextAuth configuration with proper typing
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
