@@ -23,6 +23,10 @@ const translations: TranslationsType = {
     en: "TelePass",
     km: "តេឡេផាស",
   },
+  "Or continue with": {
+    en: "Or continue with",
+    km: "ឬបន្តជាមួយ",
+  },
   "Event Management": {
     en: "Event Management",
     km: "កម្មវិធីគ្រប់គ្រងព្រឹត្តិការណ៍",
@@ -161,7 +165,7 @@ const translations: TranslationsType = {
   },
   "Sign in": {
     en: "Sign in",
-    km: "ចូល",
+    km: "ចូលគណនី",
   },
   "Signing in...": {
     en: "Signing in...",

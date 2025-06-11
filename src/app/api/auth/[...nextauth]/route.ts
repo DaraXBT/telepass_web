@@ -1,7 +1,9 @@
 import {signInUserBody} from "@/services/authservice.service";
+import {authenticateWithGoogle} from "@/services/google.service";
 import NextAuth, {DefaultSession, NextAuthOptions, User} from "next-auth";
 import {JWT} from "next-auth/jwt";
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
 
 // Extend the built-in session type
 declare module "next-auth" {
@@ -11,12 +13,13 @@ declare module "next-auth" {
     user: {
       username: string;
       token: string;
+      role?: string;
     } & DefaultSession["user"];
   }
-
   interface User {
     username: string;
     token: string;
+    role?: string;
   }
 }
 
@@ -24,6 +27,7 @@ declare module "next-auth/jwt" {
   interface JWT {
     token: string;
     username?: string;
+    role?: string;
     exp?: number;
     iat?: number;
     jti?: string;
@@ -39,9 +43,58 @@ export const jwt = async ({
   user?: User;
   account?: any;
 }) => {
+  // If this is a sign-in
   if (user) {
-    token.username = user.username;
-    token.token = user.token;
+    // For credential provider
+    if (user.token) {
+      token.username = user.username;
+      token.token = user.token;
+    } // For Google provider
+    else if (account?.provider === "google") {
+      try {
+        token.username = user.username || "";
+
+        // Send Google user data to backend for authentication/registration
+        const googleAuthData = {
+          googleId: user.id!,  // ✅ Fixed: Changed from 'id' to 'googleId'
+          email: user.email || "",
+          name: user.name || "",
+          image: user.image || "",
+        };
+
+        console.log(
+          "Authenticating Google user as admin:",
+          googleAuthData.email
+        );
+        const response = await authenticateWithGoogle(googleAuthData);
+
+        if (response.status === 200 && response.data) {
+          console.log("Google admin authentication successful");
+          // Store the token from your backend
+          token.token = response.data.token || response.data.accessToken;
+          token.username = response.data.username || user.username;
+
+          // Store additional admin info if available
+          if (response.data.role) {
+            token.role = response.data.role;
+          }
+
+          console.log("Admin token set:", token.token);
+        } else {
+          console.error(
+            "Failed to authenticate with Google on backend:",
+            response
+          );
+          token.token = "google-auth-failed"; // This will be used to detect authentication failures
+        }
+      } catch (error) {
+        console.error(
+          "Error during Google authentication with backend:",
+          error
+        );
+        token.token = "google-auth-error";
+      }
+    }
   }
   return token;
 };
@@ -52,6 +105,7 @@ export const session = async ({session, token}: {session: any; token: JWT}) => {
       ...session.user,
       username: (token as JWT & {username: string}).username || "",
       token: token.token,
+      role: token.role || "USER",
     };
   }
   session.token = token.token;
@@ -94,14 +148,21 @@ export const authOptions: NextAuthOptions = {
         }
       },
     }),
-    // GoogleProvider({
-    //   clientId: process.env.GOOGLE_CLIENT_ID!,
-    //   clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    //   // async profile(profile) {
-    //   //     console.log("profile", profile);
-    //   //   return profile.username;
-    //   // }
-    // }),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      profile(profile) {
+        return {
+          id: profile.sub,
+          name: profile.name,
+          email: profile.email,
+          image: profile.picture,
+          username: profile.email?.split("@")[0] || "", // Create a username from email
+          token: "", // This will be handled by the JWT callback
+          role: "ADMIN", // Default role for Google auth users
+        };
+      },
+    }),
   ],
   session: {
     strategy: "jwt",
@@ -110,13 +171,13 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     jwt,
     session,
-    // async redirect({ url, baseUrl }) {
-    //   // Allows relative callback URLs
-    //   if (url.startsWith("/")) return `${baseUrl}${url}`;
-    //   // Allows callback URLs on the same origin
-    //   else if (new URL(url).origin === baseUrl) return url;
-    //   return baseUrl + "/dashboard";
-    // },
+    async redirect({url, baseUrl}) {
+      // Allows relative callback URLs
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      // Allows callback URLs on the same origin
+      else if (new URL(url).origin === baseUrl) return url;
+      return baseUrl + "/dashboard";
+    },
   },
   pages: {
     signIn: "/",
