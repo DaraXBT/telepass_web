@@ -56,7 +56,10 @@ import {
   deleteEvent,
   fetchEventQrCode,
   getAllEvents,
+  getEventsByAdminId,
+  updateEvent,
 } from "@/services/event.service";
+import {getAdminByUsername} from "@/services/authservice.service";
 import {uploadProfileImage} from "@/services/image.service";
 import {MoreHorizontal, Plus, QrCode, Sparkles, Trash} from "lucide-react";
 import Image from "next/image";
@@ -64,6 +67,7 @@ import Link from "next/link";
 import {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {useDropzone} from "react-dropzone";
 import {v4 as uuidv4} from "uuid";
+import {getSession} from "next-auth/react";
 
 export const EventList: React.FC = () => {
   const {t} = useLanguage();
@@ -82,7 +86,23 @@ export const EventList: React.FC = () => {
   const refreshEvents = useCallback(async () => {
     try {
       setIsLoading(true);
-      const response: any = await getAllEvents();
+
+      // Get current session to extract username
+      const session = await getSession();
+      if (!session?.user?.username) {
+        console.error("No username found in session");
+        return;
+      }
+
+      // Get admin details by username
+      const adminResponse = await getAdminByUsername(session.user.username);
+      if (!adminResponse.data?.id) {
+        console.error("No admin ID found for username:", session.user.username);
+        return;
+      }
+
+      // Fetch events using admin ID
+      const response = await getEventsByAdminId(adminResponse.data.id);
       if (response.data) {
         const mappedEvents = response.data.map((event: any) => ({
           ...event,
@@ -114,14 +134,44 @@ export const EventList: React.FC = () => {
       setIsLoading(false);
     }
   }, []);
-
   const fetchEvents = useCallback(async () => {
     if (hasInitiallyLoaded.current) return;
 
     try {
       setIsLoading(true);
-      const response: any = await getAllEvents();
-      console.log("response", response);
+
+      // Get current session to extract username
+      const session = await getSession();
+      if (!session?.user?.username) {
+        console.error("No username found in session");
+        toast({
+          title: t("Error"),
+          description: t("User session not found"),
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Get admin details by username
+      const adminResponse = await getAdminByUsername(session.user.username);
+      if (!adminResponse.data?.id) {
+        console.error("No admin ID found for username:", session.user.username);
+        toast({
+          title: t("Error"),
+          description: t("Admin profile not found"),
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Fetch events using admin ID
+      const response = await getEventsByAdminId(adminResponse.data.id);
+      console.log(
+        "Events response for admin",
+        adminResponse.data.id,
+        ":",
+        response
+      );
       if (response.data) {
         // Map the API response to match our Event interface
         const mappedEvents = response.data.map((event: any) => ({
@@ -150,6 +200,7 @@ export const EventList: React.FC = () => {
         hasInitiallyLoaded.current = true;
       }
     } catch (error) {
+      console.error("Error fetching events:", error);
       toast({
         title: t("Error"),
         description: t("Failed to fetch events"),
@@ -211,39 +262,115 @@ export const EventList: React.FC = () => {
         : 0;
     return {total, totalCapacity, totalRegistered, registrationPercentage};
   }, [filteredEvents]);
-
-  const handleUpdateEvent = (updatedEvent: Event) => {
-    setEvents(
-      events.map((event) =>
-        event.id === updatedEvent.id ? updatedEvent : event
-      )
-    );
-    setEditingEvent(null);
-    setIsEventFormOpen(false);
-    toast({
-      title: t("Event updated"),
-      description: `"${updatedEvent.name}" ${t("has been successfully updated.")}`,
-    });
-  };
-
-  const handleAddEvent = async (newEvent: Event) => {
-    const eventPayload = {
-      id: uuidv4(),
-      name: newEvent.name,
-      description: newEvent.description,
-      status: newEvent.status,
-      category: newEvent.category,
-      capacity: newEvent.capacity,
-      registered: newEvent.registered,
-      qrCodePath: newEvent.qrCodePath,
-      eventImg: newEvent.eventImg,
-      eventRoles: newEvent.eventRoles.map((role: EventRole) => ({
-        userId: role.user.id,
-        role: role.role,
-      })),
-      registeredUsers: [],
-    };
+  const handleUpdateEvent = async (updatedEvent: Event) => {
     try {
+      // Get current session
+      const session = await getSession();
+      if (!session?.user?.username) {
+        toast({
+          title: t("Authentication Error"),
+          description: t("No user session found"),
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Get admin details
+      const adminResponse = await getAdminByUsername(session.user.username);
+      if (!adminResponse?.data?.id) {
+        toast({
+          title: t("Authentication Error"),
+          description: t("Admin profile not found"),
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const eventPayload = {
+        name: updatedEvent.name,
+        description: updatedEvent.description,
+        status: updatedEvent.status,
+        category: updatedEvent.category,
+        capacity: updatedEvent.capacity,
+        registered: updatedEvent.registered,
+        qrCodePath: updatedEvent.qrCodePath,
+        eventImg: updatedEvent.eventImg,
+        adminId: adminResponse.data.id,
+        eventRoles: updatedEvent.eventRoles.map((role: EventRole) => ({
+          userId: role.user.id,
+          role: role.role,
+        })),
+        registeredUsers: updatedEvent.registeredUsers || [],
+      };
+
+      await updateEvent(updatedEvent.id, eventPayload);
+
+      // Update local state
+      setEvents(
+        events.map((event) =>
+          event.id === updatedEvent.id ? updatedEvent : event
+        )
+      );
+      setEditingEvent(null);
+      setIsEventFormOpen(false);
+      toast({
+        title: t("Event updated"),
+        description: `"${updatedEvent.name}" ${t("has been successfully updated.")}`,
+      });
+
+      // Refresh event list to ensure consistency
+      await refreshEvents();
+    } catch (error) {
+      console.error("Error updating event:", error);
+      toast({
+        title: t("Error"),
+        description: t("Failed to update event"),
+        variant: "destructive",
+      });
+    }
+  };
+  const handleAddEvent = async (newEvent: Event) => {
+    try {
+      // Get current session
+      const session = await getSession();
+      if (!session?.user?.username) {
+        toast({
+          title: t("Authentication Error"),
+          description: t("No user session found"),
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Get admin details
+      const adminResponse = await getAdminByUsername(session.user.username);
+      if (!adminResponse?.data?.id) {
+        toast({
+          title: t("Authentication Error"),
+          description: t("Admin profile not found"),
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const eventPayload = {
+        id: uuidv4(),
+        name: newEvent.name,
+        description: newEvent.description,
+        status: newEvent.status,
+        category: newEvent.category,
+        capacity: newEvent.capacity,
+        registered: newEvent.registered,
+        qrCodePath: newEvent.qrCodePath,
+        eventImg: newEvent.eventImg,
+        adminId: adminResponse?.data?.id,
+        eventRoles: newEvent.eventRoles.map((role: EventRole) => ({
+          userId: role.user.id,
+          role: role.role,
+        })),
+        registeredUsers: [],
+      };
+
       await addEvent(eventPayload);
       toast({
         title: t("Event added"),
@@ -386,7 +513,9 @@ export const EventList: React.FC = () => {
                             className="w-12 h-12 rounded-md object-cover"
                           />
                         )}
-                        <div>                          <Link
+                        <div>
+                          {" "}
+                          <Link
                             href={`/events/${event.id}`}
                             className="font-medium hover:underline">
                             {event.name}
@@ -395,7 +524,8 @@ export const EventList: React.FC = () => {
                             {event.description || "No description available"}
                           </div>
                         </div>
-                      </div>                    </TableCell>
+                      </div>{" "}
+                    </TableCell>
                     <TableCell>
                       <Badge
                         variant={
@@ -423,7 +553,8 @@ export const EventList: React.FC = () => {
                         {t(
                           event.status?.charAt(0).toUpperCase() +
                             event.status?.slice(1) || "Unknown"
-                        )}                      </Badge>
+                        )}{" "}
+                      </Badge>
                     </TableCell>
                     <TableCell>{event.category || "General"}</TableCell>
                     <TableCell>
@@ -433,7 +564,8 @@ export const EventList: React.FC = () => {
                         </span>
                         <progress
                           className="w-full h-2"
-                          value={event.registered || 0}                          max={
+                          value={event.registered || 0}
+                          max={
                             event.capacity && event.capacity > 0
                               ? event.capacity
                               : 100

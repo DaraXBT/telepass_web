@@ -14,12 +14,14 @@ declare module "next-auth" {
       username: string;
       token: string;
       role?: string;
+      email?: string;
     } & DefaultSession["user"];
   }
   interface User {
     username: string;
     token: string;
     role?: string;
+    email?: string;
   }
 }
 
@@ -28,6 +30,7 @@ declare module "next-auth/jwt" {
     token: string;
     username?: string;
     role?: string;
+    email?: string;
     exp?: number;
     iat?: number;
     jti?: string;
@@ -49,14 +52,16 @@ export const jwt = async ({
     if (user.token) {
       token.username = user.username;
       token.token = user.token;
+      token.email = user.email;
     } // For Google provider
     else if (account?.provider === "google") {
       try {
         token.username = user.username || "";
+        token.email = user.email;
 
         // Send Google user data to backend for authentication/registration
         const googleAuthData = {
-          googleId: user.id!,  // ✅ Fixed: Changed from 'id' to 'googleId'
+          googleId: user.id!, // ✅ Fixed: Changed from 'id' to 'googleId'
           email: user.email || "",
           name: user.name || "",
           image: user.image || "",
@@ -67,12 +72,12 @@ export const jwt = async ({
           googleAuthData.email
         );
         const response = await authenticateWithGoogle(googleAuthData);
-
         if (response.status === 200 && response.data) {
           console.log("Google admin authentication successful");
           // Store the token from your backend
           token.token = response.data.token || response.data.accessToken;
           token.username = response.data.username || user.username;
+          token.email = response.data.email || user.email;
 
           // Store additional admin info if available
           if (response.data.role) {
@@ -106,6 +111,7 @@ export const session = async ({session, token}: {session: any; token: JWT}) => {
       username: (token as JWT & {username: string}).username || "",
       token: token.token,
       role: token.role || "USER",
+      email: token.email || session.user.email,
     };
   }
   session.token = token.token;

@@ -42,3 +42,21 @@ export const registerUser = async (user: RegisterUserData) => {
     return error.response || error;
   }
 };
+
+export const getAdminByUsername = async (username: string) => {
+  try {
+    const response = await api.get(
+      `/api/v1/admin/by-username?username=${encodeURIComponent(username)}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    console.log({response});
+    return response;
+  } catch (error: any) {
+    console.error("Get admin by username error:", error);
+    return error.response || error;
+  }
+};

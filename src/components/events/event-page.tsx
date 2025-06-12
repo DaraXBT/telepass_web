@@ -36,7 +36,7 @@ export function EventPage() {
     const fetchEvent = async () => {
       try {
         setIsLoading(true);
-        const eventData = await getEvent(Number(id));
+        const eventData = await getEvent(id);
         setEvent(eventData);
       } catch (error) {
         console.error("Error fetching event:", error);
@@ -157,11 +157,11 @@ export function EventPage() {
                 <h3 className="text-lg font-semibold mb-2">
                   {t("Organizers")}
                 </h3>
-                <ul className="list-disc list-inside">
+                {/* <ul className="list-disc list-inside">
                   {event.organizers.map((organizer, index) => (
                     <li key={index}>{organizer}</li>
                   ))}
-                </ul>
+                </ul> */}
               </div>
             </div>
           </CardContent>
