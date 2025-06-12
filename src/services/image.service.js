@@ -1,4 +1,4 @@
-import { ihttpFormData } from "@/api/inteceptor";
+import { ihttpFormData } from "@/api/interceptor";
 
 export const uploadProfileImage = async (file) => {
   const formData = new FormData();

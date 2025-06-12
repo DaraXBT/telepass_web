@@ -1,5 +1,5 @@
 import {NextRequest, NextResponse} from "next/server";
-import {api} from "@/api/inteceptor";
+import {api} from "@/api/interceptor";
 
 export async function POST(request: NextRequest) {
   try {

@@ -1,4 +1,4 @@
-import ihttp, {ihttpFormData} from "@/api/inteceptor";
+import ihttp, {ihttpFormData} from "@/api/interceptor";
 
 export const getAllEvents = async () => {
   try {

@@ -16,12 +16,11 @@ const nextConfig: NextConfig = {
         pathname: "**",
       },
     ],
-  },
-  // typescript: {
+  },  // typescript: {
   //   ignoreBuildErrors: true,
   // },
   reactStrictMode: true,
-  pageExtensions: ["ts", "tsx"],
+  // pageExtensions: ["ts", "tsx"], // Removed this as it might be causing issues
 };
 
 export default nextConfig;

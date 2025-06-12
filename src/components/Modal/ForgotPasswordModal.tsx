@@ -12,11 +12,6 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import {
-  requestPasswordReset,
-  verifyPasswordResetOtp,
-  resetPassword,
-} from "@/services/authservice.service";
 import {LoaderCircle} from "lucide-react";
 
 type ForgotPasswordStep = "email" | "otp" | "newPassword";
@@ -316,3 +311,44 @@ export default function ForgotPasswordModal({
     </div>
   );
 }
+
+// Password reset service functions
+export const requestPasswordReset = async (email: string) => {
+  // TODO: Implement actual API call
+  const response = await fetch("/api/auth/request-password-reset", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({email}),
+  });
+  return {status: response.status, data: await response.json()};
+};
+
+export const verifyPasswordResetOtp = async (email: string, otp: string) => {
+  // TODO: Implement actual API call
+  const response = await fetch("/api/auth/verify-reset-otp", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({email, otp}),
+  });
+  return {status: response.status, data: await response.json()};
+};
+
+export const resetPassword = async (
+  email: string,
+  otp: string,
+  newPassword: string
+) => {
+  // TODO: Implement actual API call
+  const response = await fetch("/api/auth/reset-password", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({email, otp, newPassword}),
+  });
+  return {status: response.status, data: await response.json()};
+};

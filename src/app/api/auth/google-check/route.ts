@@ -1,5 +1,5 @@
 import {NextRequest, NextResponse} from "next/server";
-import {api} from "@/api/inteceptor";
+import {api} from "@/api/interceptor";
 
 export async function POST(request: NextRequest) {
   try {
@@ -38,12 +38,13 @@ export async function POST(request: NextRequest) {
           {status: 404}
         );
       }
-      
+
       // Other API errors
       return NextResponse.json(
         {
-          error: error.response?.data?.message || error.message || "User not found", 
-          exists: false
+          error:
+            error.response?.data?.message || error.message || "User not found",
+          exists: false,
         },
         {status: error.response?.status || 500}
       );

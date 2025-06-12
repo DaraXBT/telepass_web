@@ -1,4 +1,4 @@
-import {api} from "@/api/inteceptor";
+import {api} from "@/api/interceptor";
 
 // Maximum number of retry attempts for API calls
 const MAX_RETRIES = 3;
@@ -45,14 +45,18 @@ export const checkGoogleAdmin = async (googleData: GoogleAuthData) => {
     console.log("Checking if Google admin exists:", googleData.email);
 
     const response = await withRetry(() =>
-      api.post(`/api/v1/admin/check-google-account`, {
-        googleId: googleData.googleId,
-        email: googleData.email,
-      }, {
-        headers: {
-          "Content-Type": "application/json",
+      api.post(
+        `/api/v1/admin/check-google-account`,
+        {
+          googleId: googleData.googleId,
+          email: googleData.email,
         },
-      })
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      )
     );
 
     console.log("Google admin check response:", response);
@@ -76,10 +80,12 @@ export const registerGoogleAdmin = async (googleData: GoogleAuthData) => {
     const securePassword =
       Math.random().toString(36).slice(-10) +
       Math.random().toString(36).toUpperCase().slice(-2) +
-      "!#" + Math.random().toString(10).slice(-2);
+      "!#" +
+      Math.random().toString(10).slice(-2);
 
     // Create username from email
-    const username = googleData.email.split("@")[0] || `google_${googleData.googleId}`;
+    const username =
+      googleData.email.split("@")[0] || `google_${googleData.googleId}`;
 
     const adminData = {
       username: username,
@@ -113,13 +119,15 @@ export const registerGoogleAdmin = async (googleData: GoogleAuthData) => {
  * @param googleData User data from Google OAuth
  * @returns Authentication response with token
  */
-export const authenticateWithGoogle = async (googleData: GoogleAuthData): Promise<any> => {
+export const authenticateWithGoogle = async (
+  googleData: GoogleAuthData
+): Promise<any> => {
   try {
     console.log("Starting Google authentication for:", googleData.email);
 
     // First check if admin exists
     const checkResponse = await checkGoogleAdmin(googleData);
-    
+
     if (checkResponse.status === 200 && checkResponse.data?.payload) {
       // Admin exists, return login data
       console.log("Existing Google admin found");
@@ -128,7 +136,7 @@ export const authenticateWithGoogle = async (googleData: GoogleAuthData): Promis
         data: {
           ...checkResponse.data.payload,
           message: checkResponse.data.message || "Login successful",
-        }
+        },
       };
     }
 
@@ -143,7 +151,7 @@ export const authenticateWithGoogle = async (googleData: GoogleAuthData): Promis
         data: {
           ...registerResponse.data.payload,
           message: registerResponse.data.message || "Registration successful",
-        }
+        },
       };
     }
 
@@ -188,11 +196,13 @@ export const fetchGoogleUserData = async (
  * @param profile Google user profile
  * @returns Formatted Google auth data
  */
-export const transformGoogleProfile = (profile: GoogleUserProfile): GoogleAuthData => {
+export const transformGoogleProfile = (
+  profile: GoogleUserProfile
+): GoogleAuthData => {
   return {
     googleId: profile.id,
     email: profile.email,
-    name: profile.name || profile.given_name || profile.email.split('@')[0],
+    name: profile.name || profile.given_name || profile.email.split("@")[0],
     image: profile.picture || "",
   };
 };
@@ -217,7 +227,7 @@ async function withRetry<T>(
 
       // Don't retry on authentication errors (401), client errors (4xx), or if this is the last attempt
       if (
-        error.response?.status === 401 || 
+        error.response?.status === 401 ||
         (error.response?.status >= 400 && error.response?.status < 500) ||
         attempt === maxRetries
       ) {

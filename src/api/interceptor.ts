@@ -3,9 +3,10 @@ import axios, {
   AxiosResponse,
   InternalAxiosRequestConfig,
 } from "axios";
-import { getSession } from "next-auth/react";
+import {getSession} from "next-auth/react";
 
-export const API_URL = process.env.apiUrl;
+export const API_URL =
+  process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8080";
 
 // Without Token
 export const api_stream = axios.create({
@@ -54,7 +55,7 @@ async function responseInterceptor(value: AxiosResponse<any, any>) {
   return value;
 }
 
-async function responseErrorInterceptor({ status, code, ...err }: AxiosError) {
+async function responseErrorInterceptor({status, code, ...err}: AxiosError) {
   const isNotWorkError = code == "ERR_NETWORK";
   if (isNotWorkError) {
     try {
@@ -62,7 +63,7 @@ async function responseErrorInterceptor({ status, code, ...err }: AxiosError) {
       window.location.pathname = "/error";
     } catch {}
   }
-  return Promise.reject({ ...err, status, code });
+  return Promise.reject({...err, status, code});
 }
 
 ihttp.interceptors.request.use(requestInterceptor);
@@ -76,4 +77,6 @@ ihttpFormData.interceptors.response.use(
   responseInterceptor,
   responseErrorInterceptor
 );
+
+export {ihttp};
 export default ihttp;

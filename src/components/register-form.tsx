@@ -1,11 +1,8 @@
 "use client";
-import {API_URL} from "@/api/inteceptor";
+import {API_URL} from "@/api/interceptor";
 import OtpModal from "@/components/Modal/OtpModal";
 import {StarBackground} from "@/components/ui/star-background";
-import {
-  registerUser,
-  validateOtpToVerifiedRegister,
-} from "@/services/authservice.service";
+import {registerUser} from "@/services/authservice.service";
 import {useLanguage} from "@/components/providers/LanguageProvider";
 import {Button} from "@/components/ui/button";
 import {Card, CardContent} from "@/components/ui/card";
@@ -108,7 +105,10 @@ const RegisterForm = () => {
   const handleVerifyOtp = async (otp: string) => {
     setOtpLoading(true);
     try {
-      const res: any = await validateOtpToVerifiedRegister(email, otp);
+      const res = await axios.post(`${API_URL}/api/v1/auth/validate-otp`, {
+        email,
+        otp,
+      });
       if (res.status === 200) {
         toast({
           title: t("Success"),
@@ -133,7 +133,6 @@ const RegisterForm = () => {
       setOtpLoading(false);
     }
   };
-
   const handleGoogleSignUp = async () => {
     try {
       setGoogleLoading(true);

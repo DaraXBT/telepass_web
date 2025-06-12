@@ -1,7 +1,7 @@
 "use client";
 
-import { API_URL } from "@/api/inteceptor";
-import { useLanguage } from "@/components/providers/LanguageProvider";
+import {API_URL} from "@/api/interceptor";
+import {useLanguage} from "@/components/providers/LanguageProvider";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,9 +13,9 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {Badge} from "@/components/ui/badge";
+import {Button} from "@/components/ui/button";
+import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -32,8 +32,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import {Input} from "@/components/ui/input";
+import {Label} from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -49,23 +49,23 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Textarea } from "@/components/ui/textarea";
-import { toast, useToast } from "@/hooks/use-toast";
+import {Textarea} from "@/components/ui/textarea";
+import {toast, useToast} from "@/hooks/use-toast";
 import {
   addEvent,
   fetchEventQrCode,
   getAllEvents,
 } from "@/services/event.service";
-import { uploadProfileImage } from "@/services/image.service";
-import { MoreHorizontal, Plus, QrCode, Sparkles, Trash } from "lucide-react";
+import {uploadProfileImage} from "@/services/image.service";
+import {MoreHorizontal, Plus, QrCode, Sparkles, Trash} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useDropzone } from "react-dropzone";
-import { v4 as uuidv4 } from "uuid";
+import {useCallback, useEffect, useMemo, useState} from "react";
+import {useDropzone} from "react-dropzone";
+import {v4 as uuidv4} from "uuid";
 
 export const EventList: React.FC = () => {
-  const { t } = useLanguage();
+  const {t} = useLanguage();
   const [events, setEvents] = useState<Event[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
@@ -75,7 +75,7 @@ export const EventList: React.FC = () => {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [isEventFormOpen, setIsEventFormOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const { toast } = useToast();
+  const {toast} = useToast();
   const [qrCodeImageUrl, setQrCodeImageUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -163,7 +163,7 @@ export const EventList: React.FC = () => {
       totalCapacity > 0
         ? Math.round((totalRegistered / totalCapacity) * 100)
         : 0;
-    return { total, totalCapacity, totalRegistered, registrationPercentage };
+    return {total, totalCapacity, totalRegistered, registrationPercentage};
   }, [filteredEvents]);
 
   const handleUpdateEvent = (updatedEvent: Event) => {
@@ -278,8 +278,7 @@ export const EventList: React.FC = () => {
                 registeredUsers: [],
               });
               setIsEventFormOpen(true);
-            }}
-          >
+            }}>
             <Plus className="h-4 w-4 mr-2" /> {t("Add Event")}
           </Button>
         </div>
@@ -334,8 +333,7 @@ export const EventList: React.FC = () => {
                         <div>
                           <Link
                             href={`/events/${event.id}`}
-                            className="font-medium hover:underline"
-                          >
+                            className="font-medium hover:underline">
                             {event.name}
                           </Link>
                           <div className="text-sm text-muted-foreground">
@@ -359,8 +357,7 @@ export const EventList: React.FC = () => {
                             : event.status === "ongoing"
                               ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100"
                               : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100"
-                        }`}
-                      >
+                        }`}>
                         <span
                           className={`inline-block w-2 h-2 rounded-full mr-1.5 ${
                             event.status === "upcoming"
@@ -368,8 +365,7 @@ export const EventList: React.FC = () => {
                               : event.status === "ongoing"
                                 ? "bg-green-500 dark:bg-green-400"
                                 : "bg-yellow-500 dark:bg-yellow-400"
-                          }`}
-                        ></span>
+                          }`}></span>
                         {t(
                           event.status.charAt(0).toUpperCase() +
                             event.status.slice(1)
@@ -410,8 +406,7 @@ export const EventList: React.FC = () => {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => setShowingQRCode(event)}
-                      >
+                        onClick={() => setShowingQRCode(event)}>
                         <QrCode className="h-4 w-4 mr-2" />
                         {t("View")}
                       </Button>
@@ -430,8 +425,7 @@ export const EventList: React.FC = () => {
                             onClick={() => {
                               setEditingEvent(event);
                               setIsEventFormOpen(true);
-                            }}
-                          >
+                            }}>
                             {t("Edit")}
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
@@ -439,8 +433,7 @@ export const EventList: React.FC = () => {
                             <AlertDialogTrigger asChild>
                               <DropdownMenuItem
                                 onSelect={(e) => e.preventDefault()}
-                                className="text-red-600 dark:text-red-400"
-                              >
+                                className="text-red-600 dark:text-red-400">
                                 <Trash className="mr-2 h-4 w-4" />
                                 {t("Delete")}
                               </DropdownMenuItem>
@@ -462,8 +455,7 @@ export const EventList: React.FC = () => {
                                 </AlertDialogCancel>
                                 <AlertDialogAction
                                   onClick={() => handleDeleteEvent(event.id)}
-                                  className="bg-red-600 hover:bg-red-700 text-white"
-                                >
+                                  className="bg-red-600 hover:bg-red-700 text-white">
                                   {t("Delete")}
                                 </AlertDialogAction>
                               </AlertDialogFooter>
@@ -530,8 +522,7 @@ export const EventList: React.FC = () => {
         open={!!showingQRCode}
         onOpenChange={(open) => {
           if (!open) setShowingQRCode(null);
-        }}
-      >
+        }}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
@@ -560,8 +551,7 @@ export const EventList: React.FC = () => {
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
-                  }}
-                >
+                  }}>
                   {t("Save QR")}
                 </Button>
               </>
@@ -584,8 +574,8 @@ interface EventFormProps {
   onCancel: () => void;
 }
 
-function EventForm({ event, onSubmit, onCancel }: EventFormProps) {
-  const { t } = useLanguage();
+function EventForm({event, onSubmit, onCancel}: EventFormProps) {
+  const {t} = useLanguage();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState<Event>({
     ...event,
@@ -611,9 +601,9 @@ function EventForm({ event, onSubmit, onCancel }: EventFormProps) {
     setPreviewUrl(URL.createObjectURL(file));
   }, []);
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+  const {getRootProps, getInputProps, isDragActive} = useDropzone({
     onDrop,
-    accept: { "image/*": [] },
+    accept: {"image/*": []},
     multiple: false,
   });
 
@@ -622,9 +612,9 @@ function EventForm({ event, onSubmit, onCancel }: EventFormProps) {
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >
   ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    setErrors((prev) => ({ ...prev, [name]: "" }));
+    const {name, value} = e.target;
+    setFormData((prev) => ({...prev, [name]: value}));
+    setErrors((prev) => ({...prev, [name]: ""}));
   };
 
   const handleDateChange = (
@@ -632,8 +622,8 @@ function EventForm({ event, onSubmit, onCancel }: EventFormProps) {
     field: "startDateTime" | "endDateTime"
   ) => {
     if (date) {
-      setFormData((prev) => ({ ...prev, [field]: date }));
-      setErrors((prev) => ({ ...prev, [field]: "" }));
+      setFormData((prev) => ({...prev, [field]: date}));
+      setErrors((prev) => ({...prev, [field]: ""}));
     }
   };
 
@@ -773,8 +763,7 @@ function EventForm({ event, onSubmit, onCancel }: EventFormProps) {
               variant="outline"
               size="sm"
               onClick={generateAIContent}
-              className="flex items-center gap-2"
-            >
+              className="flex items-center gap-2">
               <Sparkles className="h-4 w-4" />
               {t("Generate with AI")}
             </Button>
@@ -795,8 +784,7 @@ function EventForm({ event, onSubmit, onCancel }: EventFormProps) {
               {...getRootProps()}
               className={`border-2 border-dashed rounded-xl p-4 text-center cursor-pointer bg-gray-50 hover:bg-gray-100 transition-all ${
                 isDragActive ? "border-blue-500 bg-blue-50" : "border-gray-200"
-              }`}
-            >
+              }`}>
               <input {...getInputProps()} />
               {previewUrl ? (
                 <div className="flex flex-col items-center">
@@ -832,9 +820,8 @@ function EventForm({ event, onSubmit, onCancel }: EventFormProps) {
               name="status"
               value={formData.status}
               onValueChange={(value) =>
-                handleChange({ target: { name: "status", value } } as any)
-              }
-            >
+                handleChange({target: {name: "status", value}} as any)
+              }>
               <SelectTrigger className="w-full">
                 <SelectValue placeholder={t("Select status")} />
               </SelectTrigger>
@@ -873,9 +860,8 @@ function EventForm({ event, onSubmit, onCancel }: EventFormProps) {
               name="category"
               value={formData.category}
               onValueChange={(value) =>
-                handleChange({ target: { name: "category", value } } as any)
-              }
-            >
+                handleChange({target: {name: "category", value}} as any)
+              }>
               <SelectTrigger className="w-full">
                 <SelectValue placeholder={t("Select category")} />
               </SelectTrigger>
@@ -953,8 +939,7 @@ function EventForm({ event, onSubmit, onCancel }: EventFormProps) {
                   type="button"
                   variant="outline"
                   size="sm"
-                  onClick={() => handleAddOrganizer(searchResult)}
-                >
+                  onClick={() => handleAddOrganizer(searchResult)}>
                   {t("Add")}
                 </Button>
               </div>
@@ -964,8 +949,7 @@ function EventForm({ event, onSubmit, onCancel }: EventFormProps) {
               {selectedOrganizers.map((role) => (
                 <div
                   key={role.id}
-                  className="flex items-center justify-between p-2 bg-gray-50 rounded-md"
-                >
+                  className="flex items-center justify-between p-2 bg-gray-50 rounded-md">
                   <div>
                     <p className="font-medium">{role.user.username}</p>
                     <p className="text-sm text-gray-500">{role.user.email}</p>
@@ -974,8 +958,7 @@ function EventForm({ event, onSubmit, onCancel }: EventFormProps) {
                     type="button"
                     variant="ghost"
                     size="sm"
-                    onClick={() => handleRemoveOrganizer(role.user.id)}
-                  >
+                    onClick={() => handleRemoveOrganizer(role.user.id)}>
                     {t("Remove")}
                   </Button>
                 </div>

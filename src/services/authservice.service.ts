@@ -1,4 +1,4 @@
-import {api} from "@/api/inteceptor";
+import {api} from "@/api/interceptor";
 
 interface SignInCredentials {
   username: string;
