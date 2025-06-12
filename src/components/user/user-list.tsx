@@ -378,11 +378,10 @@ function UserForm({user, onSubmit, submitLabel}: UserFormProps) {
           value={formData.email}
           onChange={handleChange}
           className={errors.email ? "border-red-500" : ""}
-        />
-        {errors.email && (
+        />        {errors.email && (
           <p className="text-xs text-red-500 mt-1">{errors.email}</p>
         )}
-      </div>{" "}
+      </div>
       <div>
         <Label htmlFor="role">{t("Role")}</Label>
         <Select

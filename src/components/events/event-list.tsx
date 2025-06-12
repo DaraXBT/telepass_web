@@ -386,20 +386,17 @@ export const EventList: React.FC = () => {
                             className="w-12 h-12 rounded-md object-cover"
                           />
                         )}
-                        <div>
-                          <Link
+                        <div>                          <Link
                             href={`/events/${event.id}`}
                             className="font-medium hover:underline">
                             {event.name}
-                          </Link>{" "}
+                          </Link>
                           <div className="text-sm text-muted-foreground">
                             {event.description || "No description available"}
                           </div>
                         </div>
-                      </div>
-                    </TableCell>
+                      </div>                    </TableCell>
                     <TableCell>
-                      {" "}
                       <Badge
                         variant={
                           event.status === "upcoming"
@@ -426,10 +423,9 @@ export const EventList: React.FC = () => {
                         {t(
                           event.status?.charAt(0).toUpperCase() +
                             event.status?.slice(1) || "Unknown"
-                        )}
-                      </Badge>
+                        )}                      </Badge>
                     </TableCell>
-                    <TableCell>{event.category || "General"}</TableCell>{" "}
+                    <TableCell>{event.category || "General"}</TableCell>
                     <TableCell>
                       <div className="flex flex-col space-y-1">
                         <span className="text-sm font-medium">
@@ -437,13 +433,12 @@ export const EventList: React.FC = () => {
                         </span>
                         <progress
                           className="w-full h-2"
-                          value={event.registered || 0}
-                          max={
+                          value={event.registered || 0}                          max={
                             event.capacity && event.capacity > 0
                               ? event.capacity
                               : 100
                           }
-                        />{" "}
+                        />
                         <span className="text-xs text-muted-foreground">
                           {(event.capacity || 100) > 0
                             ? Math.round(

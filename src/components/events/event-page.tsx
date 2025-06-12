@@ -124,7 +124,7 @@ export function EventPage() {
         <CardContent className="space-y-4">
           <p className="text-sm">{event.description}</p>
           <div className="flex items-center space-x-2 text-sm">
-            <Calendar className="h-4 w-4" />
+            <Calendar className="h-4 w-4" />{" "}
             <span>
               {formatDateTime(event.startDateTime)} -{" "}
               {formatDateTime(event.endDateTime)}
@@ -150,10 +150,9 @@ export function EventPage() {
         <Card>
           <CardHeader>
             <CardTitle>{t("Event Management")}</CardTitle>
-          </CardHeader>
+          </CardHeader>{" "}
           <CardContent>
             <div className="space-y-4">
-              {" "}
               <div>
                 <h3 className="text-lg font-semibold mb-2">
                   {t("Organizers")}
