@@ -1,13 +1,14 @@
 "use client";
 
-import {useState, useEffect} from "react";
-import {useParams} from "next/navigation";
-import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
-import {Badge} from "@/components/ui/badge";
-import {Calendar, MapPin, Users, Phone} from "lucide-react";
-import {EventAudienceList} from "./event-audience-list";
-import {useToast} from "@/hooks/use-toast";
 import {useLanguage} from "@/components/providers/LanguageProvider";
+import {Badge} from "@/components/ui/badge";
+import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
+import {useToast} from "@/hooks/use-toast";
+import {getEvent} from "@/services/event.service";
+import {Calendar, MapPin, Phone, Users} from "lucide-react";
+import {useParams} from "next/navigation";
+import {useEffect, useState} from "react";
+import {EventAudienceList} from "./event-audience-list";
 
 interface Event {
   id: number;
@@ -34,57 +35,45 @@ export function EventPage() {
   useEffect(() => {
     const fetchEvent = async () => {
       try {
-        // In a real application, this would be an API call
-        // For now, we'll simulate an API call with a timeout
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-
-        // Simulated event data
-        const eventData: Event = {
-          id: Number(id),
-          name: "Tech Conference 2024",
-          description:
-            "Annual technology conference featuring the latest innovations and industry trends.",
-          startDateTime: "2024-06-15T09:00",
-          endDateTime: "2024-06-15T17:00",
-          location: "San Francisco Convention Center, CA",
-          status: "upcoming",
-          category: "Conferences",
-          capacity: 1000,
-          registeredAttendees: 750,
-          organizers: ["John Doe", "Jane Smith"],
-          contact: "+85512345678",
-        };
-
+        setIsLoading(true);
+        const eventData = await getEvent(Number(id));
         setEvent(eventData);
       } catch (error) {
         console.error("Error fetching event:", error);
+        toast({
+          title: t("Error"),
+          description: t("Failed to load event details."),
+          variant: "destructive",
+        });
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchEvent();
-  }, [id]);
+    if (id) {
+      fetchEvent();
+    }
+  }, [id, toast, t]);
 
   const handleUpdateEvent = (updatedEvent: Event) => {
     setEvent(updatedEvent);
     toast({
-      title: "Event updated",
-      description: `"${updatedEvent.name}" details have been successfully updated.`,
+      title: t("Event updated"),
+      description: `"${updatedEvent.name}" ${t("details have been successfully updated.")}`,
     });
   };
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div>{t("Loading...")}</div>;
   }
 
   if (!event) {
-    return <div>Event not found</div>;
+    return <div>{t("Event not found")}</div>;
   }
 
   const formatDateTime = (dateTimeString: string) => {
     const date = new Date(dateTimeString);
-    return date.toLocaleString("en-US", {
+    return date.toLocaleString(t("en-US-locale"), {
       year: "numeric",
       month: "short",
       day: "numeric",
@@ -148,7 +137,7 @@ export function EventPage() {
           <div className="flex items-center space-x-2 text-sm">
             <Users className="h-4 w-4" />
             <span>
-              {event.registeredAttendees} / {event.capacity} attendees
+              {event.registeredAttendees} / {event.capacity} {t("attendees")}
             </span>
           </div>
           <div className="flex items-center space-x-2 text-sm">
@@ -160,7 +149,7 @@ export function EventPage() {
       {event && (
         <Card>
           <CardHeader>
-            <CardTitle>Event Management</CardTitle>
+            <CardTitle>{t("Event Management")}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -183,3 +172,4 @@ export function EventPage() {
     </div>
   );
 }
+export default EventPage;

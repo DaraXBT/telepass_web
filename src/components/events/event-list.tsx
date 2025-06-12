@@ -53,6 +53,7 @@ import {Textarea} from "@/components/ui/textarea";
 import {toast, useToast} from "@/hooks/use-toast";
 import {
   addEvent,
+  deleteEvent,
   fetchEventQrCode,
   getAllEvents,
 } from "@/services/event.service";
@@ -60,7 +61,7 @@ import {uploadProfileImage} from "@/services/image.service";
 import {MoreHorizontal, Plus, QrCode, Sparkles, Trash} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import {useCallback, useEffect, useMemo, useState} from "react";
+import {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {useDropzone} from "react-dropzone";
 import {v4 as uuidv4} from "uuid";
 
@@ -77,20 +78,24 @@ export const EventList: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const {toast} = useToast();
   const [qrCodeImageUrl, setQrCodeImageUrl] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        const response: any = await getAllEvents();
-        console.log("response", response);
-        if (response.data) {
-          // Map the API response to match our Event interface
-          const mappedEvents = response.data.map((event: any) => ({
-            ...event,
-            registered: event.registered,
-            qrCodePath: event.qrCode,
-            eventRoles: event.eventRoles
-              .filter(
+  const hasInitiallyLoaded = useRef(false);
+  const refreshEvents = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const response: any = await getAllEvents();
+      if (response.data) {
+        const mappedEvents = response.data.map((event: any) => ({
+          ...event,
+          status: event.status || "upcoming",
+          category: event.category || "General",
+          description: event.description || "",
+          eventImg: event.eventImg || null,
+          registered: event.registered || 0,
+          capacity: event.capacity || 100,
+          qrCodePath: event.qrCode,
+          eventRoles:
+            event.eventRoles
+              ?.filter(
                 (role: EventRole) =>
                   role.role === "ORGANIZER" || role.role === "OWNER"
               )
@@ -99,23 +104,65 @@ export const EventList: React.FC = () => {
                 name: role.user.username,
                 email: role.user.email,
                 role: role.role === "OWNER" ? "admin" : "event_organizer",
-              })),
-          }));
-          setEvents(mappedEvents);
-        }
-      } catch (error) {
-        toast({
-          title: t("Error"),
-          description: t("Failed to fetch events"),
-          variant: "destructive",
-        });
-      } finally {
-        setIsLoading(false);
+              })) || [],
+        }));
+        setEvents(mappedEvents);
       }
-    };
+    } catch (error) {
+      console.error("Error refreshing events:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
-    fetchEvents();
+  const fetchEvents = useCallback(async () => {
+    if (hasInitiallyLoaded.current) return;
+
+    try {
+      setIsLoading(true);
+      const response: any = await getAllEvents();
+      console.log("response", response);
+      if (response.data) {
+        // Map the API response to match our Event interface
+        const mappedEvents = response.data.map((event: any) => ({
+          ...event,
+          status: event.status || "upcoming", // Default status
+          category: event.category || "General", // Default category
+          description: event.description || "", // Default description
+          eventImg: event.eventImg || null, // Default image
+          registered: event.registered || 0, // Default registered count
+          capacity: event.capacity || 100, // Default capacity
+          qrCodePath: event.qrCode,
+          eventRoles:
+            event.eventRoles
+              ?.filter(
+                (role: EventRole) =>
+                  role.role === "ORGANIZER" || role.role === "OWNER"
+              )
+              .map((role: EventRole) => ({
+                id: role.user.id,
+                name: role.user.username,
+                email: role.user.email,
+                role: role.role === "OWNER" ? "admin" : "event_organizer",
+              })) || [], // Default to empty array if eventRoles is undefined
+        }));
+        setEvents(mappedEvents);
+        hasInitiallyLoaded.current = true;
+      }
+    } catch (error) {
+      toast({
+        title: t("Error"),
+        description: t("Failed to fetch events"),
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   }, [t, toast]);
+
+  useEffect(() => {
+    fetchEvents();
+  }, [fetchEvents]);
 
   useEffect(() => {
     if (showingQRCode) {
@@ -134,13 +181,12 @@ export const EventList: React.FC = () => {
       setQrCodeImageUrl(null);
     }
   }, [showingQRCode]);
-
   const filteredEvents = events
     .filter(
       (event) =>
-        (event.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          event.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          event.category.toLowerCase().includes(searchTerm.toLowerCase())) &&
+        (event.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          event.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          event.category?.toLowerCase().includes(searchTerm.toLowerCase())) &&
         (categoryFilter === "All" || event.category === categoryFilter)
     )
     .sort((a, b) => {
@@ -197,7 +243,6 @@ export const EventList: React.FC = () => {
       })),
       registeredUsers: [],
     };
-
     try {
       await addEvent(eventPayload);
       toast({
@@ -206,10 +251,7 @@ export const EventList: React.FC = () => {
       });
       setIsEventFormOpen(false);
       // Refresh event list
-      const response: any = await getAllEvents();
-      if (response.data) {
-        setEvents(response.data);
-      }
+      await refreshEvents();
     } catch (error) {
       toast({
         title: t("Error"),
@@ -218,15 +260,29 @@ export const EventList: React.FC = () => {
       });
     }
   };
-
-  const handleDeleteEvent = (id: string) => {
+  const handleDeleteEvent = async (id: string) => {
     const eventToDelete = events.find((event) => event.id === id);
-    setEvents(events.filter((event) => event.id !== id));
-    toast({
-      title: t("Event deleted"),
-      description: `"${eventToDelete?.name}" ${t("has been removed from the event list.")}`,
-      variant: "destructive",
-    });
+
+    try {
+      // Call the backend API to delete the event
+      await deleteEvent(id);
+
+      // Refresh the events list from the backend to ensure consistency
+      await refreshEvents();
+
+      toast({
+        title: t("Event deleted"),
+        description: `"${eventToDelete?.name}" ${t("has been removed from the event list.")}`,
+        variant: "destructive",
+      });
+    } catch (error) {
+      console.error("Failed to delete event:", error);
+      toast({
+        title: t("Error"),
+        description: t("Failed to delete event. Please try again."),
+        variant: "destructive",
+      });
+    }
   };
 
   const toggleSort = (column: keyof Event) => {
@@ -335,14 +391,15 @@ export const EventList: React.FC = () => {
                             href={`/events/${event.id}`}
                             className="font-medium hover:underline">
                             {event.name}
-                          </Link>
+                          </Link>{" "}
                           <div className="text-sm text-muted-foreground">
-                            {event.description}
+                            {event.description || "No description available"}
                           </div>
                         </div>
                       </div>
                     </TableCell>
                     <TableCell>
+                      {" "}
                       <Badge
                         variant={
                           event.status === "upcoming"
@@ -367,26 +424,32 @@ export const EventList: React.FC = () => {
                                 : "bg-yellow-500 dark:bg-yellow-400"
                           }`}></span>
                         {t(
-                          event.status.charAt(0).toUpperCase() +
-                            event.status.slice(1)
+                          event.status?.charAt(0).toUpperCase() +
+                            event.status?.slice(1) || "Unknown"
                         )}
                       </Badge>
                     </TableCell>
-                    <TableCell>{event.category}</TableCell>
+                    <TableCell>{event.category || "General"}</TableCell>{" "}
                     <TableCell>
                       <div className="flex flex-col space-y-1">
                         <span className="text-sm font-medium">
-                          {event.registered} / {event.capacity}
+                          {event.registered || 0} / {event.capacity || 100}
                         </span>
                         <progress
                           className="w-full h-2"
-                          value={event.registered}
-                          max={event.capacity > 0 ? event.capacity : 1}
-                        />
+                          value={event.registered || 0}
+                          max={
+                            event.capacity && event.capacity > 0
+                              ? event.capacity
+                              : 100
+                          }
+                        />{" "}
                         <span className="text-xs text-muted-foreground">
-                          {event.capacity > 0
+                          {(event.capacity || 100) > 0
                             ? Math.round(
-                                (event.registered / event.capacity) * 100
+                                ((event.registered || 0) /
+                                  (event.capacity || 100)) *
+                                  100
                               )
                             : 0}
                           % {t("Full")}
