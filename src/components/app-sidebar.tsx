@@ -18,6 +18,8 @@ import {NavUser} from "@/components/nav-user";
 import {TeamSwitcher} from "@/components/team-switcher";
 import {useLanguage} from "@/components/providers/LanguageProvider";
 import {useSidebarState} from "@/hooks/use-sidebar-state";
+import {getAdminByUsername} from "@/services/authservice.service";
+import {getSession} from "next-auth/react";
 import {
   Sidebar,
   SidebarContent,
@@ -30,14 +32,42 @@ import {
 export function AppSidebar({...props}: React.ComponentProps<typeof Sidebar>) {
   const {t} = useLanguage();
   const {sidebarState} = useSidebarState();
+  const [userData, setUserData] = React.useState({
+    name: "Loading...",
+    email: "loading@example.com",
+    avatar: "/avatars/shadcn.jpg",
+  });
+
+  // Fetch user data from API
+  React.useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const session = await getSession();
+        if (session?.user?.username) {
+          const adminResponse = await getAdminByUsername(session.user.username);
+          if (adminResponse?.data) {
+            setUserData({
+              name: adminResponse.data.username || "Unknown User",
+              email:
+                adminResponse.data.email ||
+                session.user.email ||
+                "unknown@example.com",
+              avatar: adminResponse.data.profile || "/avatars/shadcn.jpg",
+            });
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        // Keep default loading state if error occurs
+      }
+    };
+
+    fetchUserData();
+  }, []);
 
   // This is sample data.
   const data = {
-    user: {
-      name: "DRv",
-      email: "daraa.veasa@gmail.com",
-      avatar: "/avatars/shadcn.jpg",
-    },
+    user: userData,
     teams: [
       {
         name: "TelePass",

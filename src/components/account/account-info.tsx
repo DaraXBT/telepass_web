@@ -1,6 +1,6 @@
 "use client";
 
-import {useState} from "react";
+import {useState, useEffect} from "react";
 import {useLanguage} from "@/components/providers/LanguageProvider";
 import {Separator} from "@/components/ui/separator";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
@@ -39,24 +39,73 @@ import {
 import {Switch} from "@/components/ui/switch";
 import {toast} from "@/hooks/use-toast";
 import {ScrollArea} from "@/components/ui/scroll-area";
+import {getAdminByUsername} from "@/services/authservice.service";
+import {getSession} from "next-auth/react";
 
 export default function Account() {
   const {t} = useLanguage();
   const [isPending, setIsPending] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Mock user data - In a real app, this would come from an API/context
+  // Dynamic user data from API
   const [userData, setUserData] = useState({
-    name: "Dara Chan",
-    email: "dara.chan@example.com",
-    phone: "+855 12 345 678",
-    avatar: "https://github.com/shadcn.png",
+    name: "",
+    email: "",
+    phone: "",
+    avatar: "",
     role: "Administrator",
-    bio: "Software engineer with a passion for building amazing user experiences. Working at TelePass to streamline event management.",
-    address: "Phnom Penh, Cambodia",
-    joinedDate: "February 2023",
+    bio: "",
+    address: "",
+    joinedDate: "",
     language: "en",
     timezone: "Asia/Phnom_Penh",
   });
+
+  // Fetch user data from API
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        setIsLoading(true);
+        const session = await getSession();
+
+        if (session?.user?.username) {
+          const adminResponse = await getAdminByUsername(session.user.username);
+
+          if (adminResponse?.data) {
+            const adminData = adminResponse.data;
+            setUserData({
+              name: adminData.username || "Unknown User",
+              email: adminData.email || "",
+              phone: adminData.phone || "",
+              avatar: adminData.profile || "https://github.com/shadcn.png",
+              role: "Administrator", // You can modify this based on API response
+              bio: adminData.bio || "",
+              address: adminData.address || "",
+              joinedDate: adminData.createdAt
+                ? new Date(adminData.createdAt).toLocaleDateString("en-US", {
+                    month: "long",
+                    year: "numeric",
+                  })
+                : "",
+              language: adminData.language || "en",
+              timezone: adminData.timezone || "Asia/Phnom_Penh",
+            });
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        toast({
+          title: t("Error"),
+          description: t("Failed to load user data"),
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, [t]);
 
   const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -130,42 +179,53 @@ export default function Account() {
                 <CardDescription>
                   {t("Update your account profile information")}
                 </CardDescription>
-              </CardHeader>
+              </CardHeader>{" "}
               <CardContent>
-                <form onSubmit={handleProfileUpdate} className="space-y-6">
-                  <div className="space-y-4">
-                    {" "}
-                    <div className="grid gap-3">
-                      <Label htmlFor="name">{t("Full Name")}</Label>
-                      <div className="flex items-center">
-                        <User className="mr-2 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          id="name"
-                          defaultValue={userData.name}
-                          className="w-full"
-                        />
-                      </div>
+                {isLoading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <div className="text-center">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+                      <p className="text-muted-foreground">
+                        {t("Loading profile...")}
+                      </p>
                     </div>
-                    <div className="grid gap-3">
-                      <Label htmlFor="email">{t("Email")}</Label>
-                      <div className="flex items-center">
-                        <Mail className="mr-2 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          id="email"
-                          type="email"
-                          defaultValue={userData.email}
-                          className="w-full"
-                        />
+                  </div>
+                ) : (
+                  <form onSubmit={handleProfileUpdate} className="space-y-6">
+                    <div className="space-y-4">
+                      {" "}
+                      <div className="grid gap-3">
+                        <Label htmlFor="name">{t("Full Name")}</Label>
+                        <div className="flex items-center">
+                          <User className="mr-2 h-4 w-4 text-muted-foreground" />
+                          <Input
+                            id="name"
+                            defaultValue={userData.name}
+                            className="w-full"
+                          />
+                        </div>
                       </div>
-                    </div>{" "}
-                    {/* Removed Role section as it's now displayed as a badge near the avatar */}
-                  </div>
-                  <div className="flex justify-end">
-                    <Button type="submit" disabled={isPending}>
-                      {isPending ? t("Saving...") : t("Save Changes")}
-                    </Button>
-                  </div>
-                </form>
+                      <div className="grid gap-3">
+                        <Label htmlFor="email">{t("Email")}</Label>
+                        <div className="flex items-center">
+                          <Mail className="mr-2 h-4 w-4 text-muted-foreground" />
+                          <Input
+                            id="email"
+                            type="email"
+                            defaultValue={userData.email}
+                            className="w-full"
+                          />
+                        </div>
+                      </div>{" "}
+                      {/* Removed Role section as it's now displayed as a badge near the avatar */}
+                    </div>
+                    <div className="flex justify-end">
+                      <Button type="submit" disabled={isPending}>
+                        {isPending ? t("Saving...") : t("Save Changes")}
+                      </Button>
+                    </div>
+                  </form>
+                )}
               </CardContent>
             </Card>
           </div>
