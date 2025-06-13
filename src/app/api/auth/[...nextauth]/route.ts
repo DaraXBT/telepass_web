@@ -5,7 +5,7 @@ import {JWT} from "next-auth/jwt";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 
-// Extend the built-in session type
+// Extend the built-in session and user types
 declare module "next-auth" {
   interface Session extends DefaultSession {
     token?: string;
@@ -37,7 +37,8 @@ declare module "next-auth/jwt" {
   }
 }
 
-export const jwt = async ({
+// ✅ Not exported — only used internally
+const jwt = async ({
   token,
   user,
   account,
@@ -46,57 +47,39 @@ export const jwt = async ({
   user?: User;
   account?: any;
 }) => {
-  // If this is a sign-in
   if (user) {
-    // For credential provider
+    // For credentials
     if (user.token) {
       token.username = user.username;
       token.token = user.token;
       token.email = user.email;
-    } // For Google provider
+    }
+    // For Google
     else if (account?.provider === "google") {
       try {
         token.username = user.username || "";
         token.email = user.email;
 
-        // Send Google user data to backend for authentication/registration
         const googleAuthData = {
-          googleId: user.id!, // ✅ Fixed: Changed from 'id' to 'googleId'
+          googleId: user.id!,
           email: user.email || "",
           name: user.name || "",
           image: user.image || "",
         };
 
-        console.log(
-          "Authenticating Google user as admin:",
-          googleAuthData.email
-        );
         const response = await authenticateWithGoogle(googleAuthData);
         if (response.status === 200 && response.data) {
-          console.log("Google admin authentication successful");
-          // Store the token from your backend
           token.token = response.data.token || response.data.accessToken;
           token.username = response.data.username || user.username;
           token.email = response.data.email || user.email;
-
-          // Store additional admin info if available
           if (response.data.role) {
             token.role = response.data.role;
           }
-
-          console.log("Admin token set:", token.token);
         } else {
-          console.error(
-            "Failed to authenticate with Google on backend:",
-            response
-          );
-          token.token = "google-auth-failed"; // This will be used to detect authentication failures
+          token.token = "google-auth-failed";
         }
       } catch (error) {
-        console.error(
-          "Error during Google authentication with backend:",
-          error
-        );
+        console.error("Google auth error:", error);
         token.token = "google-auth-error";
       }
     }
@@ -104,11 +87,12 @@ export const jwt = async ({
   return token;
 };
 
-export const session = async ({session, token}: {session: any; token: JWT}) => {
+// ✅ Not exported — only used internally
+const session = async ({session, token}: {session: any; token: JWT}) => {
   if (session.user) {
     session.user = {
       ...session.user,
-      username: (token as JWT & {username: string}).username || "",
+      username: token.username || "",
       token: token.token,
       role: token.role || "USER",
       email: token.email || session.user.email,
@@ -118,6 +102,7 @@ export const session = async ({session, token}: {session: any; token: JWT}) => {
   return session;
 };
 
+// ✅ Main config
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
@@ -128,32 +113,26 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.username || !credentials?.password) {
-          console.log("Missing credentials");
           return null;
         }
 
         try {
-          console.log("Attempting to authenticate user:", credentials.username);
-          const response = (await signInUserBody({
+          const response = await signInUserBody({
             username: credentials.username,
             password: credentials.password,
-          })) as {status: number; data: any};
-
-          console.log("Auth response:", response);
+          });
 
           if (response.status === 200 && response.data) {
-            console.log("Authentication successful");
             return response.data;
-          } else {
-            console.log("Authentication failed - invalid response");
-            return null;
           }
         } catch (error) {
-          console.error("Authentication error:", error);
-          return null;
+          console.error("Credentials login error:", error);
         }
+
+        return null;
       },
     }),
+
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
@@ -163,34 +142,36 @@ export const authOptions: NextAuthOptions = {
           name: profile.name,
           email: profile.email,
           image: profile.picture,
-          username: profile.email?.split("@")[0] || "", // Create a username from email
-          token: "", // This will be handled by the JWT callback
-          role: "ADMIN", // Default role for Google auth users
+          username: profile.email?.split("@")[0] || "",
+          token: "",
+          role: "ADMIN",
         };
       },
     }),
   ],
+
   session: {
     strategy: "jwt",
-    maxAge: (2 * 60 - 2) * 60, // 2 hours
+    maxAge: 2 * 60 * 60, // 2 hours
   },
+
   callbacks: {
     jwt,
     session,
     async redirect({url, baseUrl}) {
-      // Allows relative callback URLs
       if (url.startsWith("/")) return `${baseUrl}${url}`;
-      // Allows callback URLs on the same origin
-      else if (new URL(url).origin === baseUrl) return url;
-      return baseUrl + "/dashboard";
+      if (new URL(url).origin === baseUrl) return url;
+      return `${baseUrl}/dashboard`;
     },
   },
+
   pages: {
     signIn: "/",
   },
+
   debug: process.env.NODE_ENV === "development",
 };
 
+// ✅ Correct export for App Router
 const handler = NextAuth(authOptions);
-
 export {handler as GET, handler as POST};
