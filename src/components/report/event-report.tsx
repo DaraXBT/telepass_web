@@ -1,10 +1,10 @@
 "use client";
 
-import { useLanguage } from "@/components/providers/LanguageProvider";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import {useLanguage} from "@/components/providers/LanguageProvider";
+import {Button} from "@/components/ui/button";
+import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
+import {Input} from "@/components/ui/input";
+import {Label} from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -29,7 +29,7 @@ import {
   Search,
   UsersIcon,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import {useMemo, useState} from "react";
 import * as XLSX from "xlsx";
 
 interface Event {
@@ -55,8 +55,8 @@ interface EventReportProps {
   registrations: Registration[];
 }
 
-export function EventReport({ events, registrations }: EventReportProps) {
-  const { t, language } = useLanguage();
+export function EventReport({events, registrations}: EventReportProps) {
+  const {t, language} = useLanguage();
   const [selectedEvent, setSelectedEvent] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -174,8 +174,7 @@ export function EventReport({ events, registrations }: EventReportProps) {
             <div className="grid gap-2">
               <Label htmlFor="event-select">{t("Select Event")}</Label>
               <Select
-                onValueChange={(value) => setSelectedEvent(Number(value))}
-              >
+                onValueChange={(value) => setSelectedEvent(Number(value))}>
                 <SelectTrigger id="event-select">
                   <SelectValue placeholder={t("Select an event")} />
                 </SelectTrigger>
