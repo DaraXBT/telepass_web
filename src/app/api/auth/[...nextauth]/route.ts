@@ -5,7 +5,7 @@ import {JWT} from "next-auth/jwt";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 
-// Extend the built-in session and user types
+// ✅ Extend types inside this file (optional if already in types.d.ts)
 declare module "next-auth" {
   interface Session extends DefaultSession {
     token?: string;
@@ -17,6 +17,7 @@ declare module "next-auth" {
       email?: string;
     } & DefaultSession["user"];
   }
+
   interface User {
     username: string;
     token: string;
@@ -37,7 +38,7 @@ declare module "next-auth/jwt" {
   }
 }
 
-// ✅ Not exported — only used internally
+// ✅ jwt callback (no export)
 const jwt = async ({
   token,
   user,
@@ -48,18 +49,12 @@ const jwt = async ({
   account?: any;
 }) => {
   if (user) {
-    // For credentials
     if (user.token) {
       token.username = user.username;
       token.token = user.token;
       token.email = user.email;
-    }
-    // For Google
-    else if (account?.provider === "google") {
+    } else if (account?.provider === "google") {
       try {
-        token.username = user.username || "";
-        token.email = user.email;
-
         const googleAuthData = {
           googleId: user.id!,
           email: user.email || "",
@@ -87,7 +82,7 @@ const jwt = async ({
   return token;
 };
 
-// ✅ Not exported — only used internally
+// ✅ session callback (no export)
 const session = async ({session, token}: {session: any; token: JWT}) => {
   if (session.user) {
     session.user = {
@@ -102,8 +97,8 @@ const session = async ({session, token}: {session: any; token: JWT}) => {
   return session;
 };
 
-// ✅ Main config
-export const authOptions: NextAuthOptions = {
+// ✅ Define authOptions (DO NOT export it)
+const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -172,6 +167,6 @@ export const authOptions: NextAuthOptions = {
   debug: process.env.NODE_ENV === "development",
 };
 
-// ✅ Correct export for App Router
+// ✅ Only export GET and POST for App Router
 const handler = NextAuth(authOptions);
 export {handler as GET, handler as POST};
