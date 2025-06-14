@@ -827,6 +827,75 @@ const translations: TranslationsType = {
     en: "Select Event",
     km: "ជ្រើសរើសព្រឹត្តិការណ៍",
   },
+  "Select Finished Event": {
+    en: "Select Finished Event",
+    km: "ជ្រើសរើសព្រឹត្តិការណ៍ដែលបានបញ្ចប់",
+  },
+  "Select a finished event": {
+    en: "Select a finished event",
+    km: "ជ្រើសរើសព្រឹត្តិការណ៍ដែលបានបញ្ចប់",
+  },
+  Refresh: {
+    en: "Refresh",
+    km: "ធ្វើឱ្យថ្មី",
+  },
+  "Loading finished events...": {
+    en: "Loading finished events...",
+    km: "កំពុងផ្ទុកព្រឹត្តិការណ៍ដែលបានបញ្ចប់...",
+  },
+  "No finished events found": {
+    en: "No finished events found",
+    km: "រកមិនឃើញព្រឹត្តិការណ៍ដែលបានបញ្ចប់",
+  },
+  "Loading registrations...": {
+    en: "Loading registrations...",
+    km: "កំពុងផ្ទុកការចុះឈ្មោះ...",
+  },
+  "Failed to fetch finished events": {
+    en: "Failed to fetch finished events",
+    km: "បរាជ័យក្នុងការទាញយកព្រឹត្តិការណ៍ដែលបានបញ្ចប់",
+  },
+  "Failed to fetch event audiences": {
+    en: "Failed to fetch event audiences",
+    km: "បរាជ័យក្នុងការទាញយកទស្សនិកជនព្រឹត្តិការណ៍",
+  },
+  "Start Date": {
+    en: "Start Date",
+    km: "កាលបរិច្ឆេទចាប់ផ្តើម",
+  },
+  "End Date": {
+    en: "End Date",
+    km: "កាលបរិច្ឆេទបញ្ចប់",
+  },
+  Start: {
+    en: "Start",
+    km: "ចាប់ផ្តើម",
+  },
+  End: {
+    en: "End",
+    km: "បញ្ចប់",
+  },
+  "View reports for finished events and their registrations.": {
+    en: "View reports for finished events and their registrations.",
+    km: "មើលរបាយការណ៍សម្រាប់ព្រឹត្តិការណ៍ដែលបានបញ្ចប់ និងការចុះឈ្មោះរបស់ពួកគេ។",
+  },
+  "Select Event for Report": {
+    en: "Select Event for Report",
+    km: "ជ្រើសរើសព្រឹត្តិការណ៍សម្រាប់របាយការណ៍",
+  },
+  "Choose an event to generate report": {
+    en: "Choose an event to generate report",
+    km: "ជ្រើសរើសព្រឹត្តិការណ៍ដើម្បីបង្កើតរបាយការណ៍",
+  },
+  available: {
+    en: "available",
+    km: "មាន",
+  },
+  "Note: Only events with end dates in the past are shown here. Check browser console for debugging info.":
+    {
+      en: "Note: Only events with end dates in the past are shown here. Check browser console for debugging info.",
+      km: "ចំណាំ៖ មានតែព្រឹត្តិការណ៍ដែលមានកាលបរិច្ឆេទបញ្ចប់ក្នុងអតីតកាលទើបត្រូវបានបង្ហាញនៅទីនេះ។ ពិនិត្យ browser console សម្រាប់ព័ត៌មានបំបាត់កំហុស។",
+    },
   "Manage report data for events and registrations.": {
     en: "Manage report data for events and registrations.",
     km: "គ្រប់គ្រងទិន្នន័យរបាយការណ៍សម្រាប់ព្រឹត្តិការណ៍និងការចុះឈ្មោះ",
@@ -850,6 +919,180 @@ const translations: TranslationsType = {
   "Print Report": {
     en: "Print Report",
     km: "បោះពុម្ពរបាយការណ៍",
+  },
+  "Search events by name, location, or description...": {
+    en: "Search events by name, location, or description...",
+    km: "ស្វែងរកព្រឹត្តិការណ៍តាមឈ្មោះ ទីតាំង ឬការពិពណ៌នា...",
+  },
+  "events found": {
+    en: "events found",
+    km: "ព្រឹត្តិការណ៍ត្រូវបានរកឃើញ",
+  },
+  "View Report": {
+    en: "View Report",
+    km: "មើលរបាយការណ៍",
+  },
+  Showing: {
+    en: "Showing",
+    km: "បង្ហាញ",
+  },
+  to: {
+    en: "to",
+    km: "ដល់",
+  },
+  of: {
+    en: "of",
+    km: "នៃ",
+  },
+  "Back to Events": {
+    en: "Back to Events",
+    km: "ត្រឡប់ទៅព្រឹត្តិការណ៍",
+  },
+  "Note: Only events with end dates in the past are shown here.": {
+    en: "Note: Only events with end dates in the past are shown here.",
+    km: "ចំណាំ: មានតែព្រឹត្តិការណ៍ដែលកាលបរិច្ឆេទបញ្ចប់ធ្វើរួចទៅហើយទើបត្រូវបានបង្ហាញនៅទីនេះ។",
+  },
+  "User session not found": {
+    en: "User session not found",
+    km: "រកមិនឃើញវគ្គប្រើប្រាស់អ្នកប្រើ",
+  },
+  "Admin profile not found": {
+    en: "Admin profile not found",
+    km: "រកមិនឃើញទម្រង់អ្នកគ្រប់គ្រង",
+  },
+  "Only events that have ended are available for reporting. Please check back after your events have concluded.":
+    {
+      en: "Only events that have ended are available for reporting. Please check back after your events have concluded.",
+      km: "មានតែព្រឹត្តិការណ៍ដែលបានបញ្ចប់ទើបអាចធ្វើរបាយការណ៍បាន។ សូមត្រលប់មកពិនិត្យម្តងទៀតបន្ទាប់ពីព្រឹត្តិការណ៍របស់អ្នកបានបញ្ចប់។",
+    },
+  "Please wait while we fetch your completed events": {
+    en: "Please wait while we fetch your completed events",
+    km: "សូមរង់ចាំនៅពេលយើងកំពុងទាញយកព្រឹត្តិការណ៍ដែលបានបញ្ចប់របស់អ្នក",
+  },
+  "Detailed registration report for this completed event": {
+    en: "Detailed registration report for this completed event",
+    km: "របាយការណ៍លម្អិតអំពីការចុះឈ្មោះសម្រាប់ព្រឹត្តិការណ៍ដែលបានបញ្ចប់នេះ",
+  },
+  "Event Information": {
+    en: "Event Information",
+    km: "ព័ត៌មានព្រឹត្តិការណ៍",
+  },
+  "Registration Statistics": {
+    en: "Registration Statistics",
+    km: "ស្ថិតិការចុះឈ្មោះ",
+  },
+  "Total Registrations": {
+    en: "Total Registrations",
+    km: "ការចុះឈ្មោះសរុប",
+  },
+  "Fill Rate": {
+    en: "Fill Rate",
+    km: "អត្រាពេញ",
+  },
+  total: {
+    en: "total",
+    km: "សរុប",
+  },
+  "Please wait while we fetch registration data": {
+    en: "Please wait while we fetch registration data",
+    km: "សូមរង់ចាំនៅពេលយើងកំពុងទាញយកទិន្នន័យការចុះឈ្មោះ",
+  },
+  "No matching registrations": {
+    en: "No matching registrations",
+    km: "រកមិនឃើញការចុះឈ្មោះដែលត្រូវគ្នា",
+  },
+  "No registrations found": {
+    en: "No registrations found",
+    km: "រកមិនឃើញការចុះឈ្មោះ",
+  },
+  "Try adjusting your search terms to find what you're looking for": {
+    en: "Try adjusting your search terms to find what you're looking for",
+    km: "សាកល្បងកែសម្រួលពាក្យស្វែងរករបស់អ្នកដើម្បីរកអ្វីដែលអ្នកកំពុងស្វែងរក",
+  },
+  "This event has no registrations yet": {
+    en: "This event has no registrations yet",
+    km: "ព្រឹត្តិការណ៍នេះមិនទាន់មានការចុះឈ្មោះនៅឡើយទេ",
+  },
+  "Clear search": {
+    en: "Clear search",
+    km: "សម្អាតការស្វែងរក",
+  },
+  "Registration Report": {
+    en: "Registration Report",
+    km: "របាយការណ៍ការចុះឈ្មោះ",
+  },
+  "Detailed registration report for this event": {
+    en: "Detailed registration report for this event",
+    km: "របាយការណ៍លម្អិតនៃការចុះឈ្មោះសម្រាប់ព្រឹត្តិការណ៍នេះ",
+  },
+  "All Events": {
+    en: "All Events",
+    km: "ព្រឹត្តិការណ៍ទាំងអស់",
+  },
+  Statistics: {
+    en: "Statistics",
+    km: "ស្ថិតិ",
+  },
+  Unknown: {
+    en: "Unknown",
+    km: "មិនស្គាល់",
+  },
+  Registered: {
+    en: "Registered",
+    km: "បានចុះឈ្មោះ",
+  },
+  "Generated on": {
+    en: "Generated on",
+    km: "បង្កើតនៅថ្ងៃ",
+  },
+  "Event Report": {
+    en: "Event Report",
+    km: "របាយការណ៍ព្រឹត្តិការណ៍",
+  },
+  "Start Date & Time": {
+    en: "Start Date & Time",
+    km: "កាលបរិច្ឆេទ និងម៉ោងចាប់ផ្តើម",
+  },
+  "End Date & Time": {
+    en: "End Date & Time",
+    km: "កាលបរិច្ឆេទ និងម៉ោងបញ្ចប់",
+  },
+  Venue: {
+    en: "Venue",
+    km: "កន្លែងធ្វើព្រឹត្តិការណ៍",
+  },
+  "Registration Summary": {
+    en: "Registration Summary",
+    km: "សង្ខេបការចុះឈ្មោះ",
+  },
+  "Available Spots": {
+    en: "Available Spots",
+    km: "កន្លែងនៅសល់",
+  },
+  "Occupancy Rate": {
+    en: "Occupancy Rate",
+    km: "អត្រាការបំពេញ",
+  },
+  "Loading events...": {
+    en: "Loading events...",
+    km: "កំពុងផ្ទុកព្រឹត្តិការណ៍...",
+  },
+  "Please wait while we fetch your events": {
+    en: "Please wait while we fetch your events",
+    km: "សូមរង់ចាំនៅពេលយើងកំពុងទាញយកព្រឹត្តិការណ៍របស់អ្នក",
+  },
+  "No events found": {
+    en: "No events found",
+    km: "រកមិនឃើញព្រឹត្តិការណ៍",
+  },
+  "You haven't created any events yet. Create your first event to get started with reporting.":
+    {
+      en: "You haven't created any events yet. Create your first event to get started with reporting.",
+      km: "អ្នកមិនទាន់បានបង្កើតព្រឹត្តិការណ៍ណាមួយនៅឡើយទេ។ បង្កើតព្រឹត្តិការណ៍ដំបូងរបស់អ្នកដើម្បីចាប់ផ្តើមធ្វើរបាយការណ៍។",
+    },
+  "Failed to fetch events": {
+    en: "Failed to fetch events",
+    km: "បរាជ័យក្នុងការទាញយកព្រឹត្តិការណ៍",
   },
   "Export to Excel": {
     en: "Export to Excel",

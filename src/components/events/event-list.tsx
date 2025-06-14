@@ -544,7 +544,7 @@ export const EventList: React.FC = () => {
           ) : (
             <Table>
               <TableHeader>
-                <TableRow>
+                <TableRow className="bg-muted/50">
                   <TableHead className="w-[30%] min-w-[200px]">
                     {t("Event")}
                   </TableHead>
