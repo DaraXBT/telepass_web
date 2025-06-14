@@ -88,11 +88,6 @@ export function AppSidebar({...props}: React.ComponentProps<typeof Sidebar>) {
         isActive: true,
       },
       {
-        name: t("Audience List"),
-        url: "/audience",
-        icon: Users,
-      },
-      {
         name: t("User List"),
         url: "/user",
         icon: Bot,

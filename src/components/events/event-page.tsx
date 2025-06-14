@@ -4,34 +4,43 @@ import {useLanguage} from "@/components/providers/LanguageProvider";
 import {Badge} from "@/components/ui/badge";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {useToast} from "@/hooks/use-toast";
-import {getEvent} from "@/services/event.service";
-import {Calendar, MapPin, Phone, Users} from "lucide-react";
+import {getEvent, getEventRoles} from "@/services/event.service";
+import {Calendar, MapPin, Users} from "lucide-react";
 import {useParams} from "next/navigation";
 import {useEffect, useState} from "react";
 import {EventAudienceList} from "./event-audience-list";
 
+interface EventRole {
+  userId: string;
+  role: "OWNER" | "ORGANIZER";
+}
+
 interface Event {
-  id: number;
+  id: string;
   name: string;
   description: string;
+  status: string;
+  category: string;
+  capacity: number;
+  registered: number;
+  qrCodePath: string;
+  eventImg: string;
+  adminId: string;
   startDateTime: string;
   endDateTime: string;
   location: string;
-  status: "upcoming" | "ongoing" | "finished";
-  category: string;
-  capacity: number;
-  registeredAttendees: number;
-  organizers: string[];
-  contact: string;
+  eventRoles: EventRole[];
+  registeredUsers: string[];
 }
 
 export function EventPage() {
   const {id} = useParams();
   const [event, setEvent] = useState<Event | null>(null);
+  const [organizers, setOrganizers] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingOrganizers, setIsLoadingOrganizers] = useState(false);
   const {toast} = useToast();
   const {t} = useLanguage();
-
   useEffect(() => {
     const fetchEvent = async () => {
       try {
@@ -54,6 +63,33 @@ export function EventPage() {
       fetchEvent();
     }
   }, [id, toast, t]);
+  useEffect(() => {
+    const fetchOrganizers = async () => {
+      if (!id) return;
+      
+      try {
+        setIsLoadingOrganizers(true);
+        const rolesData = await getEventRoles(id);
+        // Filter for organizers and owners only, and ensure they have required data
+        const eventOrganizers = rolesData.filter(
+          (role: any) =>
+            (role.role === "ORGANIZER" || role.role === "OWNER") &&
+            role.username
+        );
+        setOrganizers(eventOrganizers);
+      } catch (error) {
+        console.error("Error fetching organizers:", error);
+        // Don't show toast for organizers error - it's not critical
+        setOrganizers([]);
+      } finally {
+        setIsLoadingOrganizers(false);
+      }
+    };
+
+    if (id && event) {
+      fetchOrganizers();
+    }
+  }, [id, event]);
 
   const handleUpdateEvent = (updatedEvent: Event) => {
     setEvent(updatedEvent);
@@ -133,19 +169,14 @@ export function EventPage() {
           <div className="flex items-center space-x-2 text-sm">
             <MapPin className="h-4 w-4" />
             <span>{event.location}</span>
-          </div>
-          <div className="flex items-center space-x-2 text-sm">
+          </div>          <div className="flex items-center space-x-2 text-sm">
             <Users className="h-4 w-4" />
             <span>
-              {event.registeredAttendees} / {event.capacity} {t("attendees")}
+              {event.registered} / {event.capacity} {t("attendees")}
             </span>
           </div>
-          <div className="flex items-center space-x-2 text-sm">
-            <Phone className="h-4 w-4" />
-            <span>{event.contact}</span>
-          </div>
         </CardContent>
-      </Card>
+      </Card>{" "}
       {event && (
         <Card>
           <CardHeader>
@@ -157,17 +188,42 @@ export function EventPage() {
                 <h3 className="text-lg font-semibold mb-2">
                   {t("Organizers")}
                 </h3>
-                {/* <ul className="list-disc list-inside">
-                  {event.organizers.map((organizer, index) => (
-                    <li key={index}>{organizer}</li>
-                  ))}
-                </ul> */}
+                {isLoadingOrganizers ? (
+                  <div className="text-sm text-muted-foreground">
+                    {t("Loading organizers...")}
+                  </div>
+                ) : organizers.length === 0 ? (
+                  <div className="text-sm text-muted-foreground">
+                    {t("No organizers found")}
+                  </div>
+                ) : (                  <div className="space-y-3">
+                    {organizers.map((organizer, index) => (
+                      <div
+                        key={organizer.id || organizer.userId || index}
+                        className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
+                        <div className="flex-1">
+                          <div className="font-medium text-sm">
+                            {organizer.username || `User ${organizer.userId}`}
+                          </div>
+                          {organizer.email && (
+                            <div className="text-xs text-muted-foreground">
+                              {organizer.email}
+                            </div>
+                          )}
+                        </div>
+                        <Badge variant="outline" className="text-xs px-2 py-1">
+                          {organizer.role}
+                        </Badge>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </CardContent>
         </Card>
       )}
-      <EventAudienceList eventId={event?.id || 0} />
+      <EventAudienceList eventId={event?.id || ""} />
     </div>
   );
 }

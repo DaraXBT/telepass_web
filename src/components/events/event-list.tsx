@@ -57,6 +57,7 @@ import {
   fetchEventQrCode,
   getAllEvents,
   getEventsByAdminId,
+  getEventRoles,
   updateEvent,
 } from "@/services/event.service";
 import {getAdminByUsername} from "@/services/authservice.service";
@@ -104,28 +105,52 @@ export const EventList: React.FC = () => {
       // Fetch events using admin ID
       const response = await getEventsByAdminId(adminResponse.data.id);
       if (response.data) {
-        const mappedEvents = response.data.map((event: any) => ({
-          ...event,
-          status: event.status || "upcoming",
-          category: event.category || "General",
-          description: event.description || "",
-          eventImg: event.eventImg || null,
-          registered: event.registered || 0,
-          capacity: event.capacity || 100,
-          qrCodePath: event.qrCode,
-          eventRoles:
-            event.eventRoles
-              ?.filter(
-                (role: EventRole) =>
-                  role.role === "ORGANIZER" || role.role === "OWNER"
-              )
-              .map((role: EventRole) => ({
-                id: role.user.id,
-                name: role.user.username,
-                email: role.user.email,
-                role: role.role === "OWNER" ? "admin" : "event_organizer",
-              })) || [],
-        }));
+        const mappedEvents = await Promise.all(
+          response.data.map(async (event: any) => {
+            // Fetch organizers for each event using the new endpoint
+            let eventRoles = [];
+            try {
+              const rolesResponse = await getEventRoles(event.id);
+              console.log(
+                `Roles response for event ${event.id}:`,
+                rolesResponse
+              );
+
+              eventRoles =
+                rolesResponse
+                  ?.filter(
+                    (role: any) =>
+                      role &&
+                      role.role &&
+                      (role.role === "ORGANIZER" || role.role === "OWNER") &&
+                      role.username // Ensure username exists
+                  )
+                  .map((role: any) => ({
+                    id: role.id,
+                    userId: role.userId,
+                    username: role.username,
+                    email: role.email || "", // Default to empty string if email not provided
+                    role: role.role,
+                  })) || [];
+            } catch (error) {
+              console.warn(
+                `Failed to fetch roles for event ${event.id}:`,
+                error
+              );
+            }
+            return {
+              ...event,
+              status: event.status || "upcoming",
+              category: event.category || "General",
+              description: event.description || "",
+              eventImg: event.eventImg || null,
+              registered: event.registered || 0,
+              capacity: event.capacity || 100,
+              qrCodePath: event.qrCode,
+              eventRoles: eventRoles as EventRoleWithDetails[],
+            };
+          })
+        );
         setEvents(mappedEvents);
       }
     } catch (error) {
@@ -174,28 +199,53 @@ export const EventList: React.FC = () => {
       );
       if (response.data) {
         // Map the API response to match our Event interface
-        const mappedEvents = response.data.map((event: any) => ({
-          ...event,
-          status: event.status || "upcoming", // Default status
-          category: event.category || "General", // Default category
-          description: event.description || "", // Default description
-          eventImg: event.eventImg || null, // Default image
-          registered: event.registered || 0, // Default registered count
-          capacity: event.capacity || 100, // Default capacity
-          qrCodePath: event.qrCode,
-          eventRoles:
-            event.eventRoles
-              ?.filter(
-                (role: EventRole) =>
-                  role.role === "ORGANIZER" || role.role === "OWNER"
-              )
-              .map((role: EventRole) => ({
-                id: role.user.id,
-                name: role.user.username,
-                email: role.user.email,
-                role: role.role === "OWNER" ? "admin" : "event_organizer",
-              })) || [], // Default to empty array if eventRoles is undefined
-        }));
+        const mappedEvents = await Promise.all(
+          response.data.map(async (event: any) => {
+            // Fetch organizers for each event using the new endpoint
+            let eventRoles = [];
+            try {
+              const rolesResponse = await getEventRoles(event.id);
+              console.log(
+                `Roles response for event ${event.id}:`,
+                rolesResponse
+              );
+
+              eventRoles =
+                rolesResponse
+                  ?.filter(
+                    (role: any) =>
+                      role &&
+                      role.role &&
+                      (role.role === "ORGANIZER" || role.role === "OWNER") &&
+                      role.username // Ensure username exists
+                  )
+                  .map((role: any) => ({
+                    id: role.id,
+                    userId: role.userId,
+                    username: role.username,
+                    email: role.email || "", // Default to empty string if email not provided
+                    role: role.role,
+                  })) || [];
+            } catch (error) {
+              console.warn(
+                `Failed to fetch roles for event ${event.id}:`,
+                error
+              );
+            }
+
+            return {
+              ...event,
+              status: event.status || "upcoming", // Default status
+              category: event.category || "General", // Default category
+              description: event.description || "", // Default description
+              eventImg: event.eventImg || null, // Default image
+              registered: event.registered || 0, // Default registered count
+              capacity: event.capacity || 100, // Default capacity
+              qrCodePath: event.qrCode,
+              eventRoles: eventRoles,
+            };
+          })
+        );
         setEvents(mappedEvents);
         hasInitiallyLoaded.current = true;
       }
@@ -285,7 +335,6 @@ export const EventList: React.FC = () => {
         });
         return;
       }
-
       const eventPayload = {
         name: updatedEvent.name,
         description: updatedEvent.description,
@@ -296,8 +345,11 @@ export const EventList: React.FC = () => {
         qrCodePath: updatedEvent.qrCodePath,
         eventImg: updatedEvent.eventImg,
         adminId: adminResponse.data.id,
+        startDateTime: updatedEvent.startDateTime,
+        endDateTime: updatedEvent.endDateTime,
+        location: updatedEvent.location,
         eventRoles: updatedEvent.eventRoles.map((role: EventRole) => ({
-          userId: role.user.id,
+          userId: role.userId,
           role: role.role,
         })),
         registeredUsers: updatedEvent.registeredUsers || [],
@@ -352,7 +404,6 @@ export const EventList: React.FC = () => {
         });
         return;
       }
-
       const eventPayload = {
         id: uuidv4(),
         name: newEvent.name,
@@ -364,8 +415,11 @@ export const EventList: React.FC = () => {
         qrCodePath: newEvent.qrCodePath,
         eventImg: newEvent.eventImg,
         adminId: adminResponse?.data?.id,
+        startDateTime: newEvent.startDateTime,
+        endDateTime: newEvent.endDateTime,
+        location: newEvent.location,
         eventRoles: newEvent.eventRoles.map((role: EventRole) => ({
-          userId: role.user.id,
+          userId: role.userId,
           role: role.role,
         })),
         registeredUsers: [],
@@ -457,6 +511,10 @@ export const EventList: React.FC = () => {
                 registered: 0,
                 qrCodePath: "",
                 eventImg: "",
+                adminId: "",
+                startDateTime: "",
+                endDateTime: "",
+                location: "",
                 eventRoles: [],
                 registeredUsers: [],
               });
@@ -582,15 +640,78 @@ export const EventList: React.FC = () => {
                           % {t("Full")}
                         </span>
                       </div>
-                    </TableCell>
+                    </TableCell>{" "}
                     <TableCell>
-                      {event.eventRoles
-                        .filter(
+                      {(() => {
+                        // Use enriched eventRoles that have been fetched with details
+                        const organizers = (
+                          event.eventRoles as EventRoleWithDetails[]
+                        ).filter(
                           (role) =>
-                            role.role === "ORGANIZER" || role.role === "OWNER"
-                        )
-                        .map((role) => role.user.username)
-                        .join(", ")}
+                            (role.role === "ORGANIZER" ||
+                              role.role === "OWNER") &&
+                            role.username
+                        );
+
+                        if (organizers.length === 0) {
+                          return (
+                            <span className="text-sm text-muted-foreground">
+                              {t("No organizers")}
+                            </span>
+                          );
+                        }
+
+                        if (organizers.length === 1) {
+                          return (
+                            <div className="text-sm">
+                              <div className="font-medium">
+                                {organizers[0].username}
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                {organizers[0].email}
+                              </div>
+                            </div>
+                          );
+                        }
+
+                        return (
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-auto p-2">
+                                <div className="text-left">
+                                  <div className="text-sm font-medium">
+                                    {organizers[0].username}
+                                  </div>
+                                  <div className="text-xs text-muted-foreground">
+                                    +{organizers.length - 1} {t("more")}
+                                  </div>
+                                </div>
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="start" className="w-64">
+                              <DropdownMenuLabel>
+                                {t("Organizers")}
+                              </DropdownMenuLabel>
+                              <DropdownMenuSeparator />
+                              {organizers.map((role, index) => (
+                                <DropdownMenuItem
+                                  key={role.id || role.userId || index}
+                                  className="flex flex-col items-start p-3">
+                                  <div className="font-medium text-sm">
+                                    {role.username}
+                                  </div>
+                                  <div className="text-xs text-muted-foreground">
+                                    {role.email}
+                                  </div>
+                                </DropdownMenuItem>
+                              ))}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        );
+                      })()}
                     </TableCell>
                     <TableCell>
                       <Button
@@ -767,16 +888,35 @@ interface EventFormProps {
 function EventForm({event, onSubmit, onCancel}: EventFormProps) {
   const {t} = useLanguage();
   const [step, setStep] = useState(1);
+
+  // Helper function to format datetime for datetime-local input
+  const formatDateTimeForInput = (dateTime: string): string => {
+    if (!dateTime) return "";
+    const date = new Date(dateTime);
+    if (isNaN(date.getTime())) return "";
+
+    // Format as YYYY-MM-DDTHH:MM (required for datetime-local input)
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  };
+
   const [formData, setFormData] = useState<Event>({
     ...event,
     eventImg: event.eventImg || "",
+    startDateTime: formatDateTimeForInput(event.startDateTime),
+    endDateTime: formatDateTimeForInput(event.endDateTime),
   });
   const [errors, setErrors] = useState<Partial<Record<keyof Event, string>>>(
     {}
   );
-  const [selectedOrganizers, setSelectedOrganizers] = useState<EventRole[]>(
-    event.eventRoles || []
-  );
+  const [selectedOrganizers, setSelectedOrganizers] = useState<
+    EventRoleWithDetails[]
+  >((event.eventRoles as EventRoleWithDetails[]) || []);
   const [eventImage, setEventImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(
     event.eventImg || null
@@ -807,16 +947,6 @@ function EventForm({event, onSubmit, onCancel}: EventFormProps) {
     setErrors((prev) => ({...prev, [name]: ""}));
   };
 
-  const handleDateChange = (
-    date: Date | null,
-    field: "startDateTime" | "endDateTime"
-  ) => {
-    if (date) {
-      setFormData((prev) => ({...prev, [field]: date}));
-      setErrors((prev) => ({...prev, [field]: ""}));
-    }
-  };
-
   const validateStep = (currentStep: number): boolean => {
     const newErrors: Partial<Record<keyof Event, string>> = {};
     switch (currentStep) {
@@ -828,6 +958,18 @@ function EventForm({event, onSubmit, onCancel}: EventFormProps) {
         if (!formData.description)
           newErrors.description = t("Description is required");
         if (!formData.category) newErrors.category = t("Category is required");
+        if (!formData.location) newErrors.location = t("Location is required");
+        if (!formData.startDateTime)
+          newErrors.startDateTime = t("Start date and time is required");
+        if (!formData.endDateTime)
+          newErrors.endDateTime = t("End date and time is required");
+        if (
+          formData.startDateTime &&
+          formData.endDateTime &&
+          formData.startDateTime >= formData.endDateTime
+        ) {
+          newErrors.endDateTime = t("End date must be after start date");
+        }
         break;
       case 3:
         if (!formData.capacity) newErrors.capacity = t("Capacity is required");
@@ -876,10 +1018,22 @@ function EventForm({event, onSubmit, onCancel}: EventFormProps) {
         }
       }
 
+      // Convert datetime-local format back to ISO string for API
+      const formatDateTimeForAPI = (dateTime: string): string => {
+        if (!dateTime) return "";
+        const date = new Date(dateTime);
+        return date.toISOString();
+      };
+
       onSubmit({
         ...formData,
         eventImg: eventImgUrl,
-        eventRoles: selectedOrganizers,
+        startDateTime: formatDateTimeForAPI(formData.startDateTime),
+        endDateTime: formatDateTimeForAPI(formData.endDateTime),
+        eventRoles: selectedOrganizers.map((role) => ({
+          userId: role.userId,
+          role: role.role,
+        })),
       });
     }
   };
@@ -905,16 +1059,16 @@ function EventForm({event, onSubmit, onCancel}: EventFormProps) {
       setSearchError(t("User not found"));
     }
   };
-
   const handleAddOrganizer = (user: User) => {
-    const newRole: EventRole = {
+    const newRole: EventRoleWithDetails = {
       id: uuidv4(),
-      event: formData,
-      user: user,
+      userId: user.id,
+      username: user.username,
+      email: user.email,
       role: "ORGANIZER",
     };
 
-    if (!selectedOrganizers.some((role) => role.user.id === user.id)) {
+    if (!selectedOrganizers.some((role) => role.userId === user.id)) {
       setSelectedOrganizers((prev) => [...prev, newRole]);
       setFormData((prev) => ({
         ...prev,
@@ -924,14 +1078,13 @@ function EventForm({event, onSubmit, onCancel}: EventFormProps) {
     setSearchEmail("");
     setSearchResult(null);
   };
-
   const handleRemoveOrganizer = (userId: string) => {
     setSelectedOrganizers((prev) =>
-      prev.filter((role) => role.user.id !== userId)
+      prev.filter((role) => role.userId !== userId)
     );
     setFormData((prev) => ({
       ...prev,
-      eventRoles: prev.eventRoles.filter((role) => role.user.id !== userId),
+      eventRoles: prev.eventRoles.filter((role) => role.userId !== userId),
     }));
   };
 
@@ -1026,8 +1179,7 @@ function EventForm({event, onSubmit, onCancel}: EventFormProps) {
             )}
           </div>
         </>
-      )}
-
+      )}{" "}
       {step === 2 && (
         <>
           <div>
@@ -1067,9 +1219,56 @@ function EventForm({event, onSubmit, onCancel}: EventFormProps) {
               <p className="text-red-500 text-sm mt-1">{errors.category}</p>
             )}
           </div>
+          <div>
+            <Label htmlFor="location">{t("Location")}</Label>
+            <Input
+              id="location"
+              name="location"
+              value={formData.location}
+              onChange={handleChange}
+              className="w-full"
+              placeholder={t("Enter event location")}
+            />
+            {errors.location && (
+              <p className="text-red-500 text-sm mt-1">{errors.location}</p>
+            )}
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="startDateTime">{t("Start Date & Time")}</Label>
+              <Input
+                id="startDateTime"
+                name="startDateTime"
+                type="datetime-local"
+                value={formData.startDateTime}
+                onChange={handleChange}
+                className="w-full"
+              />
+              {errors.startDateTime && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.startDateTime}
+                </p>
+              )}
+            </div>
+            <div>
+              <Label htmlFor="endDateTime">{t("End Date & Time")}</Label>
+              <Input
+                id="endDateTime"
+                name="endDateTime"
+                type="datetime-local"
+                value={formData.endDateTime}
+                onChange={handleChange}
+                className="w-full"
+              />
+              {errors.endDateTime && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.endDateTime}
+                </p>
+              )}
+            </div>
+          </div>
         </>
       )}
-
       {step === 3 && (
         <>
           <div className="grid grid-cols-2 gap-4">
@@ -1133,22 +1332,24 @@ function EventForm({event, onSubmit, onCancel}: EventFormProps) {
                   {t("Add")}
                 </Button>
               </div>
-            )}
+            )}{" "}
             <div className="space-y-2">
-              <Label>{t("Selected Organizers")}</Label>
+              <Label>{t("Selected Organizers")}</Label>{" "}
               {selectedOrganizers.map((role) => (
                 <div
-                  key={role.id}
+                  key={role.id || role.userId}
                   className="flex items-center justify-between p-2 bg-gray-50 rounded-md">
                   <div>
-                    <p className="font-medium">{role.user.username}</p>
-                    <p className="text-sm text-gray-500">{role.user.email}</p>
+                    <p className="font-medium">{role.username || "Unknown"}</p>{" "}
+                    <p className="text-sm text-gray-500">
+                      {role.email || "No email"}
+                    </p>
                   </div>
                   <Button
                     type="button"
                     variant="ghost"
                     size="sm"
-                    onClick={() => handleRemoveOrganizer(role.user.id)}>
+                    onClick={() => handleRemoveOrganizer(role.userId)}>
                     {t("Remove")}
                   </Button>
                 </div>
@@ -1160,7 +1361,6 @@ function EventForm({event, onSubmit, onCancel}: EventFormProps) {
           </div>
         </>
       )}
-
       <DialogFooter>
         {step > 1 && (
           <Button type="button" variant="outline" onClick={handleBack}>
@@ -1201,10 +1401,15 @@ interface UserSelectUser {
 }
 
 interface EventRole {
-  id: string;
-  event: Event;
-  user: User;
+  userId: string;
   role: "OWNER" | "ORGANIZER";
+}
+
+// Extended interface for displaying organizer info (fetched from getEventRoles)
+interface EventRoleWithDetails extends EventRole {
+  id?: string;
+  username?: string;
+  email?: string;
 }
 
 interface Event {
@@ -1217,8 +1422,12 @@ interface Event {
   registered: number;
   qrCodePath: string;
   eventImg: string;
+  adminId: string;
+  startDateTime: string;
+  endDateTime: string;
+  location: string;
   eventRoles: EventRole[];
-  registeredUsers: any[];
+  registeredUsers: string[];
 }
 
 const categories = [

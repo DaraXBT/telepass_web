@@ -14,7 +14,7 @@ export default function EventDetailPage() {
         <MenuNav props={t("Event List")} />
       </header>
       <Separator />
-      <div className="container mx-auto p-4">
+      <div className="mx-auto p-4">
         <h1 className="text-3xl font-semibold mb-6">{t("Event Details")}</h1>
         <EventPage />
       </div>
