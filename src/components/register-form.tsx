@@ -1,7 +1,6 @@
 "use client";
 import {API_URL} from "@/api/interceptor";
 import OtpModal from "@/components/Modal/OtpModal";
-import {StarBackground} from "@/components/ui/star-background";
 import {registerUser} from "@/services/authservice.service";
 import {useLanguage} from "@/components/providers/LanguageProvider";
 import {Button} from "@/components/ui/button";
@@ -152,17 +151,6 @@ const RegisterForm = () => {
     <>
       <section className="relative z-10 overflow-hidden">
         <div className="relative w-full">
-          {/* Star Background */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <StarBackground
-              count={25}
-              minSize={0.4}
-              maxSize={0.8}
-              opacity="opacity-60"
-              color="text-primary/40"
-            />
-          </div>
-
           <div className="flex flex-col items-center w-full max-w-md gap-6 relative z-10">
             {/* Logo and Title */}
             <div className="flex flex-col items-center w-full">
@@ -318,7 +306,6 @@ const RegisterForm = () => {
           </div>
         </div>
       </section>
-
       <OtpModal
         open={showOtpModal}
         onClose={() => setShowOtpModal(false)}

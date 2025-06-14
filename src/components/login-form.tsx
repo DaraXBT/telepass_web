@@ -4,7 +4,7 @@ import {Button} from "@/components/ui/button";
 import {Card, CardContent} from "@/components/ui/card";
 import {Input} from "@/components/ui/input";
 import {Label} from "@/components/ui/label";
-import {StarBackground} from "@/components/ui/star-background";
+
 import {useToast} from "@/hooks/use-toast";
 import {signIn} from "next-auth/react";
 import Image from "next/image";
@@ -65,17 +65,6 @@ const SigninPage = () => {
     <>
       <section className="relative z-10 overflow-hidden">
         <div className="relative w-full">
-          {/* Star Background */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <StarBackground
-              count={25}
-              minSize={0.4}
-              maxSize={0.8}
-              opacity="opacity-60"
-              color="text-primary/40"
-            />
-          </div>
-
           <div className="flex flex-col items-center w-full max-w-sm gap-6 relative z-10">
             {/* Logo and Title without border */}
             <div className="flex flex-col items-center w-full">
@@ -202,7 +191,6 @@ const SigninPage = () => {
           </div>
         </div>
       </section>
-
       <ForgotPasswordModal
         open={showForgotPasswordModal}
         onClose={() => setShowForgotPasswordModal(false)}

@@ -50,6 +50,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {Textarea} from "@/components/ui/textarea";
+import {DateTimePicker} from "@/components/ui/date-time-picker-new";
 import {toast, useToast} from "@/hooks/use-toast";
 import {
   addEvent,
@@ -62,7 +63,15 @@ import {
 } from "@/services/event.service";
 import {getAdminByUsername} from "@/services/authservice.service";
 import {uploadProfileImage} from "@/services/image.service";
-import {MoreHorizontal, Plus, QrCode, Sparkles, Trash} from "lucide-react";
+import {
+  MoreHorizontal,
+  Plus,
+  QrCode,
+  Sparkles,
+  Trash,
+  Calendar as CalendarIcon,
+  MapPin,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import {useCallback, useEffect, useMemo, useRef, useState} from "react";
@@ -572,17 +581,16 @@ export const EventList: React.FC = () => {
                           />
                         )}
                         <div>
-                          {" "}
                           <Link
                             href={`/events/${event.id}`}
                             className="font-medium hover:underline">
                             {event.name}
-                          </Link>
+                          </Link>{" "}
                           <div className="text-sm text-muted-foreground">
                             {event.description || "No description available"}
                           </div>
                         </div>
-                      </div>{" "}
+                      </div>
                     </TableCell>
                     <TableCell>
                       <Badge
@@ -611,7 +619,7 @@ export const EventList: React.FC = () => {
                         {t(
                           event.status?.charAt(0).toUpperCase() +
                             event.status?.slice(1) || "Unknown"
-                        )}{" "}
+                        )}
                       </Badge>
                     </TableCell>
                     <TableCell>{event.category || "General"}</TableCell>
@@ -636,11 +644,11 @@ export const EventList: React.FC = () => {
                                   (event.capacity || 100)) *
                                   100
                               )
-                            : 0}
+                            : 0}{" "}
                           % {t("Full")}
                         </span>
                       </div>
-                    </TableCell>{" "}
+                    </TableCell>
                     <TableCell>
                       {(() => {
                         // Use enriched eventRoles that have been fetched with details
@@ -904,6 +912,12 @@ function EventForm({event, onSubmit, onCancel}: EventFormProps) {
 
     return `${year}-${month}-${day}T${hours}:${minutes}`;
   };
+  // Helper function to convert string to Date object safely
+  const parseDateTime = (dateTime: string): Date => {
+    if (!dateTime) return new Date();
+    const date = new Date(dateTime);
+    return isNaN(date.getTime()) ? new Date() : date;
+  };
 
   const [formData, setFormData] = useState<Event>({
     ...event,
@@ -911,6 +925,14 @@ function EventForm({event, onSubmit, onCancel}: EventFormProps) {
     startDateTime: formatDateTimeForInput(event.startDateTime),
     endDateTime: formatDateTimeForInput(event.endDateTime),
   });
+
+  // Separate state for Date objects used by DateTimePicker
+  const [startDate, setStartDate] = useState<Date>(
+    parseDateTime(event.startDateTime)
+  );
+  const [endDate, setEndDate] = useState<Date>(
+    parseDateTime(event.endDateTime)
+  );
   const [errors, setErrors] = useState<Partial<Record<keyof Event, string>>>(
     {}
   );
@@ -947,6 +969,18 @@ function EventForm({event, onSubmit, onCancel}: EventFormProps) {
     setErrors((prev) => ({...prev, [name]: ""}));
   };
 
+  const handleStartDateChange = (date: Date) => {
+    setStartDate(date);
+    setFormData((prev) => ({...prev, startDateTime: date.toISOString()}));
+    setErrors((prev) => ({...prev, startDateTime: ""}));
+  };
+
+  const handleEndDateChange = (date: Date) => {
+    setEndDate(date);
+    setFormData((prev) => ({...prev, endDateTime: date.toISOString()}));
+    setErrors((prev) => ({...prev, endDateTime: ""}));
+  };
+
   const validateStep = (currentStep: number): boolean => {
     const newErrors: Partial<Record<keyof Event, string>> = {};
     switch (currentStep) {
@@ -963,11 +997,7 @@ function EventForm({event, onSubmit, onCancel}: EventFormProps) {
           newErrors.startDateTime = t("Start date and time is required");
         if (!formData.endDateTime)
           newErrors.endDateTime = t("End date and time is required");
-        if (
-          formData.startDateTime &&
-          formData.endDateTime &&
-          formData.startDateTime >= formData.endDateTime
-        ) {
+        if (startDate && endDate && startDate >= endDate) {
           newErrors.endDateTime = t("End date must be after start date");
         }
         break;
@@ -1176,10 +1206,10 @@ function EventForm({event, onSubmit, onCancel}: EventFormProps) {
             </Select>
             {errors.status && (
               <p className="text-red-500 text-sm mt-1">{errors.status}</p>
-            )}
+            )}{" "}
           </div>
         </>
-      )}{" "}
+      )}
       {step === 2 && (
         <>
           <div>
@@ -1218,55 +1248,95 @@ function EventForm({event, onSubmit, onCancel}: EventFormProps) {
             {errors.category && (
               <p className="text-red-500 text-sm mt-1">{errors.category}</p>
             )}
-          </div>
+          </div>{" "}
           <div>
-            <Label htmlFor="location">{t("Location")}</Label>
+            <Label
+              htmlFor="location"
+              className="text-sm font-medium flex items-center gap-2">
+              <MapPin className="h-4 w-4 text-muted-foreground" />
+              {t("Location")}
+            </Label>
             <Input
               id="location"
               name="location"
               value={formData.location}
               onChange={handleChange}
-              className="w-full"
+              className="w-full mt-1"
               placeholder={t("Enter event location")}
             />
             {errors.location && (
-              <p className="text-red-500 text-sm mt-1">{errors.location}</p>
+              <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                <span className="text-red-500">⚠</span>
+                {errors.location}
+              </p>
             )}
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="startDateTime">{t("Start Date & Time")}</Label>
-              <Input
-                id="startDateTime"
-                name="startDateTime"
-                type="datetime-local"
-                value={formData.startDateTime}
-                onChange={handleChange}
-                className="w-full"
-              />
+          </div>{" "}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label className="text-sm font-medium flex items-center gap-2">
+                <CalendarIcon className="h-4 w-4 text-muted-foreground" />
+                {t("Start Date & Time")}
+              </Label>
+              <div className="relative">
+                <DateTimePicker
+                  value={startDate}
+                  onChange={handleStartDateChange}
+                />
+              </div>
               {errors.startDateTime && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                  <span className="text-red-500">⚠</span>
                   {errors.startDateTime}
                 </p>
               )}
+              <p className="text-xs text-muted-foreground">
+                {t("When does your event start?")}
+              </p>
             </div>
-            <div>
-              <Label htmlFor="endDateTime">{t("End Date & Time")}</Label>
-              <Input
-                id="endDateTime"
-                name="endDateTime"
-                type="datetime-local"
-                value={formData.endDateTime}
-                onChange={handleChange}
-                className="w-full"
-              />
+            <div className="space-y-2">
+              <Label className="text-sm font-medium flex items-center gap-2">
+                <CalendarIcon className="h-4 w-4 text-muted-foreground" />
+                {t("End Date & Time")}
+              </Label>
+              <div className="relative">
+                <DateTimePicker
+                  value={endDate}
+                  onChange={handleEndDateChange}
+                />
+              </div>
               {errors.endDateTime && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                  <span className="text-red-500">⚠</span>
                   {errors.endDateTime}
                 </p>
               )}
+              <p className="text-xs text-muted-foreground">
+                {t("When does your event end?")}
+              </p>
             </div>
           </div>
+          {startDate && endDate && startDate < endDate && (
+            <div className="p-4 bg-muted/50 rounded-lg border border-dashed">
+              <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
+                <CalendarIcon className="h-4 w-4 text-green-600" />
+                {t("Event Duration")}
+              </h4>
+              <p className="text-sm text-muted-foreground">
+                {(() => {
+                  const diffMs = endDate.getTime() - startDate.getTime();
+                  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+                  const diffDays = Math.floor(diffHours / 24);
+                  const remainingHours = diffHours % 24;
+
+                  if (diffDays > 0) {
+                    return `${diffDays} ${t("day(s)")} ${remainingHours > 0 ? `and ${remainingHours} ${t("hour(s)")}` : ""}`;
+                  } else {
+                    return `${diffHours} ${t("hour(s)")}`;
+                  }
+                })()}
+              </p>
+            </div>
+          )}
         </>
       )}
       {step === 3 && (

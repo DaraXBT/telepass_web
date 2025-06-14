@@ -290,7 +290,6 @@ export function EventAudienceList({eventId}: EventAudienceListProps) {
           <TableBody>
             {filteredMembers.map((member) => (
               <TableRow key={member.id}>
-                {" "}
                 <TableCell>{member.fullName}</TableCell>
                 <TableCell>{member.email}</TableCell>
                 <TableCell>{member.phoneNumber}</TableCell>
@@ -351,12 +350,12 @@ export function EventAudienceList({eventId}: EventAudienceListProps) {
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
-                            <AlertDialogCancel>{t("Cancel")}</AlertDialogCancel>
+                            <AlertDialogCancel>{t("Cancel")}</AlertDialogCancel>{" "}
                             <AlertDialogAction
                               onClick={() => handleDeleteMember(member.id)}
                               className="bg-red-600 hover:bg-red-700 text-white">
                               {t("Delete")}
-                            </AlertDialogAction>{" "}
+                            </AlertDialogAction>
                           </AlertDialogFooter>
                         </AlertDialogContent>
                       </AlertDialog>

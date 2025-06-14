@@ -106,39 +106,130 @@ export default function Account() {
 
     fetchUserData();
   }, [t]);
-
   const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsPending(true);
 
-    // Simulate API call
-    setTimeout(() => {
+    const form = e.target as HTMLFormElement;
+    const formData = new FormData(form);
+    const name = formData.get("name") as string;
+    const email = formData.get("email") as string;
+
+    // Basic validation
+    if (!name || !email) {
       setIsPending(false);
       toast({
-        title: t("Profile updated"),
+        title: t("Validation Error"),
+        description: t("Name and email are required"),
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setIsPending(false);
+      toast({
+        title: t("Invalid Email"),
+        description: t("Please enter a valid email address"),
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Simulate API call
+    try {
+      // Here you would make the actual API call
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      setIsPending(false);
+      toast({
+        title: t("Profile Updated"),
         description: t(
           "Your profile information has been updated successfully."
         ),
+        variant: "default",
       });
-    }, 1000);
-  };
 
+      // Update local state
+      setUserData((prev) => ({
+        ...prev,
+        name,
+        email,
+      }));
+    } catch (error) {
+      setIsPending(false);
+      toast({
+        title: t("Update Failed"),
+        description: t("Failed to update profile. Please try again."),
+        variant: "destructive",
+      });
+    }
+  };
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsPending(true);
 
-    // Simulate API call
-    setTimeout(() => {
+    const form = e.target as HTMLFormElement;
+    const formData = new FormData(form);
+    const currentPassword = formData.get("current-password") as string;
+    const newPassword = formData.get("new-password") as string;
+    const confirmPassword = formData.get("confirm-password") as string;
+
+    // Validation
+    if (!currentPassword || !newPassword || !confirmPassword) {
       setIsPending(false);
       toast({
-        title: t("Password updated"),
+        title: t("Validation Error"),
+        description: t("All password fields are required"),
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setIsPending(false);
+      toast({
+        title: t("Password Mismatch"),
+        description: t("New password and confirm password do not match"),
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (newPassword.length < 8) {
+      setIsPending(false);
+      toast({
+        title: t("Password Too Short"),
+        description: t("Password must be at least 8 characters long"),
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Simulate API call
+    try {
+      // Here you would make the actual API call
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      setIsPending(false);
+      toast({
+        title: t("Password Updated"),
         description: t("Your password has been changed successfully."),
+        variant: "default",
       });
 
       // Clear form
-      const form = e.target as HTMLFormElement;
       form.reset();
-    }, 1000);
+    } catch (error) {
+      setIsPending(false);
+      toast({
+        title: t("Update Failed"),
+        description: t("Failed to update password. Please try again."),
+        variant: "destructive",
+      });
+    }
   };
   return (
     <>
@@ -197,23 +288,27 @@ export default function Account() {
                       <div className="grid gap-3">
                         <Label htmlFor="name">{t("Full Name")}</Label>
                         <div className="flex items-center">
-                          <User className="mr-2 h-4 w-4 text-muted-foreground" />
+                          <User className="mr-2 h-4 w-4 text-muted-foreground" />{" "}
                           <Input
                             id="name"
+                            name="name"
                             defaultValue={userData.name}
                             className="w-full"
+                            required
                           />
                         </div>
                       </div>
                       <div className="grid gap-3">
                         <Label htmlFor="email">{t("Email")}</Label>
                         <div className="flex items-center">
-                          <Mail className="mr-2 h-4 w-4 text-muted-foreground" />
+                          <Mail className="mr-2 h-4 w-4 text-muted-foreground" />{" "}
                           <Input
                             id="email"
+                            name="email"
                             type="email"
                             defaultValue={userData.email}
                             className="w-full"
+                            required
                           />
                         </div>
                       </div>{" "}
@@ -243,23 +338,39 @@ export default function Account() {
               <CardContent>
                 <form onSubmit={handlePasswordChange} className="space-y-6">
                   <div className="space-y-4">
+                    {" "}
                     <div className="grid gap-3">
                       <Label htmlFor="current-password">
                         {t("Current Password")}
                       </Label>
-                      <Input id="current-password" type="password" required />
+                      <Input
+                        id="current-password"
+                        name="current-password"
+                        type="password"
+                        required
+                      />
                     </div>
-
                     <div className="grid gap-3">
                       <Label htmlFor="new-password">{t("New Password")}</Label>
-                      <Input id="new-password" type="password" required />
+                      <Input
+                        id="new-password"
+                        name="new-password"
+                        type="password"
+                        required
+                        minLength={8}
+                      />
                     </div>
-
                     <div className="grid gap-3">
                       <Label htmlFor="confirm-password">
                         {t("Confirm New Password")}
                       </Label>
-                      <Input id="confirm-password" type="password" required />
+                      <Input
+                        id="confirm-password"
+                        name="confirm-password"
+                        type="password"
+                        required
+                        minLength={8}
+                      />
                     </div>
                   </div>
 

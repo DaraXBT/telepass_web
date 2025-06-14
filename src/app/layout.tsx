@@ -39,15 +39,15 @@ export default function RootLayout({
               </div>
             )}{" "}
             {isLoginPage ? (
-              <>
-                {children}
-                <Toaster />
-              </>            ) : (
+              <>{children}</>
+            ) : (
               <div className="flex h-screen overflow-hidden">
                 <SidebarProvider defaultOpen={sidebarState !== "collapsed"}>
                   <AppSidebar />
                   <SidebarInset className="overflow-hidden">
-                    <div className="flex-1 h-full overflow-y-auto">{children}</div>
+                    <div className="flex-1 h-full overflow-y-auto">
+                      {children}
+                    </div>
                   </SidebarInset>
                 </SidebarProvider>
               </div>
