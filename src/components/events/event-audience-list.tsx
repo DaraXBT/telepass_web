@@ -48,7 +48,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {MoreHorizontal, Plus, QrCode, Trash} from "lucide-react";
+import {BadgeCheck, MoreHorizontal, Plus, QrCode, Trash} from "lucide-react";
 import {QRCodeSVG} from "qrcode.react";
 import {
   AlertDialog,
@@ -279,7 +279,7 @@ export function EventAudienceList({eventId}: EventAudienceListProps) {
             <TableRow>
               <TableHead>{t("Name")}</TableHead>
               <TableHead>{t("Email")}</TableHead>
-              <TableHead>{t("Phone Number")}</TableHead>
+              <TableHead>{t("Phone Number")}</TableHead>{" "}
               <TableHead>{t("Occupation")}</TableHead>
               <TableHead>{t("Gender")}</TableHead>
               <TableHead>{t("Status")}</TableHead>
@@ -296,13 +296,20 @@ export function EventAudienceList({eventId}: EventAudienceListProps) {
                 <TableCell>{member.occupation}</TableCell>
                 <TableCell>{t(member.gender)}</TableCell>
                 <TableCell>
-                  <Badge
-                    variant={
-                      member.checkedIn === true ? "default" : "secondary"
-                    }
-                    className="px-2 py-0.5 rounded-full text-xs font-medium inline-flex items-center justify-center w-28">
-                    {t(member.checkedIn ? "Checked In" : "Not Checked")}
-                  </Badge>
+                  {member.checkedIn ? (
+                    <Badge
+                      variant="secondary"
+                      className="bg-blue-500 text-white dark:bg-blue-600 px-2 py-0.5 rounded-full text-xs font-medium inline-flex items-center justify-center w-28 gap-1">
+                      <BadgeCheck className="h-3 w-3" />
+                      {t("Checked In")}
+                    </Badge>
+                  ) : (
+                    <Badge
+                      variant="secondary"
+                      className="px-2 py-0.5 rounded-full text-xs font-medium inline-flex items-center justify-center w-28">
+                      {t("Not Checked")}
+                    </Badge>
+                  )}
                 </TableCell>
                 <TableCell>
                   <Button

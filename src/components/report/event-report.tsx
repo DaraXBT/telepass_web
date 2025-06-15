@@ -46,7 +46,6 @@ import {
   CheckCircleIcon,
   FileSpreadsheet,
   MapPinIcon,
-  Printer,
   Search,
   UsersIcon,
   RefreshCw,
@@ -65,6 +64,7 @@ import {getSession} from "next-auth/react";
 import {getAdminByUsername} from "@/services/authservice.service";
 import {getEventsByAdminId, getEventAudiences} from "@/services/event.service";
 import {useToast} from "@/hooks/use-toast";
+import {EventAudienceList} from "@/components/events/event-audience-list";
 
 // Declare Google Maps types
 declare global {
@@ -390,92 +390,836 @@ export function EventReport() {
       return dateString;
     }
   };
-
-  const handlePrint = () => {
+  const handlePrint = async () => {
     if (!selectedEvent) return;
 
-    const printContent = `
-      <h1>${selectedEvent.name} - ${t("Registrations Report")}</h1>
-      <p>${t("Start Date")}: ${formatDate(selectedEvent.startDateTime)}</p>
-      <p>${t("End Date")}: ${formatDate(selectedEvent.endDateTime)}</p>
-      <p>${t("Location")}: ${selectedEvent.location}</p>
-      <p>${t("Capacity")}: ${selectedEvent.capacity}</p>
-      <p>${t("Total Registrations")}: ${filteredAudiences.length}</p>
-      <table border="1" cellpadding="5" cellspacing="0">
-        <thead>
-          <tr>
-            <th>${t("Name")}</th>
-            <th>${t("Email")}</th>
-            <th>${t("Phone")}</th>
-            <th>${t("Registration Date")}</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${filteredAudiences
-            .map(
-              (audience: Audience) => `            <tr>
-              <td>${audience.name || "N/A"}</td>
-              <td>${audience.email || "N/A"}</td>
-              <td>${audience.phone || "N/A"}</td>
-              <td>${formatDate(audience.registrationDate)}</td>
-            </tr>
-          `
-            )
-            .join("")}
-        </tbody>
-      </table>
-    `;
+    try {
+      // Use existing filteredAudiences data that's already loaded in the component
+      // Also try to get fresh data from the API for more complete information
+      let audienceData = filteredAudiences;
+      let detailedAudienceData = [];
 
-    const printWindow = window.open("", "_blank");
-    if (printWindow) {
-      printWindow.document.write(`
-        <html>
-          <head>
-            <title>${selectedEvent.name} - ${t("Registrations Report")}</title>
-            <style>
-              body { font-family: ${language === "km" ? "'Kantumruy Pro'" : "Arial"}, sans-serif; }
-              table { border-collapse: collapse; width: 100%; }
-              th, td { border: 1px solid #ddd; padding: 8px; }
-              th { background-color: #f2f2f2; }
-            </style>
-          </head>
-          <body>
-            ${printContent}
-          </body>
-        </html>
-      `);
-      printWindow.document.close();
-      printWindow.print();
+      try {
+        // Try to get more detailed audience data from the API
+        detailedAudienceData = await getEventAudiences(selectedEvent.id);
+      } catch (error) {
+        console.warn(
+          "Could not fetch detailed audience data, using filtered data:",
+          error
+        );
+        // Fall back to using filteredAudiences if API call fails
+      }
+
+      // Use detailed data if available and not empty, otherwise use filtered data
+      const printData =
+        detailedAudienceData.length > 0 ? detailedAudienceData : audienceData;
+
+      const currentDate = new Date().toLocaleDateString(
+        language === "km" ? "km-KH" : "en-US",
+        {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        }
+      );
+
+      const printContent = `
+        <div style="max-width: 800px; margin: 0 auto; padding: 20px;">
+          <div style="text-align: center; margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 20px;">
+            <h1 style="color: #333; margin-bottom: 10px;">${selectedEvent.name}</h1>
+            <h2 style="color: #666; font-weight: normal; margin-bottom: 5px;">${t("Event Registration Report")}</h2>
+            <p style="color: #999; margin: 0;">${t("Generated on")}: ${currentDate}</p>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
+              <h3 style="color: #333; margin-top: 0;">${t("Event Information")}</h3>
+              <p><strong>${t("Event Name")}:</strong> ${selectedEvent.name}</p>
+              <p><strong>${t("Category")}:</strong> ${selectedEvent.category}</p>
+              <p><strong>${t("Start Date")}:</strong> ${formatDate(selectedEvent.startDateTime)}</p>
+              <p><strong>${t("End Date")}:</strong> ${formatDate(selectedEvent.endDateTime)}</p>
+              <p><strong>${t("Status")}:</strong> ${selectedEvent.status}</p>
+            </div>
+            
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
+              <h3 style="color: #333; margin-top: 0;">${t("Registration Statistics")}</h3>
+              <p><strong>${t("Total Capacity")}:</strong> ${selectedEvent.capacity}</p>
+              <p><strong>${t("Total Registered")}:</strong> ${printData.length}</p>
+              <p><strong>${t("Available Spots")}:</strong> ${selectedEvent.capacity - printData.length}</p>
+              <p><strong>${t("Occupancy Rate")}:</strong> ${selectedEvent.capacity > 0 ? Math.round((printData.length / selectedEvent.capacity) * 100) : 0}%</p>
+            </div>
+          </div>
+
+          ${
+            selectedEvent.description
+              ? `
+            <div style="margin-bottom: 30px;">
+              <h3 style="color: #333;">${t("Event Description")}</h3>
+              <p style="background: #f8f9fa; padding: 15px; border-radius: 8px; line-height: 1.6;">${selectedEvent.description}</p>
+            </div>
+          `
+              : ""
+          }
+
+          <div>
+            <h3 style="color: #333; margin-bottom: 20px;">${t("Registered Participants")} (${printData.length})</h3>
+            ${
+              printData.length > 0
+                ? `
+              <table style="width: 100%; border-collapse: collapse; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <thead>
+                  <tr style="background: #333; color: white;">
+                    <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">#</th>
+                    <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">${t("Full Name")}</th>
+                    <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">${t("Email")}</th>
+                    <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">${t("Phone Number")}</th>
+                    <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">${t("Registration Date")}</th>
+                    ${detailedAudienceData.length > 0 ? `<th style="padding: 12px; text-align: left; border: 1px solid #ddd;">${t("Check-in Status")}</th>` : ""}
+                  </tr>
+                </thead>
+                <tbody>
+                  ${printData
+                    .map((participant: any, index: number) => {
+                      // Check if this is detailed data (User interface) or basic data (Audience interface)
+                      const isDetailedData = participant.fullName !== undefined;
+
+                      return `
+                        <tr style="background: ${index % 2 === 0 ? "#f8f9fa" : "white"};">
+                          <td style="padding: 10px; border: 1px solid #ddd;">${index + 1}</td>
+                          <td style="padding: 10px; border: 1px solid #ddd;">${isDetailedData ? participant.fullName || "N/A" : participant.name || "N/A"}</td>
+                          <td style="padding: 10px; border: 1px solid #ddd;">${participant.email || "N/A"}</td>
+                          <td style="padding: 10px; border: 1px solid #ddd;">${isDetailedData ? participant.phoneNumber || "N/A" : participant.phone || "N/A"}</td>
+                          <td style="padding: 10px; border: 1px solid #ddd;">${participant.registrationDate ? formatDate(participant.registrationDate) : "N/A"}</td>
+                          ${
+                            detailedAudienceData.length > 0
+                              ? `
+                            <td style="padding: 10px; border: 1px solid #ddd;">
+                              <span style="padding: 4px 8px; border-radius: 4px; font-size: 12px; color: white; background: ${participant.checkedIn ? "#22c55e" : "#ef4444"};">
+                                ${participant.checkedIn ? t("Checked In") : t("Not Checked In")}
+                              </span>
+                            </td>
+                          `
+                              : ""
+                          }
+                        </tr>
+                      `;
+                    })
+                    .join("")}
+                </tbody>
+              </table>
+            `
+                : `
+              <div style="text-align: center; padding: 40px; background: #f8f9fa; border-radius: 8px;">
+                <p style="color: #666; font-size: 16px;">${t("No registered participants yet")}</p>
+              </div>
+            `
+            }
+          </div>
+
+          <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center; color: #666; font-size: 12px;">
+            <p>${t("This report was generated automatically")} - ${new Date().toLocaleString(language === "km" ? "km-KH" : "en-US")}</p>
+          </div>
+        </div>
+      `;
+
+      const printWindow = window.open("", "_blank");
+      if (printWindow) {
+        printWindow.document.write(`
+          <html>
+            <head>
+              <title>${selectedEvent.name} - ${t("Registration Report")}</title>
+              <style>
+                @media print {
+                  body { margin: 0; }
+                  .no-print { display: none; }
+                }
+                body { 
+                  font-family: ${language === "km" ? "'Kantumruy Pro'" : "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"}; 
+                  line-height: 1.4;
+                  color: #333;
+                  background: white;
+                }
+                h1, h2, h3 { margin-top: 0; }
+                table { border-collapse: collapse; }
+                .header { page-break-after: avoid; }
+                .participant-table { page-break-inside: avoid; }
+              </style>
+            </head>
+            <body>
+              ${printContent}
+            </body>
+          </html>
+        `);
+        printWindow.document.close();
+        printWindow.print();
+      }
+    } catch (error) {
+      console.error("Error generating print report:", error);
+      toast({
+        title: t("Error"),
+        description: t("Failed to generate print report. Please try again."),
+        variant: "destructive",
+      });
+    }
+  };
+  const handleExport = async () => {
+    if (!selectedEvent) return;
+
+    try {
+      // Use existing filteredAudiences data that's already loaded in the component
+      // Also try to get fresh data from the API for more complete information
+      let audienceData = filteredAudiences;
+      let detailedAudienceData = [];
+
+      try {
+        // Try to get more detailed audience data from the API
+        detailedAudienceData = await getEventAudiences(selectedEvent.id);
+        console.log("Detailed audience data:", detailedAudienceData);
+      } catch (error) {
+        console.warn(
+          "Could not fetch detailed audience data, using filtered data:",
+          error
+        );
+        // Fall back to using filteredAudiences if API call fails
+      }
+
+      // Use detailed data if available and not empty, otherwise use filtered data
+      const exportData =
+        detailedAudienceData.length > 0 ? detailedAudienceData : audienceData;
+      console.log("Export data to use:", exportData);
+
+      // Create event information sheet
+      const eventInfoData = [
+        [t("Event Information"), ""],
+        [t("Event Name"), selectedEvent.name],
+        [t("Category"), selectedEvent.category],
+        [
+          t("Description"),
+          selectedEvent.description || t("No description available"),
+        ],
+        [t("Start Date"), formatDate(selectedEvent.startDateTime)],
+        [t("End Date"), formatDate(selectedEvent.endDateTime)],
+        [t("Status"), selectedEvent.status],
+        [t("Location"), selectedEvent.location],
+        ["", ""],
+        [t("Registration Statistics"), ""],
+        [t("Total Capacity"), selectedEvent.capacity],
+        [t("Total Registered"), exportData.length],
+        [t("Available Spots"), selectedEvent.capacity - exportData.length],
+        [
+          t("Occupancy Rate"),
+          `${selectedEvent.capacity > 0 ? Math.round((exportData.length / selectedEvent.capacity) * 100) : 0}%`,
+        ],
+        ["", ""],
+        [
+          t("Report Generated"),
+          new Date().toLocaleString(language === "km" ? "km-KH" : "en-US"),
+        ],
+      ];
+
+      // Create participants data sheet - handle both data structures
+      const participantsData = exportData.map(
+        (participant: any, index: number) => {
+          // Check if this is detailed data (User interface) or basic data (Audience interface)
+          const isDetailedData = participant.fullName !== undefined;
+
+          return {
+            [t("No.")]: index + 1,
+            [t("Full Name")]: isDetailedData
+              ? participant.fullName || "N/A"
+              : participant.name || "N/A",
+            [t("Email")]: participant.email || "N/A",
+            [t("Phone Number")]: isDetailedData
+              ? participant.phoneNumber || "N/A"
+              : participant.phone || "N/A",
+            [t("Gender")]: participant.gender || "N/A",
+            [t("Date of Birth")]: participant.dateOfBirth || "N/A",
+            [t("Address")]: participant.address || "N/A",
+            [t("Occupation")]: participant.occupation || "N/A",
+            [t("Registration Date")]: participant.registrationDate
+              ? formatDate(participant.registrationDate)
+              : "N/A",
+            [t("Check-in Status")]:
+              participant.checkedIn !== undefined
+                ? participant.checkedIn
+                  ? t("Checked In")
+                  : t("Not Checked In")
+                : "N/A",
+            [t("Registration Token")]: participant.registrationToken || "N/A",
+          };
+        }
+      );
+
+      // Create workbook
+      const workbook = XLSX.utils.book_new();
+
+      // Add event information sheet
+      const eventInfoSheet = XLSX.utils.aoa_to_sheet(eventInfoData);
+      XLSX.utils.book_append_sheet(
+        workbook,
+        eventInfoSheet,
+        t("Event Information")
+      );
+
+      // Add participants sheet only if we have data
+      if (participantsData.length > 0) {
+        const participantsSheet = XLSX.utils.json_to_sheet(participantsData);
+        XLSX.utils.book_append_sheet(
+          workbook,
+          participantsSheet,
+          t("Participants")
+        );
+      } else {
+        // Add an empty participants sheet with headers only
+        const emptyParticipantsData = [
+          {
+            [t("No.")]: "",
+            [t("Full Name")]: "",
+            [t("Email")]: "",
+            [t("Phone Number")]: "",
+            [t("Gender")]: "",
+            [t("Date of Birth")]: "",
+            [t("Address")]: "",
+            [t("Occupation")]: "",
+            [t("Registration Date")]: "",
+            [t("Check-in Status")]: "",
+            [t("Registration Token")]: "",
+          },
+        ];
+        const emptySheet = XLSX.utils.json_to_sheet(emptyParticipantsData);
+        XLSX.utils.book_append_sheet(workbook, emptySheet, t("Participants"));
+      }
+
+      // Generate and download file
+      const excelBuffer = XLSX.write(workbook, {
+        bookType: "xlsx",
+        type: "array",
+      });
+
+      const data = new Blob([excelBuffer], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+
+      const link = document.createElement("a");
+      link.href = window.URL.createObjectURL(data);
+      const fileName = `${selectedEvent.name.replace(/[^a-z0-9]/gi, "_")}_${t("Registration_Report")}_${new Date().toISOString().split("T")[0]}.xlsx`;
+      link.download = fileName;
+      link.click();
+      toast({
+        title: t("Success"),
+        description: `${t("Report exported successfully")} - ${exportData.length} ${t("participants included")}`,
+      });
+    } catch (error) {
+      console.error("Error exporting report:", error);
+      toast({
+        title: t("Error"),
+        description: t("Failed to export report. Please try again."),
+        variant: "destructive",
+      });
     }
   };
 
-  const handleExport = () => {
+  const handlePDFExport = async () => {
     if (!selectedEvent) return;
-    const worksheet = XLSX.utils.json_to_sheet(
-      filteredAudiences.map((audience: Audience) => ({
-        [t("Name")]: audience.name || "N/A",
-        [t("Email")]: audience.email || "N/A",
-        [t("Phone")]: audience.phone || "N/A",
-        [t("Registration Date")]: formatDate(audience.registrationDate),
-      }))
-    );
 
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, t("Registrations"));
+    try {
+      // Use existing filteredAudiences data that's already loaded in the component
+      // Also try to get fresh data from the API for more complete information
+      let audienceData = filteredAudiences;
+      let detailedAudienceData = [];
 
-    const excelBuffer = XLSX.write(workbook, {
-      bookType: "xlsx",
-      type: "array",
-    });
-    const data = new Blob([excelBuffer], {
-      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    });
+      try {
+        // Try to get more detailed audience data from the API
+        detailedAudienceData = await getEventAudiences(selectedEvent.id);
+      } catch (error) {
+        console.warn(
+          "Could not fetch detailed audience data, using filtered data:",
+          error
+        );
+        // Fall back to using filteredAudiences if API call fails
+      }
 
-    const link = document.createElement("a");
-    link.href = window.URL.createObjectURL(data);
-    link.download = `${selectedEvent.name}_${t("Registrations")}.xlsx`;
-    link.click();
-  }; // Google Maps URL handler
+      // Use detailed data if available and not empty, otherwise use filtered data
+      const exportData =
+        detailedAudienceData.length > 0 ? detailedAudienceData : audienceData;
+
+      const currentDate = new Date().toLocaleDateString(
+        language === "km" ? "km-KH" : "en-US",
+        {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        }
+      );
+
+      const currentTime = new Date().toLocaleTimeString(
+        language === "km" ? "km-KH" : "en-US",
+        {
+          hour: "2-digit",
+          minute: "2-digit",
+        }
+      );
+
+      const pdfContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="UTF-8">
+          <title>${selectedEvent.name} - ${t("Registration Report")}</title>
+          <style>
+            @page {
+              size: A4;
+              margin: 0.5in;
+            }
+            
+            * {
+              margin: 0;
+              padding: 0;
+              box-sizing: border-box;
+            }
+            
+            body {
+              font-family: ${language === "km" ? "'Kantumruy Pro'" : "'Arial', 'Helvetica', sans-serif"};
+              font-size: 10px;
+              line-height: 1.3;
+              color: #2c2c2c;
+              background: white;
+            }
+            
+            .header {
+              text-align: center;
+              padding: 15px 0;
+              border-bottom: 2px solid #1a365d;
+              margin-bottom: 20px;
+            }
+            
+            .header h1 {
+              font-size: 18px;
+              color: #1a365d;
+              margin-bottom: 5px;
+              font-weight: bold;
+            }
+            
+            .header h2 {
+              font-size: 14px;
+              color: #4a5568;
+              margin-bottom: 3px;
+              font-weight: normal;
+            }
+            
+            .header .meta {
+              font-size: 9px;
+              color: #718096;
+            }
+            
+            .info-grid {
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 15px;
+              margin-bottom: 20px;
+            }
+            
+            .info-box {
+              background: #f7fafc;
+              border: 1px solid #e2e8f0;
+              border-radius: 4px;
+              padding: 12px;
+            }
+            
+            .info-box h3 {
+              font-size: 11px;
+              color: #2d3748;
+              margin-bottom: 8px;
+              font-weight: bold;
+              border-bottom: 1px solid #e2e8f0;
+              padding-bottom: 3px;
+            }
+            
+            .info-item {
+              margin-bottom: 4px;
+              font-size: 9px;
+            }
+            
+            .info-label {
+              font-weight: bold;
+              color: #4a5568;
+              display: inline-block;
+              width: 80px;
+            }
+            
+            .info-value {
+              color: #2d3748;
+            }
+            
+            .description-section {
+              margin-bottom: 20px;
+            }
+            
+            .description-section h3 {
+              font-size: 11px;
+              color: #2d3748;
+              margin-bottom: 8px;
+              font-weight: bold;
+            }
+            
+            .description-content {
+              background: #f7fafc;
+              border: 1px solid #e2e8f0;
+              border-radius: 4px;
+              padding: 10px;
+              font-size: 9px;
+              line-height: 1.4;
+              color: #4a5568;
+            }
+            
+            .participants-section h3 {
+              font-size: 12px;
+              color: #2d3748;
+              margin-bottom: 10px;
+              font-weight: bold;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            }
+            
+            .participant-count {
+              background: #1a365d;
+              color: white;
+              padding: 2px 6px;
+              border-radius: 3px;
+              font-size: 9px;
+            }
+            
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-bottom: 15px;
+              font-size: 8px;
+            }
+            
+            th {
+              background: #2d3748;
+              color: white;
+              padding: 6px 4px;
+              text-align: left;
+              border: 1px solid #4a5568;
+              font-weight: bold;
+              font-size: 8px;
+            }
+            
+            td {
+              padding: 4px 4px;
+              border: 1px solid #e2e8f0;
+              vertical-align: top;
+              font-size: 8px;
+            }
+            
+            tr:nth-child(even) {
+              background: #f7fafc;
+            }
+            
+            tr:nth-child(odd) {
+              background: white;
+            }
+            
+            .status-badge {
+              padding: 2px 4px;
+              border-radius: 2px;
+              font-size: 7px;
+              font-weight: bold;
+              color: white;
+              text-align: center;
+              display: inline-block;
+              min-width: 60px;
+            }
+            
+            .status-checked-in {
+              background: #38a169;
+            }
+            
+            .status-not-checked-in {
+              background: #e53e3e;
+            }
+            
+            .footer {
+              margin-top: 20px;
+              padding-top: 10px;
+              border-top: 1px solid #e2e8f0;
+              text-align: center;
+              font-size: 8px;
+              color: #718096;
+            }
+            
+            .no-participants {
+              text-align: center;
+              padding: 30px;
+              background: #f7fafc;
+              border: 1px dashed #cbd5e0;
+              border-radius: 4px;
+              color: #718096;
+              font-size: 10px;
+            }
+            
+            .summary-stats {
+              display: grid;
+              grid-template-columns: repeat(4, 1fr);
+              gap: 8px;
+              margin-bottom: 15px;
+            }
+            
+            .stat-card {
+              background: #edf2f7;
+              border: 1px solid #d2d8e0;
+              border-radius: 4px;
+              padding: 8px;
+              text-align: center;
+            }
+            
+            .stat-number {
+              font-size: 14px;
+              font-weight: bold;
+              color: #2d3748;
+              display: block;
+            }
+            
+            .stat-label {
+              font-size: 8px;
+              color: #4a5568;
+              margin-top: 2px;
+            }
+            
+            @media print {
+              body { -webkit-print-color-adjust: exact; }
+              .info-grid { page-break-inside: avoid; }
+              .participants-section { page-break-before: auto; }
+              table { page-break-inside: auto; }
+              tr { page-break-inside: avoid; page-break-after: auto; }
+              thead { display: table-header-group; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>${selectedEvent.name}</h1>
+            <h2>${t("Event Registration Report")}</h2>
+            <div class="meta">
+              ${t("Generated on")}: ${currentDate} ${t("at")} ${currentTime} | 
+              ${t("Total Participants")}: ${exportData.length} | 
+              ${t("Capacity")}: ${selectedEvent.capacity}
+            </div>
+          </div>
+
+          <div class="summary-stats">
+            <div class="stat-card">
+              <span class="stat-number">${selectedEvent.capacity}</span>
+              <div class="stat-label">${t("Total Capacity")}</div>
+            </div>
+            <div class="stat-card">
+              <span class="stat-number">${exportData.length}</span>
+              <div class="stat-label">${t("Registered")}</div>
+            </div>
+            <div class="stat-card">
+              <span class="stat-number">${selectedEvent.capacity - exportData.length}</span>
+              <div class="stat-label">${t("Available")}</div>
+            </div>
+            <div class="stat-card">
+              <span class="stat-number">${selectedEvent.capacity > 0 ? Math.round((exportData.length / selectedEvent.capacity) * 100) : 0}%</span>
+              <div class="stat-label">${t("Filled")}</div>
+            </div>
+          </div>
+
+          <div class="info-grid">
+            <div class="info-box">
+              <h3>${t("Event Details")}</h3>
+              <div class="info-item">
+                <span class="info-label">${t("Category")}:</span>
+                <span class="info-value">${selectedEvent.category}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">${t("Status")}:</span>
+                <span class="info-value">${selectedEvent.status}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">${t("Start Date")}:</span>
+                <span class="info-value">${formatDate(selectedEvent.startDateTime)}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">${t("End Date")}:</span>
+                <span class="info-value">${formatDate(selectedEvent.endDateTime)}</span>
+              </div>
+            </div>
+            
+            <div class="info-box">
+              <h3>${t("Location & Contact")}</h3>
+              <div class="info-item">
+                <span class="info-label">${t("Venue")}:</span>
+                <span class="info-value">${selectedEvent.location}</span>
+              </div>
+              ${
+                adminData
+                  ? `
+                <div class="info-item">
+                  <span class="info-label">${t("Organizer")}:</span>
+                  <span class="info-value">${getAdminDisplayName(adminData)}</span>
+                </div>
+                ${
+                  adminData.email
+                    ? `
+                  <div class="info-item">
+                    <span class="info-label">${t("Email")}:</span>
+                    <span class="info-value">${adminData.email}</span>
+                  </div>
+                `
+                    : ""
+                }
+                ${
+                  adminData.phone
+                    ? `
+                  <div class="info-item">
+                    <span class="info-label">${t("Phone")}:</span>
+                    <span class="info-value">${adminData.phone}</span>
+                  </div>
+                `
+                    : ""
+                }
+              `
+                  : ""
+              }
+            </div>
+          </div>
+
+          ${
+            selectedEvent.description
+              ? `
+            <div class="description-section">
+              <h3>${t("Event Description")}</h3>
+              <div class="description-content">${selectedEvent.description}</div>
+            </div>
+          `
+              : ""
+          }
+
+          <div class="participants-section">
+            <h3>
+              ${t("Registered Participants")}
+              <span class="participant-count">${exportData.length}</span>
+            </h3>
+            
+            ${
+              exportData.length > 0
+                ? `
+              <table>
+                <thead>
+                  <tr>
+                    <th style="width: 25px;">#</th>
+                    <th style="width: 120px;">${t("Full Name")}</th>
+                    <th style="width: 100px;">${t("Email")}</th>
+                    <th style="width: 80px;">${t("Phone")}</th>
+                    ${
+                      detailedAudienceData.length > 0
+                        ? `
+                      <th style="width: 45px;">${t("Gender")}</th>
+                      <th style="width: 80px;">${t("Occupation")}</th>
+                    `
+                        : ""
+                    }
+                    <th style="width: 70px;">${t("Reg. Date")}</th>
+                    ${
+                      detailedAudienceData.length > 0
+                        ? `
+                      <th style="width: 65px;">${t("Status")}</th>
+                    `
+                        : ""
+                    }
+                  </tr>
+                </thead>
+                <tbody>
+                  ${exportData
+                    .map((participant: any, index: number) => {
+                      // Check if this is detailed data (User interface) or basic data (Audience interface)
+                      const isDetailedData = participant.fullName !== undefined;
+
+                      return `
+                        <tr>
+                          <td>${index + 1}</td>
+                          <td>${isDetailedData ? participant.fullName || "N/A" : participant.name || "N/A"}</td>
+                          <td>${participant.email || "N/A"}</td>
+                          <td>${isDetailedData ? participant.phoneNumber || "N/A" : participant.phone || "N/A"}</td>
+                          ${
+                            detailedAudienceData.length > 0
+                              ? `
+                            <td>${participant.gender || "N/A"}</td>
+                            <td>${participant.occupation || "N/A"}</td>
+                          `
+                              : ""
+                          }
+                          <td>${participant.registrationDate ? new Date(participant.registrationDate).toLocaleDateString(language === "km" ? "km-KH" : "en-US", {month: "short", day: "numeric"}) : "N/A"}</td>
+                          ${
+                            detailedAudienceData.length > 0
+                              ? `
+                            <td>
+                              <span class="status-badge ${participant.checkedIn ? "status-checked-in" : "status-not-checked-in"}">
+                                ${participant.checkedIn ? t("In") : t("Out")}
+                              </span>
+                            </td>
+                          `
+                              : ""
+                          }
+                        </tr>
+                      `;
+                    })
+                    .join("")}
+                </tbody>
+              </table>
+            `
+                : `
+              <div class="no-participants">
+                <strong>${t("No registered participants yet")}</strong><br>
+                ${t("This event currently has no registered participants.")}
+              </div>
+            `
+            }
+          </div>
+
+          <div class="footer">
+            <div>
+              ${t("This report was automatically generated on")} ${new Date().toLocaleString(language === "km" ? "km-KH" : "en-US")}
+            </div>
+            <div style="margin-top: 3px;">
+              ${t("Event Management System")} | ${t("Confidential Document")}
+            </div>
+          </div>
+        </body>
+        </html>
+      `;
+
+      // Create and open PDF in new window for printing
+      const printWindow = window.open("", "_blank");
+      if (printWindow) {
+        printWindow.document.write(pdfContent);
+        printWindow.document.close();
+
+        // Trigger print dialog after a short delay to ensure content is loaded
+        setTimeout(() => {
+          printWindow.print();
+        }, 500);
+      }
+
+      toast({
+        title: t("Success"),
+        description: `${t("PDF report generated successfully")} - ${exportData.length} ${t("participants included")}`,
+      });
+    } catch (error) {
+      console.error("Error generating PDF report:", error);
+      toast({
+        title: t("Error"),
+        description: t("Failed to generate PDF report. Please try again."),
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Google Maps URL handler
   const getGoogleMapsEmbedUrl = (location: string) => {
     // Check if location is already a Google Maps URL
     if (location.includes("maps.app.goo.gl")) {
@@ -1124,12 +1868,9 @@ export function EventReport() {
                     </SelectContent>
                   </Select>
                 </div>
-              </div>
-
+              </div>{" "}
               <div className="border rounded-lg overflow-hidden bg-card">
-                {" "}
                 <Table>
-                  {" "}
                   <TableHeader>
                     <TableRow className="bg-muted/50">
                       <TableHead className="font-semibold">
@@ -1140,10 +1881,10 @@ export function EventReport() {
                       </TableHead>
                       <TableHead className="font-semibold">
                         {t("Location")}
-                      </TableHead>
+                      </TableHead>{" "}
                       <TableHead className="font-semibold">
                         {t("End Date")}
-                      </TableHead>{" "}
+                      </TableHead>
                       <TableHead className="font-semibold">
                         {t("Capacity")}
                       </TableHead>
@@ -1164,7 +1905,6 @@ export function EventReport() {
                         key={event.id}
                         className="hover:bg-muted/50 transition-colors cursor-pointer"
                         onClick={() => handleEventSelect(event)}>
-                        {" "}
                         <TableCell className="font-medium">
                           <div className="space-y-1 max-w-xs">
                             <div className="font-semibold text-foreground truncate">
@@ -1198,12 +1938,12 @@ export function EventReport() {
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center space-x-2 text-sm">
-                            <Users className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                            <Users className="h-4 w-4 text-muted-foreground flex-shrink-0" />{" "}
                             <span className="font-medium">
                               {event.capacity}
                             </span>
-                          </div>{" "}
-                        </TableCell>{" "}
+                          </div>
+                        </TableCell>
                         <TableCell>
                           <div className="flex items-center space-x-2">
                             <CheckCircle className="h-4 w-4 text-muted-foreground flex-shrink-0" />
@@ -1231,7 +1971,6 @@ export function EventReport() {
                   </TableBody>
                 </Table>
               </div>
-
               {totalPages > 1 && (
                 <div className="flex items-center justify-between pt-4 border-t">
                   <div className="text-sm text-muted-foreground">
@@ -1278,13 +2017,13 @@ export function EventReport() {
                 </div>
               )}
             </div>
-          )}
+          )}{" "}
         </CardContent>
-      </Card>{" "}
+      </Card>
       {/* Sheet for Event Report Details */}
       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+        {" "}
         <SheetContent className="w-[600px] sm:max-w-[90vw] overflow-y-auto [&>button]:hidden">
-          {" "}
           <SheetHeader className="sr-only">
             <SheetTitle>{t("Event Report Details")}</SheetTitle>
             <SheetDescription>
@@ -1293,18 +2032,10 @@ export function EventReport() {
           </SheetHeader>
           {selectedEvent && (
             <div className="space-y-6 pb-6">
-              {/* Header with Action Buttons */}
+              {/* Header with Action Buttons */}{" "}
               <div className="flex items-center justify-between mb-4">
+                {" "}
                 <div className="flex items-center gap-2">
-                  {" "}
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => window.print()}
-                    className="flex items-center gap-2">
-                    <Printer className="h-4 w-4" />
-                    {t("Print")}
-                  </Button>{" "}
                   <Button
                     variant="outline"
                     size="sm"
@@ -1312,6 +2043,14 @@ export function EventReport() {
                     className="flex items-center gap-2">
                     <FileSpreadsheet className="h-4 w-4" />
                     {t("Export")}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handlePDFExport}
+                    className="flex items-center gap-2">
+                    <FileText className="h-4 w-4" />
+                    {t("PDF")}
                   </Button>
                 </div>{" "}
                 <Button
@@ -1532,7 +2271,7 @@ export function EventReport() {
                     {t("Full")}
                   </div>
                 </Card>
-              </div>
+              </div>{" "}
               {/* About Event Description */}
               <div>
                 <h2 className="text-lg font-semibold text-foreground mb-3">
@@ -1544,82 +2283,15 @@ export function EventReport() {
                     t("No description available for this event.")}
                 </div>
               </div>
-              {/* Location Section with Google Maps */}
+              {/* Event Audience List */}
               <div>
                 <h2 className="text-lg font-semibold text-foreground mb-3">
-                  {t("Location")}
+                  {t("Registered Audience")}
+                  <div className="w-full border-t border-border mt-2 opacity-50"></div>
                 </h2>
-                <Card className="p-4">
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3">
-                      <MapPin className="h-5 w-5 text-muted-foreground" />
-                      <div>
-                        <div className="font-medium text-foreground">
-                          {selectedEvent.location}
-                        </div>
-                        <div className="text-sm text-muted-foreground">
-                          {t("Venue Address")}
-                        </div>
-                      </div>
-                    </div>{" "}
-                    {/* Google Maps Interactive */}
-                    <div className="w-full h-64 rounded-lg overflow-hidden border bg-muted relative">
-                      <div
-                        id={`map-${selectedEvent.id}`}
-                        className="w-full h-full"
-                        ref={(div) => {
-                          if (div && !div.dataset.initialized) {
-                            div.dataset.initialized = "true";
-                            initializeMap(div, selectedEvent.location);
-                          }
-                        }}
-                      />{" "}
-                      {/* Loading state */}
-                      <div className="map-loading flex w-full h-full items-center justify-center flex-col absolute inset-0 bg-muted/80">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-2"></div>
-                        <div className="text-sm text-muted-foreground">
-                          {t("Loading map...")}
-                        </div>
-                      </div>
-                      {/* Fallback for when Maps API is not available */}
-                      <div className="map-fallback hidden w-full h-full items-center justify-center flex-col absolute inset-0 bg-muted/50 backdrop-blur-sm">
-                        <MapPin className="h-12 w-12 text-muted-foreground mb-2" />
-                        <div className="text-sm text-muted-foreground text-center">
-                          <div className="font-medium">
-                            {t("Map preview unavailable")}
-                          </div>
-                          <div className="text-xs mt-1">
-                            {t("Click below to view location")}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <Button
-                      variant="outline"
-                      className="w-full mt-4"
-                      onClick={() => {
-                        // Handle Google Maps URLs directly
-                        if (
-                          selectedEvent.location.includes("maps.app.goo.gl") ||
-                          selectedEvent.location.includes("google.com/maps")
-                        ) {
-                          window.open(selectedEvent.location, "_blank");
-                        } else {
-                          const query = encodeURIComponent(
-                            selectedEvent.location
-                          );
-                          window.open(
-                            `https://www.google.com/maps/search/?api=1&query=${query}`,
-                            "_blank"
-                          );
-                        }
-                      }}>
-                      <MapPin className="mr-2 h-4 w-4" />
-                      {t("Open in Google Maps")}
-                    </Button>
-                  </div>
-                </Card>
+                <EventAudienceList eventId={selectedEvent.id} />
               </div>
+              {/* Location Section with Google Maps */}
             </div>
           )}
         </SheetContent>
