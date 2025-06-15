@@ -1245,9 +1245,9 @@ const translations: TranslationsType = {
     en: "OTP verification failed.",
     km: "ការផ្ទៀងផ្ទាត់ OTP បានបរាជ័យ។",
   },
-  "Invalid username or password": {
-    en: "Invalid username or password",
-    km: "ឈ្មោះអ្នកប្រើឬពាក្យសម្ងាត់មិនត្រឹមត្រូវ",
+  "Invalid username or password or account not yet verified!": {
+    en: "Invalid username or password or account not yet verified!",
+    km: "ឈ្មោះអ្នកប្រើឬពាក្យសម្ងាត់មិនត្រឹមត្រូវឬគណនីមិនទាន់បានផ្ទៀងផ្ទាត់ទេ!",
   },
   "An error occurred during sign in": {
     en: "An error occurred during sign in",

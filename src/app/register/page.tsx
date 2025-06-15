@@ -1,10 +1,10 @@
 "use client";
 
-import { LanguageToggler } from "@/components/language-toggler";
+import {LanguageToggler} from "@/components/language-toggler";
 import RegisterForm from "@/components/register-form";
-import { ThemeToggler } from "@/components/theme-toggler";
-import { GalleryVerticalEnd } from "lucide-react";
-import { useEffect, useState } from "react";
+import {ThemeToggler} from "@/components/theme-toggler";
+import {GalleryVerticalEnd} from "lucide-react";
+import {useEffect, useState} from "react";
 
 export default function RegisterPage() {
   const [isClient, setIsClient] = useState(false);

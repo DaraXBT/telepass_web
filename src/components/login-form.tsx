@@ -44,7 +44,9 @@ const SigninPage = () => {
       if (result?.error) {
         toast({
           title: t("Error"),
-          description: t("Invalid username or password"),
+          description: t(
+            "Invalid username or password or account not yet verified!"
+          ),
           variant: "destructive",
         });
       } else {

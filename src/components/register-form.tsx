@@ -70,8 +70,7 @@ const RegisterForm = () => {
         return;
       }
     } else {
-      profileUrl =
-        "https://img.freepik.com/premium-vector/3d-character-businessman-working-laptop-computer_595064-185.jpg";
+      profileUrl = "https://github.com/niccolo_eth.png"; // Default profile image
     }
 
     try {
@@ -104,7 +103,7 @@ const RegisterForm = () => {
   const handleVerifyOtp = async (otp: string) => {
     setOtpLoading(true);
     try {
-      const res = await axios.post(`${API_URL}/api/v1/auth/validate-otp`, {
+      const res = await axios.post(`${API_URL}/api/v1/admin/verified-otp`, {
         email,
         otp,
       });

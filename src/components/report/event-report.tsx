@@ -1283,7 +1283,9 @@ export function EventReport() {
       </Card>{" "}
       {/* Sheet for Event Report Details */}
       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-        <SheetContent className="w-[600px] sm:max-w-[90vw] overflow-y-auto [&>button]:hidden">          <SheetHeader className="sr-only">
+        <SheetContent className="w-[600px] sm:max-w-[90vw] overflow-y-auto [&>button]:hidden">
+          {" "}
+          <SheetHeader className="sr-only">
             <SheetTitle>{t("Event Report Details")}</SheetTitle>
             <SheetDescription>
               {t("Detailed view of event information and registration data")}
@@ -1293,7 +1295,9 @@ export function EventReport() {
             <div className="space-y-6 pb-6">
               {/* Header with Action Buttons */}
               <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">                  <Button
+                <div className="flex items-center gap-2">
+                  {" "}
+                  <Button
                     variant="outline"
                     size="sm"
                     onClick={() => window.print()}
@@ -1309,7 +1313,8 @@ export function EventReport() {
                     <FileSpreadsheet className="h-4 w-4" />
                     {t("Export")}
                   </Button>
-                </div>                <Button
+                </div>{" "}
+                <Button
                   variant="default"
                   size="sm"
                   onClick={() => {
@@ -1353,7 +1358,8 @@ export function EventReport() {
                 <div className="flex items-center gap-3">
                   <div className="flex items-center justify-center w-8 h-8 bg-muted rounded-md">
                     <Calendar className="h-4 w-4 text-muted-foreground" />
-                  </div>                  <div className="flex-1">
+                  </div>{" "}
+                  <div className="flex-1">
                     <div className="text-base font-semibold text-foreground">
                       {new Date(selectedEvent.startDateTime).toLocaleDateString(
                         language === "km" ? "km-KH" : "en-US",
@@ -1398,7 +1404,8 @@ export function EventReport() {
                   }}>
                   <div className="flex items-center justify-center w-8 h-8 bg-muted rounded-md">
                     <MapPin className="h-4 w-4 text-muted-foreground" />
-                  </div>                  <div className="flex-1">
+                  </div>{" "}
+                  <div className="flex-1">
                     <div className="text-base font-semibold text-foreground hover:underline">
                       {selectedEvent.location.includes("maps.app.goo.gl")
                         ? t("Location on Google Maps")
@@ -1448,7 +1455,8 @@ export function EventReport() {
                               {adminData.department}
                             </div>
                           )}
-                        </div>                      ) : isLoading ? (
+                        </div>
+                      ) : isLoading ? (
                         <div className="flex items-center gap-2">
                           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
                           <span>{t("Loading administrator info...")}</span>
@@ -1467,7 +1475,8 @@ export function EventReport() {
 
                 {/* Additional Organizers from Event Roles */}
                 {selectedEvent?.eventRoles &&
-                  selectedEvent.eventRoles.length > 0 && (                    <div className="space-y-2">
+                  selectedEvent.eventRoles.length > 0 && (
+                    <div className="space-y-2">
                       <div className="text-sm font-medium text-foreground">
                         {t("Additional Organizers")}
                       </div>
@@ -1490,7 +1499,8 @@ export function EventReport() {
                       ))}
                     </div>
                   )}
-              </div>              {/* Registration Stats */}
+              </div>{" "}
+              {/* Registration Stats */}
               <div className="grid grid-cols-3 gap-4">
                 <Card className="p-4 text-center">
                   <div className="text-2xl font-bold text-foreground mb-1">
@@ -1504,7 +1514,9 @@ export function EventReport() {
                   <div className="text-2xl font-bold text-foreground mb-1">
                     {selectedEvent.capacity}
                   </div>
-                  <div className="text-xs text-muted-foreground">{t("Capacity")}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {t("Capacity")}
+                  </div>
                 </Card>
                 <Card className="p-4 text-center">
                   <div className="text-2xl font-bold text-foreground mb-1">
@@ -1516,7 +1528,9 @@ export function EventReport() {
                       : 0}
                     %
                   </div>
-                  <div className="text-xs text-muted-foreground">{t("Full")}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {t("Full")}
+                  </div>
                 </Card>
               </div>
               {/* About Event Description */}
@@ -1524,7 +1538,8 @@ export function EventReport() {
                 <h2 className="text-lg font-semibold text-foreground mb-3">
                   {t("About Event")}
                   <div className="w-full border-t border-border mt-2 opacity-50"></div>
-                </h2>{" "}                <div className="text-sm text-muted-foreground leading-relaxed">
+                </h2>{" "}
+                <div className="text-sm text-muted-foreground leading-relaxed">
                   {selectedEvent.description ||
                     t("No description available for this event.")}
                 </div>
@@ -1558,7 +1573,8 @@ export function EventReport() {
                             initializeMap(div, selectedEvent.location);
                           }
                         }}
-                      />                      {/* Loading state */}
+                      />{" "}
+                      {/* Loading state */}
                       <div className="map-loading flex w-full h-full items-center justify-center flex-col absolute inset-0 bg-muted/80">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-2"></div>
                         <div className="text-sm text-muted-foreground">
@@ -1596,7 +1612,8 @@ export function EventReport() {
                             `https://www.google.com/maps/search/?api=1&query=${query}`,
                             "_blank"
                           );
-                        }                      }}>
+                        }
+                      }}>
                       <MapPin className="mr-2 h-4 w-4" />
                       {t("Open in Google Maps")}
                     </Button>
