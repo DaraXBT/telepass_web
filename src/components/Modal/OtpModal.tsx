@@ -1,7 +1,12 @@
 "use client";
 import {Button} from "@/components/ui/button";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
-import {Input} from "@/components/ui/input";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSeparator,
+  InputOTPSlot,
+} from "@/components/ui/input-otp";
 import {useLanguage} from "@/components/providers/LanguageProvider";
 import {useState} from "react";
 
@@ -33,13 +38,25 @@ export default function OtpModal({
           <p className="mb-4 text-sm text-muted-foreground">
             {t("Enter the OTP sent to")}{" "}
             <span className="font-medium text-foreground">{email}</span>
-          </p>
-          <Input
-            className="mb-6"
-            value={otp}
-            onChange={(e) => setOtp(e.target.value)}
-            placeholder={t("Enter OTP")}
-          />
+          </p>{" "}
+          <div className="mb-6 flex justify-center">
+            <InputOTP
+              maxLength={6}
+              value={otp}
+              onChange={(value) => setOtp(value)}>
+              <InputOTPGroup>
+                <InputOTPSlot index={0} />
+                <InputOTPSlot index={1} />
+                <InputOTPSlot index={2} />
+              </InputOTPGroup>
+              <InputOTPSeparator />
+              <InputOTPGroup>
+                <InputOTPSlot index={3} />
+                <InputOTPSlot index={4} />
+                <InputOTPSlot index={5} />
+              </InputOTPGroup>
+            </InputOTP>
+          </div>
           <div className="flex gap-2">
             <Button
               className="flex-1"
