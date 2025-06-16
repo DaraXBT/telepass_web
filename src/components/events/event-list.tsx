@@ -1131,15 +1131,6 @@ function EventForm({event, onSubmit, onCancel}: EventFormProps) {
         <>
           <div className="flex items-center justify-between">
             <Label htmlFor="name">{t("Event Name")}</Label>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={generateAIContent}
-              className="flex items-center gap-2">
-              <Sparkles className="h-4 w-4" />
-              {t("Generate with AI")}
-            </Button>
           </div>
           <Input
             id="name"
