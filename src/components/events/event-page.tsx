@@ -29,6 +29,10 @@ interface Event {
   startDateTime: string;
   endDateTime: string;
   location: string;
+  isFree: boolean;
+  ticketPrice: number;
+  currency: string;
+  paymentRequired: boolean;
   eventRoles: EventRole[];
   registeredUsers: string[];
 }
@@ -165,11 +169,37 @@ export function EventPage() {
               {formatDateTime(event.startDateTime)} -{" "}
               {formatDateTime(event.endDateTime)}
             </span>
-          </div>
-          <div className="flex items-center space-x-2 text-sm">
+          </div>          <div className="flex items-center space-x-2 text-sm">
             <MapPin className="h-4 w-4" />
             <span>{event.location}</span>
           </div>          <div className="flex items-center space-x-2 text-sm">
+            <div className="p-1.5 bg-blue-100 dark:bg-blue-900 rounded">
+              💰
+            </div>
+            <span>
+              {event.isFree || event.ticketPrice === 0 ? (
+                <div className="flex items-center gap-2">
+                  <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100 px-3 py-1">
+                    <span className="mr-1">🎉</span>
+                    {t("Free Event")}
+                  </Badge>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <span className="font-medium text-lg">
+                    {event.currency === "USD" ? "$" : "៛"}{event.ticketPrice} {event.currency}
+                  </span>
+                  {event.paymentRequired && (
+                    <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-300 dark:bg-yellow-950 dark:text-yellow-300">
+                      <span className="mr-1">⚡</span>
+                      {t("Payment Required")}
+                    </Badge>
+                  )}
+                </div>
+              )}
+            </span>
+          </div>
+          <div className="flex items-center space-x-2 text-sm">
             <Users className="h-4 w-4" />
             <span>
               {event.registered} / {event.capacity} {t("attendees")}

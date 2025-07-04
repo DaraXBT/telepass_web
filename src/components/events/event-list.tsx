@@ -240,18 +240,20 @@ export const EventList: React.FC = () => {
                 `Failed to fetch roles for event ${event.id}:`,
                 error
               );
-            }
-
-            return {
+            }            return {
               ...event,
               status: event.status || "upcoming", // Default status
               category: event.category || "General", // Default category
               description: event.description || "", // Default description
               eventImg: event.eventImg || null, // Default image
-              registered: event.registered || 0, // Default registered count
+              registered: event.registered || 1, // Default registered count (minimum 1)
               capacity: event.capacity || 100, // Default capacity
               qrCodePath: event.qrCode,
               eventRoles: eventRoles,
+              isFree: event.isFree !== undefined ? Boolean(event.isFree) : true,
+              ticketPrice: Number(event.ticketPrice || 0),
+              currency: event.currency || "KHR",
+              paymentRequired: event.paymentRequired !== undefined ? Boolean(event.paymentRequired) : false,
             };
           })
         );
@@ -343,7 +345,7 @@ export const EventList: React.FC = () => {
           variant: "destructive",
         });
         return;
-      }
+      }      // Create event payload (service will handle cleaning)
       const eventPayload = {
         name: updatedEvent.name,
         description: updatedEvent.description,
@@ -362,6 +364,10 @@ export const EventList: React.FC = () => {
           role: role.role,
         })),
         registeredUsers: updatedEvent.registeredUsers || [],
+        isFree: updatedEvent.isFree,
+        ticketPrice: updatedEvent.ticketPrice,
+        currency: updatedEvent.currency,
+        paymentRequired: updatedEvent.paymentRequired,
       };
 
       await updateEvent(updatedEvent.id, eventPayload);
@@ -412,7 +418,7 @@ export const EventList: React.FC = () => {
           variant: "destructive",
         });
         return;
-      }
+      }      // Create event payload (service will handle cleaning)
       const eventPayload = {
         id: uuidv4(),
         name: newEvent.name,
@@ -421,7 +427,7 @@ export const EventList: React.FC = () => {
         category: newEvent.category,
         capacity: newEvent.capacity,
         registered: newEvent.registered,
-        qrCodePath: newEvent.qrCodePath,
+        qrCodePath: newEvent.qrCodePath || "",
         eventImg: newEvent.eventImg,
         adminId: adminResponse?.data?.id,
         startDateTime: newEvent.startDateTime,
@@ -432,20 +438,56 @@ export const EventList: React.FC = () => {
           role: role.role,
         })),
         registeredUsers: [],
+        isFree: newEvent.isFree,
+        ticketPrice: newEvent.ticketPrice,
+        currency: newEvent.currency,
+        paymentRequired: newEvent.paymentRequired,
       };
 
-      await addEvent(eventPayload);
+      console.log("Frontend event payload:", JSON.stringify(eventPayload, null, 2));await addEvent(eventPayload);
       toast({
         title: t("Event added"),
         description: `"${newEvent.name}" ${t("has been successfully added to the event list.")}`,
       });
       setIsEventFormOpen(false);
       // Refresh event list
-      await refreshEvents();
-    } catch (error) {
+      await refreshEvents();    } catch (error: any) {
+      console.error("=== FULL ERROR DETAILS ===");
+      console.error("Error object:", error);
+      console.error("Error message:", error.message);
+      console.error("Error stack:", error.stack);
+      
+      // Log detailed error information
+      if (error.response) {
+        console.error("=== BACKEND ERROR RESPONSE ===");
+        console.error("Status:", error.response.status);
+        console.error("Status Text:", error.response.statusText);
+        console.error("Headers:", error.response.headers);
+        console.error("Data:", error.response.data);
+        console.error("Raw response:", JSON.stringify(error.response.data, null, 2));
+      } else if (error.request) {
+        console.error("=== REQUEST ERROR ===");
+        console.error("Request was made but no response received:", error.request);
+      } else {
+        console.error("=== SETUP ERROR ===");
+        console.error("Error in request setup:", error.message);
+      }
+      
+      // Show specific error message if available
+      let errorMessage = t("Failed to add event");
+      if (error.response?.data?.message) {
+        errorMessage = `Backend Error: ${error.response.data.message}`;
+      } else if (error.response?.data?.error) {
+        errorMessage = `Backend Error: ${error.response.data.error}`;
+      } else if (error.response?.data) {
+        errorMessage = `Backend Error (${error.response.status}): ${JSON.stringify(error.response.data)}`;
+      } else if (error.message) {
+        errorMessage = `Error: ${error.message}`;
+      }
+      
       toast({
         title: t("Error"),
-        description: t("Failed to add event"),
+        description: errorMessage,
         variant: "destructive",
       });
     }
@@ -509,15 +551,14 @@ export const EventList: React.FC = () => {
             </SelectContent>
           </Select>
           <Button
-            onClick={() => {
-              setEditingEvent({
+            onClick={() => {              setEditingEvent({
                 id: "",
                 name: "",
                 description: "",
                 status: "upcoming",
                 category: "",
                 capacity: 0,
-                registered: 0,
+                registered: 1,
                 qrCodePath: "",
                 eventImg: "",
                 adminId: "",
@@ -526,6 +567,10 @@ export const EventList: React.FC = () => {
                 location: "",
                 eventRoles: [],
                 registeredUsers: [],
+                isFree: true,
+                ticketPrice: 0,
+                currency: "KHR",
+                paymentRequired: false,
               });
               setIsEventFormOpen(true);
             }}>
@@ -553,9 +598,11 @@ export const EventList: React.FC = () => {
                   </TableHead>
                   <TableHead className="w-[15%] min-w-[100px]">
                     {t("Category")}
-                  </TableHead>
-                  <TableHead className="w-[20%] min-w-[150px]">
+                  </TableHead>                  <TableHead className="w-[20%] min-w-[150px]">
                     {t("Capacity")}
+                  </TableHead>
+                  <TableHead className="w-[15%] min-w-[100px]">
+                    {t("Price")}
                   </TableHead>
                   <TableHead className="w-[15%] min-w-[100px]">
                     {t("Organizers")}
@@ -644,9 +691,37 @@ export const EventList: React.FC = () => {
                                   (event.capacity || 100)) *
                                   100
                               )
-                            : 0}{" "}
-                          % {t("Full")}
+                            : 0}{" "}                          % {t("Full")}
                         </span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-col space-y-1">
+                        {event.isFree || event.ticketPrice === 0 ? (
+                          <div className="flex items-center gap-2">
+                            <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100">
+                              <span className="mr-1">🎉</span>
+                              {t("Free")}
+                            </Badge>
+                          </div>
+                        ) : (
+                          <div className="text-sm">
+                            <div className="font-medium flex items-center gap-1">
+                              <span className="text-blue-600">
+                                {event.currency === "USD" ? "$" : "៛"}
+                              </span>
+                              <span>
+                                {event.ticketPrice} {event.currency}
+                              </span>
+                            </div>
+                            {event.paymentRequired && (
+                              <Badge variant="outline" className="text-xs mt-1 bg-yellow-50 text-yellow-700 border-yellow-300">
+                                <span className="mr-1">⚡</span>
+                                {t("Payment Required")}
+                              </Badge>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </TableCell>
                     <TableCell>
@@ -958,14 +1033,20 @@ function EventForm({event, onSubmit, onCancel}: EventFormProps) {
     accept: {"image/*": []},
     multiple: false,
   });
-
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >
   ) => {
-    const {name, value} = e.target;
-    setFormData((prev) => ({...prev, [name]: value}));
+    const {name, value, type} = e.target;
+    
+    // Handle checkbox inputs properly
+    let newValue: any = value;
+    if (type === 'checkbox') {
+      newValue = (e.target as HTMLInputElement).checked;
+    }
+    
+    setFormData((prev) => ({...prev, [name]: newValue}));
     setErrors((prev) => ({...prev, [name]: ""}));
   };
 
@@ -1000,19 +1081,23 @@ function EventForm({event, onSubmit, onCancel}: EventFormProps) {
         if (startDate && endDate && startDate >= endDate) {
           newErrors.endDateTime = t("End date must be after start date");
         }
-        break;
-      case 3:
+        break;      case 3:
         if (!formData.capacity) newErrors.capacity = t("Capacity is required");
         if (formData.capacity <= 0)
           newErrors.capacity = t("Capacity must be greater than 0");
         if (!formData.registered)
           newErrors.registered = t("Registered is required");
-        if (formData.registered < 0)
-          newErrors.registered = t("Registered cannot be negative");
+        if (formData.registered < 1)
+          newErrors.registered = t("Registered must be at least 1");
         if (formData.registered > formData.capacity)
           newErrors.registered = t("Registered cannot exceed capacity");
         if (selectedOrganizers.length === 0)
           newErrors.eventRoles = t("At least one user must be selected");
+        
+        // Pricing validation
+        if (!formData.isFree && formData.ticketPrice < 0)
+          newErrors.ticketPrice = t("Ticket price cannot be negative");
+        if (!formData.currency) newErrors.currency = t("Currency is required");
         break;
     }
     setErrors(newErrors);
@@ -1346,13 +1431,13 @@ function EventForm({event, onSubmit, onCancel}: EventFormProps) {
               {errors.capacity && (
                 <p className="text-red-500 text-sm mt-1">{errors.capacity}</p>
               )}
-            </div>
-            <div>
+            </div>            <div>
               <Label htmlFor="registered">{t("Registered")}</Label>
               <Input
                 id="registered"
                 name="registered"
                 type="number"
+                min="1"
                 value={formData.registered}
                 onChange={handleChange}
                 className="w-full"
@@ -1360,6 +1445,9 @@ function EventForm({event, onSubmit, onCancel}: EventFormProps) {
               {errors.registered && (
                 <p className="text-red-500 text-sm mt-1">{errors.registered}</p>
               )}
+              <p className="text-xs text-muted-foreground mt-1">
+                {t("Minimum 1 registered user required")}
+              </p>
             </div>
           </div>
           <div className="w-full">
@@ -1420,8 +1508,153 @@ function EventForm({event, onSubmit, onCancel}: EventFormProps) {
               <p className="text-red-500 text-sm mt-1">{errors.eventRoles}</p>
             )}
           </div>
+
+          {/* Pricing Section */}
+          <div className="space-y-4 p-4 border rounded-lg">
+            <div className="flex items-center gap-2">
+              <span className="text-lg">💰</span>
+              <h4 className="font-medium text-base">{t("Event Pricing")}</h4>
+            </div>
+            
+            {/* Free/Paid Toggle */}
+            <div className="grid grid-cols-2 gap-3">
+              <div 
+                className={`p-3 rounded border cursor-pointer transition-all ${
+                  formData.isFree 
+                    ? 'border-green-500 bg-green-50 dark:bg-green-900/20' 
+                    : 'border-gray-200 hover:border-gray-300'
+                }`}
+                onClick={() => {
+                  setFormData(prev => ({
+                    ...prev, 
+                    isFree: true,
+                    ticketPrice: 0,
+                    paymentRequired: false
+                  }));
+                }}
+              >
+                <div className="flex items-center gap-2">
+                  <div className={`w-3 h-3 rounded-full border-2 flex items-center justify-center ${
+                    formData.isFree ? 'border-green-500 bg-green-500' : 'border-gray-300'
+                  }`}>
+                    {formData.isFree && <div className="w-1.5 h-1.5 bg-white rounded-full"></div>}
+                  </div>
+                  <span className="font-medium text-sm">🎉 {t("Free Event")}</span>
+                </div>
+              </div>
+
+              <div 
+                className={`p-3 rounded border cursor-pointer transition-all ${
+                  !formData.isFree 
+                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
+                    : 'border-gray-200 hover:border-gray-300'
+                }`}
+                onClick={() => {
+                  setFormData(prev => ({
+                    ...prev, 
+                    isFree: false,
+                    ticketPrice: prev.ticketPrice || 5
+                  }));
+                }}
+              >
+                <div className="flex items-center gap-2">
+                  <div className={`w-3 h-3 rounded-full border-2 flex items-center justify-center ${
+                    !formData.isFree ? 'border-blue-500 bg-blue-500' : 'border-gray-300'
+                  }`}>
+                    {!formData.isFree && <div className="w-1.5 h-1.5 bg-white rounded-full"></div>}
+                  </div>
+                  <span className="font-medium text-sm">💳 {t("Paid Event")}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Paid Event Options */}
+            {!formData.isFree && (
+              <div className="space-y-3 p-3 border rounded">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label htmlFor="ticketPrice" className="flex items-center gap-1 text-sm">
+                      🎫 {t("Ticket Price")}
+                    </Label>
+                    <div className="relative mt-1">
+                      <Input
+                        id="ticketPrice"
+                        name="ticketPrice"
+                        type="number"
+                        min="0"
+                        step="0.25"
+                        value={formData.ticketPrice}
+                        onChange={handleChange}
+                        className="pl-8"
+                        placeholder="0.00"
+                      />
+                      <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+                        {formData.currency === "USD" ? "$" : "៛"}
+                      </span>
+                    </div>
+                    {errors.ticketPrice && (
+                      <p className="text-red-500 text-sm mt-1">{errors.ticketPrice}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <Label htmlFor="currency" className="flex items-center gap-1 text-sm">
+                      💱 {t("Currency")}
+                    </Label>
+                    <Select
+                      name="currency"
+                      value={formData.currency}
+                      onValueChange={(value) =>
+                        handleChange({target: {name: "currency", value}} as any)
+                      }>
+                      <SelectTrigger className="w-full mt-1">
+                        <SelectValue placeholder={t("Select currency")} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="USD">
+                          <div className="flex items-center gap-2">
+                            <span>🇺🇸</span>
+                            <span>USD</span>
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="KHR">
+                          <div className="flex items-center gap-2">
+                            <span>🇰🇭</span>
+                            <span>KHR</span>
+                          </div>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                {/* Price Preview */}
+                <div className="p-2 bg-gray-50 dark:bg-gray-800 rounded text-sm">
+                  <span className="text-gray-600 dark:text-gray-400">{t("Price")}: </span>
+                  <span className="font-medium">
+                    {formData.currency === "USD" ? "$" : "៛"}{formData.ticketPrice || 0} {formData.currency}
+                  </span>
+                </div>
+
+                {/* Payment Required Toggle */}
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="paymentRequired" className="text-sm">
+                    ⚡ {t("Payment Required")}
+                  </Label>
+                  <input
+                    type="checkbox"
+                    id="paymentRequired"
+                    name="paymentRequired"
+                    checked={formData.paymentRequired}
+                    onChange={handleChange}
+                    className="rounded"
+                  />
+                </div>
+              </div>
+            )}          </div>
         </>
       )}
+      
       <DialogFooter>
         {step > 1 && (
           <Button type="button" variant="outline" onClick={handleBack}>
@@ -1489,6 +1722,10 @@ interface Event {
   location: string;
   eventRoles: EventRole[];
   registeredUsers: string[];
+  isFree: boolean;
+  ticketPrice: number;
+  currency: string;
+  paymentRequired: boolean;
 }
 
 const categories = [

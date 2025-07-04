@@ -87,6 +87,10 @@ interface Event {
   startDateTime: string;
   endDateTime: string;
   location: string;
+  isFree: boolean;
+  ticketPrice: number;
+  currency: string;
+  paymentRequired: boolean;
   eventRoles: EventRole[];
   registeredUsers: string[];
 }
@@ -143,9 +147,10 @@ export function EventReport() {
           title: t("Error"),
           description: t("User session not found"),
           variant: "destructive",
-        });
-        return;
-      } // Get admin details by username
+        });        return;
+      }
+      
+      // Get admin details by username
       const adminResponse = await getAdminByUsername(session.user.username);
       if (!adminResponse.data?.id) {
         toast({
@@ -166,45 +171,47 @@ export function EventReport() {
 
       // Handle response based on the service structure
       const eventData = response?.data || response || [];
-      console.log("Extracted event data:", eventData);
-
-      if (Array.isArray(eventData) && eventData.length > 0) {
+      console.log("Extracted event data:", eventData);      if (Array.isArray(eventData) && eventData.length > 0) {
         // Map events to proper format
-        const mappedEvents = eventData.map((event: any): Event => {
+        const mappedEvents = eventData.map((eventFromApi: any): Event => {
           // Ensure required fields have defaults
           const mappedEvent: Event = {
-            id: event.id || event._id || `temp-${Date.now()}-${Math.random()}`,
-            name: event.title || event.name || "Untitled Event",
-            description: event.description || "",
-            location: event.location || "Location not specified",
+            id: eventFromApi.id || eventFromApi._id || `temp-${Date.now()}-${Math.random()}`,
+            name: eventFromApi.title || eventFromApi.name || "Untitled Event",
+            description: eventFromApi.description || "",
+            location: eventFromApi.location || "Location not specified",
             startDateTime:
-              event.startDate ||
-              event.startDateTime ||
-              event.date ||
+              eventFromApi.startDate ||
+              eventFromApi.startDateTime ||
+              eventFromApi.date ||
               new Date().toISOString(),
             endDateTime:
-              event.endDate ||
-              event.endDateTime ||
-              event.startDate ||
-              event.date ||
+              eventFromApi.endDate ||
+              eventFromApi.endDateTime ||
+              eventFromApi.startDate ||
+              eventFromApi.date ||
               new Date().toISOString(),
-            status: event.status || "upcoming",
-            category: event.category || "General",
-            eventImg: event.eventImg || event.image || "",
-            registered: Number(event.registered || event.registeredCount || 0),
-            capacity: Number(event.capacity || event.maxCapacity || 100),
-            qrCodePath: event.qrCode || event.qrCodePath || "",
-            eventRoles: Array.isArray(event.eventRoles)
-              ? event.eventRoles
-              : Array.isArray(event.organizers)
-                ? event.organizers
+            status: eventFromApi.status || "upcoming",
+            category: eventFromApi.category || "General",
+            eventImg: eventFromApi.eventImg || eventFromApi.image || "",
+            registered: Number(eventFromApi.registered || eventFromApi.registeredCount || 0),
+            capacity: Number(eventFromApi.capacity || eventFromApi.maxCapacity || 100),
+            qrCodePath: eventFromApi.qrCode || eventFromApi.qrCodePath || "",
+            isFree: eventFromApi.isFree !== undefined ? Boolean(eventFromApi.isFree) : true,
+            ticketPrice: Number(eventFromApi.ticketPrice || 0),
+            currency: eventFromApi.currency || "USD",
+            paymentRequired: eventFromApi.paymentRequired !== undefined ? Boolean(eventFromApi.paymentRequired) : false,
+            eventRoles: Array.isArray(eventFromApi.eventRoles)
+              ? eventFromApi.eventRoles
+              : Array.isArray(eventFromApi.organizers)
+                ? eventFromApi.organizers
                 : [],
-            registeredUsers: Array.isArray(event.registeredUsers)
-              ? event.registeredUsers
-              : Array.isArray(event.attendees)
-                ? event.attendees
+            registeredUsers: Array.isArray(eventFromApi.registeredUsers)
+              ? eventFromApi.registeredUsers
+              : Array.isArray(eventFromApi.attendees)
+                ? eventFromApi.attendees
                 : [],
-            adminId: event.adminId || adminResponse.data.id || "",
+            adminId: eventFromApi.adminId || adminResponse.data.id || "",
           };
 
           console.log("Mapped event:", mappedEvent);

@@ -98,10 +98,44 @@ export const fetchEventQrCode = async (eventId) => {
  */
 export const addEvent = async (event) => {
   try {
+    // Clean and validate the payload before sending
+    const cleanedEvent = {
+      name: String(event.name || "").trim(),
+      description: String(event.description || "").trim(),
+      status: String(event.status || "").trim(),
+      category: String(event.category || "").trim(),
+      capacity: parseInt(event.capacity) || 0,
+      registered: parseInt(event.registered) || 1,
+      qrCodePath: String(event.qrCodePath || ""),
+      eventImg: String(event.eventImg || ""),
+      adminId: String(event.adminId || ""),
+      startDateTime: event.startDateTime,
+      endDateTime: event.endDateTime,
+      location: String(event.location || "").trim(),
+      isFree: Boolean(event.isFree),
+      ticketPrice: event.isFree ? 0 : parseFloat(event.ticketPrice) || 0,
+      currency: String(event.currency || "KHR"),
+      // Fix: Convert "on" string to boolean
+      paymentRequired: event.paymentRequired === "on" || event.paymentRequired === true || event.paymentRequired === "true",
+      eventRoles: Array.isArray(event.eventRoles) ? event.eventRoles.map(role => ({
+        userId: String(role.userId),
+        role: String(role.role)
+      })) : [],
+      registeredUsers: Array.isArray(event.registeredUsers) ? event.registeredUsers : []
+    };
+
+    console.log("=== CLEANED EVENT PAYLOAD ===");
+    console.log(JSON.stringify(cleanedEvent, null, 2));
+
     // Add event to backend
-    const response = await ihttp.post(`/api/v1/events`, event);
+    const response = await ihttp.post(`/api/v1/events`, cleanedEvent);
     return response;
   } catch (error) {
+    console.error("=== ADD EVENT ERROR ===");
+    console.error("Error status:", error?.response?.status);
+    console.error("Error message:", error?.message);
+    console.error("Backend error data:", error?.response?.data);
+    console.error("Full error response:", error?.response);
     throw error;
   }
 };
@@ -111,10 +145,44 @@ export const addEvent = async (event) => {
  */
 export const updateEvent = async (eventId, eventData) => {
   try {
+    // Clean and validate the payload before sending
+    const cleanedEvent = {
+      name: String(eventData.name || "").trim(),
+      description: String(eventData.description || "").trim(),
+      status: String(eventData.status || "").trim(),
+      category: String(eventData.category || "").trim(),
+      capacity: parseInt(eventData.capacity) || 0,
+      registered: parseInt(eventData.registered) || 1,
+      qrCodePath: String(eventData.qrCodePath || ""),
+      eventImg: String(eventData.eventImg || ""),
+      adminId: String(eventData.adminId || ""),
+      startDateTime: eventData.startDateTime,
+      endDateTime: eventData.endDateTime,
+      location: String(eventData.location || "").trim(),
+      isFree: Boolean(eventData.isFree),
+      ticketPrice: eventData.isFree ? 0 : parseFloat(eventData.ticketPrice) || 0,
+      currency: String(eventData.currency || "KHR"),
+      // Fix: Convert "on" string to boolean
+      paymentRequired: eventData.paymentRequired === "on" || eventData.paymentRequired === true || eventData.paymentRequired === "true",
+      eventRoles: Array.isArray(eventData.eventRoles) ? eventData.eventRoles.map(role => ({
+        userId: String(role.userId),
+        role: String(role.role)
+      })) : [],
+      registeredUsers: Array.isArray(eventData.registeredUsers) ? eventData.registeredUsers : []
+    };
+
+    console.log("=== CLEANED UPDATE PAYLOAD ===");
+    console.log(JSON.stringify(cleanedEvent, null, 2));
+
     // Update event in backend
-    const response = await ihttp.put(`/api/v1/events/${eventId}`, eventData);
+    const response = await ihttp.put(`/api/v1/events/${eventId}`, cleanedEvent);
     return response;
   } catch (error) {
+    console.error("=== UPDATE EVENT ERROR ===");
+    console.error("Error status:", error?.response?.status);
+    console.error("Error message:", error?.message);
+    console.error("Backend error data:", error?.response?.data);
+    console.error("Full error response:", error?.response);
     throw error;
   }
 };
