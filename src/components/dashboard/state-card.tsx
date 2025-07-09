@@ -116,9 +116,9 @@ export default function StatsCards() {
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-      <StatsCard title="Total Events" value="42" icon={Calendar} />
-      <StatsCard title="Ongoing Events" value="7" icon={Clock} />
-      <StatsCard title="Finished Events" value="35" icon={CheckCircle} />
+      <StatsCard title="Total Events" value="10" icon={Calendar} />
+      <StatsCard title="Ongoing Events" value="5" icon={Clock} />
+      <StatsCard title="Finished Events" value="2" icon={CheckCircle} />
       <StatsCard title="Total Users" value="6" icon={Users} />
     </div>
   );

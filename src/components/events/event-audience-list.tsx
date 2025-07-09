@@ -279,7 +279,7 @@ export function EventAudienceList({eventId}: EventAudienceListProps) {
             <TableRow>
               <TableHead>{t("Name")}</TableHead>
               <TableHead>{t("Email")}</TableHead>
-              <TableHead>{t("Phone Number")}</TableHead>{" "}
+              <TableHead>{t("Phone Number")}</TableHead>
               <TableHead>{t("Occupation")}</TableHead>
               <TableHead>{t("Gender")}</TableHead>
               <TableHead>{t("Status")}</TableHead>

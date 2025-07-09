@@ -87,11 +87,11 @@ export function AppSidebar({...props}: React.ComponentProps<typeof Sidebar>) {
         icon: CalendarDays,
         isActive: true,
       },
-      {
-        name: t("User List"),
-        url: "/user",
-        icon: Bot,
-      },
+      // {
+      //   name: t("User List"),
+      //   url: "/user",
+      //   icon: Bot,
+      // },
     ],
     projects: [
       {

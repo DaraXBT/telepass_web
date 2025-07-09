@@ -1881,7 +1881,7 @@ export function EventReport() {
                       </TableHead>
                       <TableHead className="font-semibold">
                         {t("Location")}
-                      </TableHead>{" "}
+                      </TableHead>
                       <TableHead className="font-semibold">
                         {t("End Date")}
                       </TableHead>

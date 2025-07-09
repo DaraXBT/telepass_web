@@ -17,9 +17,9 @@ export function StatusDistributionChart() {
   // Color palette using theme CSS variables for consistent light/dark mode support
   const data = React.useMemo(
     () => [
-      {name: t("Upcoming"), value: 15, color: "hsl(var(--chart-1))"}, // Theme blue - from your design system
-      {name: t("Ongoing"), value: 7, color: "hsl(var(--chart-2))"}, // Theme green - from your design system
-      {name: t("Finished"), value: 35, color: "hsl(var(--chart-3))"}, // Theme orange - from your design system
+      {name: t("Upcoming"), value: 3, color: "hsl(var(--chart-1))"}, // Theme blue - from your design system
+      {name: t("Ongoing"), value: 5, color: "hsl(var(--chart-2))"}, // Theme green - from your design system
+      {name: t("Finished"), value: 2, color: "hsl(var(--chart-3))"}, // Theme orange - from your design system
     ],
     [language, t]
   );
